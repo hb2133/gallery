@@ -1,0 +1,1266 @@
+.Header {
+    align-items: center;
+    background: rgb(247 247 245 / 88%);
+    border-bottom: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    height: 72px;
+    left: 0;
+    padding: 0 var(--page-gutter);
+    position: sticky;
+    right: 0;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: blur(16px);
+}
+
+.Brand {
+    align-items: center;
+    display: inline-flex;
+    font-size: 14px;
+    font-weight: 620;
+    gap: 10px;
+    justify-self: start;
+    letter-spacing: -0.02em;
+}
+
+.BrandMark {
+    align-items: center;
+    background: var(--ink);
+    color: var(--surface);
+    display: inline-flex;
+    font-size: 11px;
+    height: 24px;
+    justify-content: center;
+    width: 24px;
+}
+
+.PrimaryNav {
+    align-items: center;
+    display: flex;
+    font-size: 13px;
+    gap: 30px;
+}
+
+.PrimaryNav a {
+    color: var(--muted);
+    transition: color 180ms ease;
+}
+
+.PrimaryNav a:hover {
+    color: var(--ink);
+}
+
+.DarkButton,
+.LightButton {
+    align-items: center;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    font-size: 12px;
+    font-weight: 600;
+    gap: 10px;
+    justify-content: center;
+    transition:
+        background 180ms ease,
+        color 180ms ease,
+        transform 180ms ease;
+}
+
+.DarkButton {
+    background: var(--ink);
+    color: var(--surface);
+    justify-self: end;
+    min-height: 38px;
+    padding: 0 16px;
+}
+
+.DarkButton:hover,
+.LightButton:hover {
+    transform: translateY(-2px);
+}
+
+.Hero {
+    min-height: calc(100svh - 72px);
+    overflow: hidden;
+    padding: 0 var(--page-gutter);
+    position: relative;
+}
+
+.Hero::before,
+.Hero::after {
+    display: none;
+}
+
+.Hero::before {
+    height: 1px;
+    left: 0;
+    right: 0;
+    top: 50%;
+}
+
+.Hero::after {
+    bottom: 0;
+    left: 50%;
+    top: 0;
+    width: 1px;
+}
+
+.HeroIntro {
+    left: var(--page-gutter);
+    position: absolute;
+    top: clamp(48px, 8vh, 88px);
+    z-index: 2;
+}
+
+.Eyebrow {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 620;
+    letter-spacing: 0.12em;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.HeroIntro h1 {
+    font-size: clamp(40px, 4.4vw, 70px);
+    font-weight: 480;
+    letter-spacing: -0.065em;
+    line-height: 0.92;
+    margin: 20px 0 0;
+}
+
+.HeroStage {
+    display: grid;
+    grid-template-columns: minmax(160px, 1fr) minmax(280px, 340px) minmax(160px, 1fr);
+    grid-template-rows: 84px minmax(360px, 48vh) 84px;
+    margin: 0 auto;
+    max-width: 1050px;
+    min-height: 600px;
+    position: relative;
+    z-index: 3;
+}
+
+.DirectionButton {
+    align-items: center;
+    align-self: center;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 12px;
+    gap: 9px;
+    justify-self: center;
+    letter-spacing: -0.01em;
+    padding: 12px;
+    position: relative;
+}
+
+.DirectionButton span {
+    color: var(--soft);
+    transition:
+        color 200ms ease,
+        transform 260ms var(--ease-out);
+}
+
+.DirectionButton small {
+    color: var(--soft);
+    font-size: 8px;
+    opacity: 0;
+    transition: opacity 180ms ease;
+}
+
+.DirectionButton::after {
+    background: var(--ink);
+    bottom: 5px;
+    content: "";
+    height: 1px;
+    left: 12px;
+    position: absolute;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 240ms var(--ease-out);
+    width: calc(100% - 24px);
+}
+
+.DirectionButton:hover span,
+.DirectionActive span {
+    color: var(--ink);
+    transform: translateY(-2px);
+}
+
+.DirectionButton:hover small,
+.DirectionActive small {
+    opacity: 1;
+}
+
+.DirectionButton:hover::after,
+.DirectionActive::after {
+    transform: scaleX(1);
+}
+
+.DirectionTop {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.DirectionRight {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+.DirectionBottom {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+.DirectionLeft {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.HeroArtwork {
+    align-self: stretch;
+    background: var(--ink);
+    border: 0;
+    box-shadow: 0 24px 60px rgb(0 0 0 / 15%);
+    cursor: zoom-in;
+    grid-column: 2;
+    grid-row: 2;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+}
+
+.HeroArtwork img {
+    object-fit: cover;
+    transition:
+        opacity 300ms ease,
+        transform 800ms var(--ease-out);
+    animation: ImageReveal 480ms var(--ease-out);
+}
+
+.HeroArtwork:hover img {
+    transform: scale(1.025);
+}
+
+.ArtworkView {
+    align-items: center;
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    bottom: 12px;
+    display: flex;
+    font-size: 10px;
+    font-weight: 600;
+    gap: 16px;
+    min-height: 34px;
+    opacity: 0;
+    padding: 0 12px;
+    position: absolute;
+    right: 12px;
+    transform: translateY(8px);
+    transition:
+        opacity 180ms ease,
+        transform 220ms var(--ease-out);
+    z-index: 2;
+}
+
+.HeroArtwork:hover .ArtworkView,
+.HeroArtwork:focus-visible .ArtworkView {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.HeroMeta {
+    align-items: end;
+    bottom: 28px;
+    display: grid;
+    gap: 34px;
+    grid-template-columns: auto auto 1fr;
+    left: var(--page-gutter);
+    position: absolute;
+    right: var(--page-gutter);
+    z-index: 2;
+}
+
+.HeroMeta div {
+    display: grid;
+    gap: 5px;
+}
+
+.HeroMeta span {
+    color: var(--soft);
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.HeroMeta strong {
+    font-size: 11px;
+    font-weight: 520;
+}
+
+.HeroMeta > p {
+    color: var(--soft);
+    font-size: 9px;
+    justify-self: end;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.BoxExperience {
+    align-items: center;
+    display: grid;
+    grid-template-columns: minmax(190px, 0.55fr) minmax(620px, 1.9fr) minmax(190px, 0.55fr);
+    min-height: calc(100svh - 72px);
+    position: relative;
+}
+
+.BoxHeading {
+    align-self: start;
+    padding-top: clamp(60px, 10vh, 110px);
+    z-index: 2;
+}
+
+.BoxHeading > p:last-child {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.55;
+    margin: 18px 0 0;
+}
+
+.BoxStage {
+    --box-gap: 4px;
+    --box-size: clamp(112px, 9.3vw, 150px);
+    --box-step: calc(var(--box-size) + var(--box-gap));
+    height: calc(var(--box-step) * 5);
+    justify-self: center;
+    position: relative;
+    width: calc(var(--box-step) * 5);
+}
+
+.BoxTile {
+    align-items: center;
+    background: #050505;
+    border: 0;
+    color: var(--surface);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    height: var(--box-size);
+    justify-content: center;
+    left: 50%;
+    margin-left: calc(var(--box-size) / -2);
+    margin-top: calc(var(--box-size) / -2);
+    overflow: hidden;
+    padding: 14px;
+    position: absolute;
+    top: 50%;
+    transition:
+        background-color 220ms ease,
+        color 220ms ease,
+        box-shadow 220ms ease,
+        scale 240ms var(--ease-out),
+        transform 480ms cubic-bezier(.22, .8, .2, 1);
+    width: var(--box-size);
+}
+
+.BoxTile::after {
+    border: 1px solid rgb(255 255 255 / 16%);
+    content: "";
+    inset: 8px;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transform: scale(0.95);
+    transition:
+        opacity 200ms ease,
+        transform 260ms var(--ease-out);
+}
+
+.BoxTile:focus-visible::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.BoxStage:not([data-state='idle']) .BoxCenter:hover {
+    box-shadow: 0 18px 38px rgb(0 0 0 / 18%);
+    scale: 1.045;
+}
+
+.BoxTile small {
+    bottom: 12px;
+    color: #8a8a86;
+    font-size: 8px;
+    letter-spacing: 0.06em;
+    position: absolute;
+    right: 12px;
+    text-transform: uppercase;
+    transition: opacity 180ms ease;
+}
+
+.BoxCenter {
+    box-shadow: 0 20px 55px rgb(0 0 0 / 16%);
+    transform: translate(0, 0);
+    z-index: 5;
+}
+
+.BoxTile:not(.BoxCenter) {
+    pointer-events: none;
+    z-index: 3;
+}
+
+.BoxStage:not([data-state='idle']) .BoxTile:not(.BoxCenter) {
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.BoxStage:not([data-state='idle']) .BoxTile:not(.BoxCenter):hover {
+    background: #1b1b1b;
+    box-shadow: 0 18px 38px rgb(0 0 0 / 18%);
+    scale: 1.035;
+}
+
+.BoxDestination {
+    color: var(--surface);
+    font-size: 10px;
+    font-weight: 560;
+    letter-spacing: -0.01em;
+    opacity: 0;
+    transition: opacity 160ms ease;
+}
+
+.BoxTile:hover .BoxDestination,
+.BoxTile:focus-visible .BoxDestination {
+    opacity: 1;
+}
+
+.BoxStage[data-state='idle'] .BoxCenter {
+    cursor: default;
+}
+
+.BoxStage[data-state='idle'] .BoxTile:not(.BoxCenter) {
+    background: transparent;
+    box-shadow: none;
+    color: var(--soft);
+}
+
+.BoxStage[data-state='idle'] .BoxCenter:hover {
+    background: #050505;
+    box-shadow: 0 20px 55px rgb(0 0 0 / 16%);
+    color: var(--surface);
+}
+
+.BoxStage[data-state='idle'] .BoxCenter:hover::after {
+    opacity: 0;
+}
+
+.WordButton {
+    background: transparent;
+    border: 0;
+    color: var(--soft);
+    cursor: pointer;
+    font-size: clamp(24px, 2.4vw, 38px);
+    font-weight: 540;
+    height: var(--box-size);
+    left: 50%;
+    letter-spacing: -0.06em;
+    margin-left: calc(var(--box-size) / -2);
+    margin-top: calc(var(--box-size) / -2);
+    opacity: 1;
+    padding: 0;
+    position: absolute;
+    top: 50%;
+    transition:
+        color 180ms ease,
+        opacity 420ms ease,
+        scale 240ms var(--ease-out);
+    width: var(--box-size);
+    z-index: 2;
+}
+
+.WordButton:hover {
+    color: var(--ink);
+    scale: 1.045;
+}
+
+.WordButton:disabled {
+    opacity: 0;
+    pointer-events: none;
+    transition-duration: 180ms, 90ms, 240ms;
+}
+
+.WordTop {
+    transform: translate(0, calc(var(--box-step) * -1));
+}
+
+.WordRight {
+    transform: translate(var(--box-step), 0);
+}
+
+.WordBottom {
+    transform: translate(0, var(--box-step));
+}
+
+.WordLeft {
+    transform: translate(calc(var(--box-step) * -1), 0);
+}
+
+.CenterWord {
+    font-size: clamp(28px, 3vw, 48px);
+    font-weight: 520;
+    letter-spacing: -0.065em;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.BoxTop {
+    transform: translate(0, calc(var(--box-step) * -1));
+}
+
+.BoxRight {
+    transform: translate(var(--box-step), 0);
+}
+
+.BoxBottom {
+    transform: translate(0, var(--box-step));
+}
+
+.BoxLeft {
+    transform: translate(calc(var(--box-step) * -1), 0);
+}
+
+.BoxStage[data-state='portraits'] .BoxTop {
+    transform: translate(
+        calc(var(--box-step) * -1),
+        calc(var(--box-step) * -1)
+    );
+}
+
+.BoxStage[data-state='architecture'] .BoxTop {
+    transform: translate(0, calc(var(--box-step) * -2));
+}
+
+.BoxStage[data-state='architecture'] .BoxRight {
+    transform: translate(var(--box-step), calc(var(--box-step) * -1));
+}
+
+.BoxStage[data-state='architecture'] .BoxBottom {
+    transform: translate(0, calc(var(--box-step) * -1));
+}
+
+.BoxStage[data-state='architecture'] .BoxLeft {
+    transform: translate(calc(var(--box-step) * -1), calc(var(--box-step) * -1));
+}
+
+.BoxStage[data-state='portraits'] .BoxRight {
+    transform: translate(var(--box-step), calc(var(--box-step) * -1));
+}
+
+.BoxStage[data-state='portraits'] .BoxBottom {
+    transform: translate(var(--box-step), var(--box-step));
+}
+
+.BoxStage[data-state='portraits'] .BoxLeft {
+    transform: translate(calc(var(--box-step) * -1), var(--box-step));
+}
+
+.BoxStage[data-state='journeys'] .BoxTop {
+    transform: translate(0, calc(var(--box-step) * -2));
+}
+
+.BoxStage[data-state='journeys'] .BoxRight {
+    transform: translate(var(--box-step), 0);
+}
+
+.BoxStage[data-state='journeys'] .BoxBottom {
+    transform: translate(0, calc(var(--box-step) * -1));
+}
+
+.BoxStage[data-state='journeys'] .BoxLeft {
+    transform: translate(calc(var(--box-step) * -1), 0);
+}
+
+.BoxStage[data-state='journal'] .BoxTop {
+    transform: translate(calc(var(--box-step) * -2), 0);
+}
+
+.BoxStage[data-state='journal'] .BoxLeft {
+    transform: translate(calc(var(--box-step) * -1), 0);
+}
+
+.BoxStage[data-state='journal'] .BoxRight {
+    transform: translate(var(--box-step), 0);
+}
+
+.BoxStage[data-state='journal'] .BoxBottom {
+    transform: translate(calc(var(--box-step) * 2), 0);
+}
+
+.BoxStatus {
+    align-self: end;
+    border-top: 1px solid var(--line);
+    margin-bottom: clamp(40px, 7vh, 75px);
+    padding-top: 13px;
+    z-index: 2;
+}
+
+.BoxStatus span {
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.BoxStatus p {
+    color: var(--soft);
+    font-size: 9px;
+    line-height: 1.5;
+    margin: 6px 0 0;
+}
+
+.Gallery {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    padding: clamp(100px, 13vw, 190px) var(--page-gutter);
+    scroll-margin-top: 70px;
+}
+
+.SectionLead {
+    display: grid;
+    grid-template-columns: minmax(130px, 0.6fr) minmax(340px, 1.35fr) minmax(240px, 0.7fr);
+    margin-bottom: 96px;
+}
+
+.SectionLead h2 {
+    font-size: clamp(45px, 5.8vw, 92px);
+    font-weight: 440;
+    grid-column: 2;
+    letter-spacing: -0.075em;
+    line-height: 0.92;
+    margin: 0;
+}
+
+.LeadCopy {
+    align-self: end;
+    color: var(--muted);
+    font-size: 12px;
+    grid-column: 3;
+    line-height: 1.7;
+    margin: 0 0 4px clamp(30px, 5vw, 90px);
+    max-width: 280px;
+}
+
+.FilterBar {
+    border-bottom: 1px solid var(--line);
+    border-top: 1px solid var(--line);
+    display: flex;
+    margin-bottom: 48px;
+    overflow-x: auto;
+}
+
+.FilterBar button {
+    background: transparent;
+    border: 0;
+    border-right: 1px solid var(--line);
+    color: var(--muted);
+    cursor: pointer;
+    flex: 1 0 auto;
+    font-size: 11px;
+    min-height: 52px;
+    min-width: 125px;
+    padding: 0 20px;
+    transition:
+        background 180ms ease,
+        color 180ms ease;
+}
+
+.FilterBar button span {
+    color: var(--soft);
+    font-size: 8px;
+    margin-left: 5px;
+    vertical-align: top;
+}
+
+.FilterBar button:hover,
+.FilterBar .FilterActive {
+    background: var(--ink);
+    color: var(--surface);
+}
+
+.ProjectGrid {
+    display: grid;
+    gap: clamp(28px, 4vw, 70px) clamp(16px, 2.4vw, 40px);
+    grid-template-columns: repeat(12, 1fr);
+}
+
+.ProjectCard {
+    grid-column: span 4;
+}
+
+.ProjectCard:nth-child(4n + 2) {
+    margin-top: clamp(70px, 9vw, 140px);
+}
+
+.ProjectLandscape {
+    grid-column: span 8;
+}
+
+.ProjectImage {
+    aspect-ratio: 3 / 4;
+    background: #e8e8e4;
+    border: 0;
+    cursor: zoom-in;
+    display: block;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    width: 100%;
+}
+
+.ProjectLandscape .ProjectImage {
+    aspect-ratio: 16 / 10;
+}
+
+.ProjectImage img {
+    object-fit: cover;
+    transition:
+        filter 350ms ease,
+        transform 800ms var(--ease-out);
+}
+
+.ProjectImage:hover img {
+    filter: saturate(0.82);
+    transform: scale(1.025);
+}
+
+.ProjectNumber,
+.ProjectOpen {
+    background: var(--surface);
+    font-size: 9px;
+    position: absolute;
+    z-index: 2;
+}
+
+.ProjectNumber {
+    left: 10px;
+    padding: 7px 8px;
+    top: 10px;
+}
+
+.ProjectOpen {
+    align-items: center;
+    bottom: 10px;
+    display: flex;
+    height: 30px;
+    justify-content: center;
+    opacity: 0;
+    right: 10px;
+    transform: translateY(7px);
+    transition:
+        opacity 180ms ease,
+        transform 220ms var(--ease-out);
+    width: 30px;
+}
+
+.ProjectImage:hover .ProjectOpen,
+.ProjectImage:focus-visible .ProjectOpen {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.ProjectCaption {
+    border-top: 1px solid var(--ink);
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr auto;
+    margin-top: 12px;
+    padding-top: 11px;
+}
+
+.ProjectCaption > div:last-child {
+    text-align: right;
+}
+
+.ProjectCaption p {
+    font-size: 11px;
+    margin: 0 0 5px;
+}
+
+.ProjectCaption span {
+    color: var(--soft);
+    font-size: 9px;
+}
+
+.Journal {
+    display: grid;
+    gap: clamp(60px, 9vw, 150px);
+    grid-template-columns: minmax(240px, 0.75fr) minmax(400px, 1.25fr);
+    padding: clamp(90px, 12vw, 170px) var(--page-gutter);
+    scroll-margin-top: 70px;
+}
+
+.JournalHeading {
+    align-self: start;
+    position: sticky;
+    top: 130px;
+}
+
+.JournalHeading h2 {
+    font-size: clamp(60px, 8vw, 126px);
+    font-weight: 440;
+    letter-spacing: -0.08em;
+    line-height: 0.85;
+    margin: 28px 0 42px;
+}
+
+.JournalHeading > p:last-child {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+.JournalList {
+    border-top: 1px solid var(--ink);
+}
+
+.JournalEntry {
+    align-items: start;
+    border-bottom: 1px solid var(--line);
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 32px 1fr auto;
+    min-height: 190px;
+    padding: 25px 0;
+    transition: padding 240ms var(--ease-out);
+}
+
+.JournalEntry:hover {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.JournalIndex,
+.JournalEntry time,
+.ReadTime {
+    color: var(--soft);
+    font-size: 9px;
+    text-transform: uppercase;
+}
+
+.JournalEntry h3 {
+    font-size: clamp(22px, 2.2vw, 34px);
+    font-weight: 480;
+    letter-spacing: -0.045em;
+    margin: 20px 0 12px;
+}
+
+.JournalEntry p {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.65;
+    margin: 0;
+    max-width: 460px;
+}
+
+.ReadTime {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+.ReadTime b {
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.Footer {
+    background: var(--ink);
+    color: var(--surface);
+    min-height: 78vh;
+    padding: clamp(80px, 12vw, 170px) var(--page-gutter) 35px;
+}
+
+.FooterLead {
+    align-items: start;
+    display: grid;
+    grid-template-columns: minmax(150px, 0.5fr) minmax(420px, 1.4fr) auto;
+}
+
+.FooterLead .Eyebrow {
+    color: #8a8a86;
+}
+
+.FooterLead h2 {
+    font-size: clamp(48px, 7.4vw, 118px);
+    font-weight: 420;
+    grid-column: 2;
+    letter-spacing: -0.075em;
+    line-height: 0.9;
+    margin: 0;
+}
+
+.LightButton {
+    align-self: end;
+    background: var(--surface);
+    color: var(--ink);
+    min-height: 44px;
+    padding: 0 17px;
+}
+
+.FooterBottom {
+    align-items: center;
+    border-top: 1px solid #363634;
+    display: grid;
+    font-size: 10px;
+    grid-template-columns: 1fr auto 1fr;
+    margin-top: clamp(140px, 18vw, 260px);
+    padding-top: 24px;
+}
+
+.FooterBottom p {
+    color: #777774;
+    margin: 0;
+}
+
+.FooterBottom nav {
+    display: flex;
+    gap: 25px;
+}
+
+.FooterBottom > a {
+    justify-self: end;
+}
+
+@keyframes ImageReveal {
+    from {
+        opacity: 0.45;
+        transform: scale(1.03);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 1020px) {
+    .HeroIntro {
+        top: 45px;
+    }
+
+    .HeroStage {
+        grid-template-columns: minmax(120px, 1fr) minmax(260px, 320px) minmax(120px, 1fr);
+        margin-top: 30px;
+    }
+
+    .SectionLead {
+        grid-template-columns: 1fr 2fr;
+    }
+
+    .SectionLead h2 {
+        grid-column: 2;
+    }
+
+    .LeadCopy {
+        grid-column: 2;
+        margin: 38px 0 0;
+    }
+
+    .ProjectCard,
+    .ProjectLandscape {
+        grid-column: span 6;
+    }
+
+    .ProjectLandscape .ProjectImage {
+        aspect-ratio: 3 / 4;
+    }
+
+    .FooterLead {
+        grid-template-columns: 1fr 3fr;
+    }
+
+    .FooterLead h2 {
+        grid-column: 2;
+    }
+
+    .FooterLead .LightButton {
+        grid-column: 2;
+        justify-self: start;
+        margin-top: 55px;
+    }
+
+    .BoxExperience {
+        grid-template-columns: minmax(130px, 0.35fr) minmax(570px, 1.65fr);
+    }
+
+    .BoxStatus {
+        bottom: 0;
+        position: absolute;
+        right: 0;
+        width: 170px;
+    }
+}
+
+@media (max-width: 720px) {
+    .Header {
+        grid-template-columns: 1fr auto;
+        height: 64px;
+    }
+
+    .PrimaryNav {
+        display: none;
+    }
+
+    .DarkButton {
+        min-height: 34px;
+        padding: 0 12px;
+    }
+
+    .Hero {
+        min-height: auto;
+        padding-bottom: 24px;
+        padding-top: 0;
+    }
+
+    .Hero::before,
+    .Hero::after {
+        display: none;
+    }
+
+    .HeroIntro {
+        position: static;
+    }
+
+    .HeroIntro h1 {
+        font-size: clamp(43px, 13vw, 62px);
+        margin-top: 15px;
+    }
+
+    .HeroStage {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto auto;
+        gap: 8px;
+        margin-top: 45px;
+        min-height: 0;
+    }
+
+    .HeroArtwork {
+        aspect-ratio: 4 / 5;
+        grid-column: 1 / -1;
+        grid-row: 1;
+        margin-bottom: 12px;
+    }
+
+    .DirectionButton {
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        grid-column: auto;
+        grid-row: auto;
+        justify-content: space-between;
+        min-height: 48px;
+        padding: 0 13px;
+        width: 100%;
+    }
+
+    .DirectionButton::after {
+        display: none;
+    }
+
+    .DirectionButton span {
+        color: var(--muted);
+    }
+
+    .DirectionButton small {
+        opacity: 1;
+    }
+
+    .DirectionActive {
+        background: var(--ink);
+    }
+
+    .DirectionActive span,
+    .DirectionActive small {
+        color: var(--surface);
+        transform: none;
+    }
+
+    .ArtworkView {
+        opacity: 1;
+        transform: none;
+    }
+
+    .HeroMeta {
+        border-top: 1px solid var(--line);
+        gap: 20px;
+        grid-template-columns: 1fr 1fr;
+        margin-top: 32px;
+        padding-top: 18px;
+        position: static;
+    }
+
+    .HeroMeta > p {
+        display: none;
+    }
+
+    .SectionLead {
+        display: block;
+        margin-bottom: 62px;
+    }
+
+    .SectionLead h2 {
+        font-size: clamp(44px, 13vw, 66px);
+        margin-top: 20px;
+    }
+
+    .LeadCopy {
+        margin-top: 30px;
+    }
+
+    .FilterBar {
+        margin-left: calc(var(--page-gutter) * -1);
+        margin-right: calc(var(--page-gutter) * -1);
+    }
+
+    .ProjectGrid {
+        display: block;
+    }
+
+    .ProjectCard,
+    .ProjectCard:nth-child(4n + 2) {
+        margin: 0 0 52px;
+    }
+
+    .ProjectLandscape .ProjectImage {
+        aspect-ratio: 4 / 3;
+    }
+
+    .ProjectOpen {
+        opacity: 1;
+        transform: none;
+    }
+
+    .Journal {
+        display: block;
+    }
+
+    .JournalHeading {
+        margin-bottom: 70px;
+        position: static;
+    }
+
+    .JournalHeading h2 {
+        margin-bottom: 30px;
+    }
+
+    .JournalEntry {
+        grid-template-columns: 28px 1fr;
+        min-height: 220px;
+    }
+
+    .ReadTime {
+        grid-column: 2;
+    }
+
+    .Footer {
+        min-height: 85vh;
+    }
+
+    .FooterLead {
+        display: block;
+    }
+
+    .FooterLead h2 {
+        font-size: clamp(48px, 14vw, 72px);
+        margin-top: 25px;
+    }
+
+    .FooterLead .LightButton {
+        margin-top: 55px;
+    }
+
+    .FooterBottom {
+        align-items: start;
+        gap: 30px;
+        grid-template-columns: 1fr auto;
+        margin-top: 140px;
+    }
+
+    .FooterBottom nav {
+        display: grid;
+        gap: 10px;
+        text-align: right;
+    }
+
+    .FooterBottom > a {
+        grid-column: 1 / -1;
+        justify-self: start;
+    }
+
+    .BoxExperience {
+        display: block;
+        min-height: calc(100svh - 64px);
+        padding-top: 34px;
+    }
+
+    .BoxHeading {
+        padding-top: 0;
+    }
+
+    .BoxHeading > p:last-child {
+        display: none;
+    }
+
+    .BoxStage {
+        --box-gap: 3px;
+        --box-size: calc((100vw - 52px) / 5);
+        height: calc(var(--box-step) * 5);
+        margin: 18px auto 0;
+        width: 100%;
+    }
+
+    .BoxTile {
+        padding: 6px;
+    }
+
+    .BoxTile::after {
+        inset: 5px;
+    }
+
+    .WordButton {
+        font-size: clamp(18px, 5.8vw, 24px);
+    }
+
+    .CenterWord {
+        font-size: clamp(20px, 6vw, 26px);
+    }
+
+    .BoxTile small {
+        bottom: 7px;
+        font-size: 6px;
+        right: 7px;
+    }
+
+    .BoxStatus {
+        margin: 0;
+        position: static;
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .HeroArtwork img,
+    .ProjectImage img,
+    .JournalEntry,
+    .DarkButton,
+    .LightButton {
+        animation: none;
+        transition: none;
+    }
+
+    .BoxTile,
+    .WordButton {
+        transition: none;
+    }
+}

@@ -19,3 +19,8 @@ DisplayName: 표시 이름
 Aliases: alias-a, alias-b
 Description: 이 태그가 담당하는 작업 영역
 ```
+
+## gallery
+DisplayName: 갤러리
+Aliases: portfolio, photography
+Description: 사진 포트폴리오와 갤러리 화면 및 사용자 경험 작업

@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Archive Gallery
 
-## Getting Started
+`Reference_1`의 방향형 탐색 구조와 Vercel 스타일의 미니멀 UI를 결합한
+반응형 사진 포트폴리오다. Instagram, 블로그, 개인 갤러리의 허브로 사용할 수
+있도록 구성했다.
 
-First, run the development server:
+## 실행
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+브라우저에서 `http://localhost:3000`을 연다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 페이지
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 메인 인터랙션: `/`
+- 작품 갤러리: `/gallery`
+- 커뮤니티 포스트: `/community`
 
-## Learn More
+## 검증
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run lint
+npm run build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 콘텐츠 수정
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- 작품 데이터: `src/panels/base/GalleryBasePanel/controller/GalleryBasePanelState.ts`
+- 정적 사진: `public/images/`
+- 저널 목록: `src/panels/base/GalleryBasePanel/sections/JournalSection/JournalSection.tsx`
+- Instagram 및 이메일 링크: Header, Journal, Footer Section
+- 전역 디자인 토큰: `src/design/GlobalDesign.global.tsx`
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+현재 포함된 사진은 데모용 Unsplash 자산이며, 실제 운영 전 작품 사진과
+Instagram 주소, 이메일 주소를 교체한다.

@@ -1,0 +1,202 @@
+.Page {
+    background: #f5f5f3;
+    min-height: 100vh;
+}
+
+.Header {
+    align-items: center;
+    background: rgb(255 255 255 / 90%);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    height: 68px;
+    justify-content: space-between;
+    padding: 0 var(--page-gutter);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: blur(14px);
+}
+
+.Brand {
+    align-items: center;
+    display: flex;
+    font-size: 13px;
+    font-weight: 600;
+    gap: 9px;
+}
+
+.Brand span {
+    align-items: center;
+    background: var(--ink);
+    color: white;
+    display: flex;
+    height: 23px;
+    justify-content: center;
+    width: 23px;
+}
+
+.BackLink {
+    background: var(--ink);
+    border-radius: 6px;
+    color: white;
+    font-size: 10px;
+    padding: 11px 13px;
+}
+
+.IndexSection {
+    margin: 0 auto;
+    max-width: 1480px;
+    padding: clamp(70px, 8vw, 120px) var(--page-gutter) 120px;
+}
+
+.Heading {
+    align-items: end;
+    display: grid;
+    grid-template-columns: 1fr auto;
+}
+
+.Heading > p {
+    color: var(--muted);
+    font-size: 9px;
+    grid-column: 1 / -1;
+    letter-spacing: 0.1em;
+    margin: 0 0 25px;
+    text-transform: uppercase;
+}
+
+.Heading h1 {
+    font-size: clamp(42px, 5.5vw, 82px);
+    font-weight: 440;
+    letter-spacing: -0.07em;
+    line-height: 0.95;
+    margin: 0;
+}
+
+.Heading > span {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.Filters {
+    display: flex;
+    gap: 7px;
+    margin: 55px 0 30px;
+    overflow-x: auto;
+}
+
+.Filters button {
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 10px;
+    padding: 9px 14px;
+}
+
+.Filters button:hover,
+.Filters .FilterActive {
+    background: white;
+    color: var(--ink);
+}
+
+.Grid {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.Card {
+    background: white;
+    min-height: 520px;
+    padding: 18px;
+    position: relative;
+}
+
+.CardOpenButton {
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    inset: 0;
+    position: absolute;
+    z-index: 2;
+}
+
+.CardOpenButton:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: -5px;
+}
+
+.CardImage {
+    aspect-ratio: 4 / 3;
+    background: #e5e5e2;
+    margin-bottom: 18px;
+    overflow: hidden;
+    position: relative;
+}
+
+.CardImage img {
+    object-fit: cover;
+    transition: transform 650ms var(--ease-out);
+}
+
+.Card:hover .CardImage img {
+    transform: scale(1.025);
+}
+
+.CardMeta {
+    display: flex;
+    font-size: 9px;
+    justify-content: space-between;
+}
+
+.CardMeta span:last-child {
+    color: var(--muted);
+}
+
+.Card h2 {
+    font-size: clamp(23px, 2.1vw, 34px);
+    font-weight: 470;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    margin: 22px 0;
+}
+
+.Card > p {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.6;
+    margin: auto 0 0;
+}
+
+@media (max-width: 900px) {
+    .Grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 620px) {
+    .Heading {
+        display: block;
+    }
+
+    .Heading > span {
+        display: block;
+        margin-top: 28px;
+    }
+
+    .Filters {
+        margin-left: calc(var(--page-gutter) * -1);
+        margin-right: calc(var(--page-gutter) * -1);
+        padding: 0 var(--page-gutter);
+    }
+
+    .Grid {
+        grid-template-columns: 1fr;
+    }
+
+    .Card {
+        min-height: 440px;
+    }
+}
