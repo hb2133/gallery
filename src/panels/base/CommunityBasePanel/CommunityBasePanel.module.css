@@ -208,13 +208,13 @@
 }
 
 .PhotoCarousel:hover .CarouselButton,
-.PhotoCarousel:focus-within .CarouselButton {
+.CarouselButton:focus-visible {
     opacity: 1;
     pointer-events: auto;
 }
 
 .PhotoCarousel:hover .CarouselButton:hover,
-.PhotoCarousel:focus-within .CarouselButton:hover {
+.CarouselButton:focus-visible {
     transform: translateY(-50%) scale(1.06);
 }
 
