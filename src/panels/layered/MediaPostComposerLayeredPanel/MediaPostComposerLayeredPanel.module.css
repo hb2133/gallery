@@ -1,0 +1,273 @@
+.Backdrop {
+    align-items: center;
+    background: rgb(0 0 0 / 72%);
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: 22px;
+    position: fixed;
+    z-index: 1160;
+}
+
+.Panel {
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    box-shadow: 0 30px 100px rgb(0 0 0 / 36%);
+    color: var(--ink);
+    max-height: calc(100svh - 44px);
+    overflow-y: auto;
+    padding: clamp(24px, 4vw, 42px);
+    width: min(620px, calc(100vw - 44px));
+}
+
+.Header {
+    align-items: start;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 24px;
+    justify-content: space-between;
+    padding-bottom: 24px;
+}
+
+.Header span {
+    color: var(--muted);
+    font-size: 8px;
+    letter-spacing: .14em;
+}
+
+.Header h2 {
+    font-size: clamp(30px, 5vw, 44px);
+    font-weight: 450;
+    letter-spacing: -.06em;
+    margin: 10px 0 0;
+}
+
+.Header p {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.6;
+    margin: 10px 0 0;
+}
+
+.Header > button {
+    background: transparent;
+    border: 0;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 22px;
+}
+
+.Form {
+    display: grid;
+    gap: 18px;
+    padding-top: 24px;
+}
+
+.SourceTabs {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.SourceTabs button,
+.Actions button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    font: inherit;
+    font-size: 10px;
+    min-height: 42px;
+}
+
+.SourceTabs button[data-active='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--canvas);
+}
+
+.Form > label {
+    display: grid;
+    gap: 8px;
+}
+
+.Form > label > span {
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.CategoryField {
+    display: grid;
+    gap: 8px;
+    position: relative;
+}
+
+.CategoryField > span {
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.CategoryToggle {
+    align-items: center;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    font-size: 11px;
+    justify-content: space-between;
+    min-height: 44px;
+    padding: 10px 12px;
+    text-align: left;
+    width: 100%;
+}
+
+.CategoryToggle svg {
+    fill: none;
+    height: 16px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.6;
+    transition: transform 160ms ease;
+    width: 16px;
+}
+
+.CategoryToggle svg[data-open='true'] {
+    transform: rotate(180deg);
+}
+
+.CategoryOptions {
+    background: var(--canvas);
+    border: 1px solid var(--ink);
+    box-shadow: 0 14px 34px rgb(0 0 0 / 16%);
+    display: grid;
+    left: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 5px;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 8;
+}
+
+.CategoryOptions button {
+    background: transparent;
+    border: 0;
+    color: var(--ink);
+    cursor: pointer;
+    font: inherit;
+    font-size: 10px;
+    min-height: 36px;
+    padding: 0 10px;
+    text-align: left;
+}
+
+.CategoryOptions button:hover,
+.CategoryOptions button[aria-selected='true'] {
+    background: var(--ink);
+    color: var(--canvas);
+}
+
+.Form input,
+.Form select,
+.Form textarea {
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    color: var(--ink);
+    font: inherit;
+    font-size: 11px;
+    min-height: 44px;
+    padding: 10px 12px;
+    width: 100%;
+}
+
+.Form select {
+    appearance: none;
+    cursor: pointer;
+}
+
+.Form textarea {
+    line-height: 1.6;
+    min-height: 112px;
+    resize: vertical;
+}
+
+.Form input[type='file'] {
+    cursor: pointer;
+    padding: 8px;
+}
+
+.Notice {
+    color: #b6382d;
+    font-size: 10px;
+    margin: 0;
+}
+
+.Actions {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: 1fr 1.4fr;
+    padding-top: 6px;
+}
+
+.Actions[data-editing='true'] {
+    grid-template-columns: .8fr 1fr 1.4fr;
+}
+
+.Actions button:last-child {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--canvas);
+}
+
+.Actions .DeleteButton {
+    border-color: #bd4a43;
+    color: #bd4a43;
+}
+
+.DeleteConfirmation {
+    background: color-mix(in srgb, var(--canvas) 94%, var(--ink));
+    border: 1px solid var(--line);
+    display: grid;
+    gap: 14px;
+    padding: 16px;
+}
+
+.DeleteConfirmation p {
+    font-size: 10px;
+    margin: 0;
+}
+
+.DeleteConfirmation > div {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.DeleteConfirmation button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    font: inherit;
+    font-size: 9px;
+    min-height: 36px;
+}
+
+.DeleteConfirmation button:last-child {
+    background: #bd4a43;
+    border-color: #bd4a43;
+    color: #ffffff;
+}
+
+.Header button:disabled,
+.SourceTabs button:disabled,
+.CategoryToggle:disabled,
+.Actions button:disabled {
+    cursor: wait;
+    opacity: .5;
+}

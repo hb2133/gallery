@@ -1,0 +1,249 @@
+.Backdrop {
+    align-items: center;
+    animation: BackdropIn 180ms ease;
+    background: rgb(12 12 12 / 58%);
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: 24px;
+    position: fixed;
+    z-index: 1100;
+}
+
+.Panel {
+    animation: PanelIn 320ms cubic-bezier(.2, .75, .25, 1);
+    background: var(--canvas);
+    border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+    box-shadow: 0 30px 100px rgb(0 0 0 / 28%);
+    color: var(--ink);
+    max-height: min(720px, calc(100svh - 48px));
+    overflow-y: auto;
+    padding: clamp(26px, 3.4vw, 44px);
+    width: min(760px, calc(100vw - 48px));
+}
+
+.Header {
+    align-items: start;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 28px;
+    justify-content: space-between;
+    padding-bottom: 26px;
+}
+
+.Header > div:first-child > span {
+    color: var(--muted);
+    display: block;
+    font-size: 9px;
+    letter-spacing: .16em;
+    margin-bottom: 15px;
+}
+
+.Header h2 {
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 480;
+    letter-spacing: -.055em;
+    line-height: 1;
+    margin: 0;
+}
+
+.Header p {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
+    margin: 14px 0 0;
+}
+
+.HeaderActions {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: 8px;
+}
+
+.BackButton,
+.CloseButton {
+    align-items: center;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 9px;
+    gap: 12px;
+    min-height: 36px;
+    padding: 0 12px;
+}
+
+.CloseButton b {
+    font-size: 17px;
+    font-weight: 400;
+}
+
+.BackButton:disabled,
+.CloseButton:disabled {
+    cursor: wait;
+    opacity: .5;
+}
+
+.FieldGrid {
+    display: grid;
+    gap: 18px;
+    padding-top: 24px;
+}
+
+.FieldGrid label {
+    display: grid;
+    gap: 9px;
+}
+
+.FieldGrid label > span,
+.Preview > span {
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: .12em;
+}
+
+.FieldGrid input {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font: inherit;
+    font-size: 12px;
+    min-height: 48px;
+    outline: none;
+    padding: 0 14px;
+    width: 100%;
+}
+
+.FieldGrid input:focus {
+    border-color: var(--ink);
+}
+
+.FieldGrid input:disabled {
+    cursor: wait;
+    opacity: .5;
+}
+
+.FieldGrid small {
+    color: var(--soft);
+    font-size: 9px;
+    line-height: 1.6;
+}
+
+.Preview {
+    border-top: 1px solid var(--line);
+    display: grid;
+    gap: 13px;
+    margin-top: 24px;
+    padding-top: 20px;
+}
+
+.Preview > div {
+    align-items: center;
+    display: flex;
+    min-height: 42px;
+}
+
+.PreviewButton {
+    align-items: center;
+    background: var(--ink);
+    color: var(--canvas);
+    display: inline-flex;
+    font-size: 11px;
+    font-weight: 600;
+    gap: 10px;
+    min-height: 38px;
+    padding: 0 16px;
+    white-space: nowrap;
+}
+
+.PreviewButton b {
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.PreviewDisabled {
+    opacity: .36;
+}
+
+.Preview p {
+    color: var(--soft);
+    font-size: 10px;
+    margin: 0;
+}
+
+.Footer {
+    align-items: center;
+    display: flex;
+    gap: 24px;
+    justify-content: space-between;
+    padding-top: 24px;
+}
+
+.Footer p {
+    color: var(--muted);
+    font-size: 9px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.Footer button {
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    color: var(--canvas);
+    cursor: pointer;
+    flex: 0 0 auto;
+    font-size: 10px;
+    min-height: 40px;
+    padding: 0 18px;
+}
+
+.Footer button:disabled {
+    cursor: wait;
+    opacity: .5;
+}
+
+@keyframes BackdropIn {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes PanelIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(.985);
+    }
+}
+
+@media (max-width: 620px) {
+    .Backdrop {
+        align-items: end;
+        padding: 0;
+    }
+
+    .Panel {
+        max-height: 92svh;
+        padding: 26px 18px 20px;
+        width: 100%;
+    }
+
+    .HeaderActions {
+        align-items: end;
+        flex-direction: column-reverse;
+    }
+
+    .CloseButton span {
+        display: none;
+    }
+
+    .Footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .Footer button {
+        align-self: flex-end;
+    }
+}

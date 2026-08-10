@@ -1,0 +1,75 @@
+.Root {
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 22px;
+    justify-content: space-between;
+    margin: -12px 0 24px;
+    padding-bottom: 18px;
+}
+
+.Root > div:first-child {
+    display: grid;
+    gap: 6px;
+}
+
+.Root strong {
+    font-size: 11px;
+}
+
+.Root > div:first-child span,
+.Controls label > span {
+    color: var(--muted);
+    font-size: 8px;
+}
+
+.Controls {
+    align-items: end;
+    display: flex;
+    gap: 12px;
+}
+
+.Controls label {
+    display: grid;
+    gap: 6px;
+}
+
+.Controls input[type='color'] {
+    background: transparent;
+    border: 1px solid var(--line);
+    cursor: pointer;
+    height: 34px;
+    padding: 4px;
+    width: 50px;
+}
+
+.OpacityControl {
+    min-width: 150px;
+}
+
+.OpacityControl input {
+    accent-color: var(--ink);
+    cursor: pointer;
+    margin: 0;
+    width: 100%;
+}
+
+.Controls input:disabled {
+    cursor: wait;
+    opacity: .5;
+}
+
+@media (max-width: 560px) {
+    .Root {
+        align-items: start;
+        flex-direction: column;
+    }
+
+    .Controls {
+        width: 100%;
+    }
+
+    .OpacityControl {
+        flex: 1 1 auto;
+    }
+}

@@ -1,11 +1,11 @@
 .Page {
-    background: #fafaf8;
+    background: var(--canvas);
     min-height: 100vh;
 }
 
 .Header {
     align-items: center;
-    background: rgb(255 255 255 / 92%);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
     border-bottom: 1px solid var(--line);
     display: flex;
     height: 68px;
@@ -25,20 +25,10 @@
     gap: 9px;
 }
 
-.Brand span {
-    align-items: center;
-    background: var(--ink);
-    color: white;
-    display: flex;
-    height: 23px;
-    justify-content: center;
-    width: 23px;
-}
-
 .BackLink {
     background: var(--ink);
     border-radius: 6px;
-    color: white;
+    color: var(--canvas);
     font-size: 10px;
     padding: 11px 13px;
 }
@@ -136,7 +126,7 @@
 
 .DarkAvatar {
     background: var(--ink);
-    color: white;
+    color: var(--canvas);
 }
 
 .PostAuthor strong {
@@ -187,7 +177,7 @@
 
 .CarouselButton {
     align-items: center;
-    background: rgb(255 255 255 / 92%);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
     border: 0;
     border-radius: 50%;
     cursor: pointer;

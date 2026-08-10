@@ -1,9 +1,80 @@
+.PageRoot {
+    background: var(--canvas);
+    color: var(--ink);
+    min-height: 100svh;
+    transition:
+        background 240ms ease,
+        color 240ms ease;
+}
+
+:global(html[data-theme='dark']) .PageRoot {
+    --canvas: #111111;
+    --surface: #f5f5f2;
+    --ink: #f5f5f2;
+    --muted: #c4c4bf;
+    --soft: #9e9e99;
+    --line: #383836;
+}
+
+.HomeCursor {
+    display: none;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    transition: opacity 120ms ease;
+    will-change: transform;
+    z-index: 1400;
+}
+
+.HomeCursor[data-visible='true'] {
+    opacity: 1;
+}
+
+.HomeCursorBody {
+    margin: 13px 0 0 18px;
+    transform-origin: left center;
+    transition: transform 150ms cubic-bezier(.2, .8, .2, 1);
+    will-change: transform;
+}
+
+.HomeCursorBody span {
+    background: var(--canvas);
+    border: 2px solid var(--ink);
+    border-radius: 999px;
+    color: var(--ink);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    max-width: 220px;
+    overflow: hidden;
+    padding: 7px 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.HomeCursorBody span:empty {
+    display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .HomeCursor {
+        display: block;
+    }
+
+    :global(body),
+    :global(body *) {
+        cursor: url('/start-cursor.svg') 2 2, default !important;
+    }
+}
+
 .Header {
     align-items: center;
-    background: rgb(247 247 245 / 88%);
+    background: color-mix(in srgb, var(--canvas) 88%, transparent);
     border-bottom: 1px solid var(--line);
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: 1fr 1fr;
     height: 72px;
     left: 0;
     padding: 0 var(--page-gutter);
@@ -24,37 +95,18 @@
     letter-spacing: -0.02em;
 }
 
-.BrandMark {
-    align-items: center;
-    background: var(--ink);
-    color: var(--surface);
-    display: inline-flex;
-    font-size: 11px;
-    height: 24px;
-    justify-content: center;
-    width: 24px;
-}
-
-.PrimaryNav {
+.HeaderActions {
     align-items: center;
     display: flex;
-    font-size: 13px;
-    gap: 30px;
+    gap: 8px;
+    justify-self: end;
 }
 
-.PrimaryNav a {
-    color: var(--muted);
-    transition: color 180ms ease;
-}
-
-.PrimaryNav a:hover {
-    color: var(--ink);
-}
-
-.DarkButton,
-.LightButton {
+.LinkButton,
+.ThemeButton {
     align-items: center;
-    border-radius: var(--radius-sm);
+    border: 1px solid var(--ink);
+    border-radius: 3px;
     display: inline-flex;
     font-size: 12px;
     font-weight: 600;
@@ -66,17 +118,50 @@
         transform 180ms ease;
 }
 
-.DarkButton {
+.LinkButton {
     background: var(--ink);
-    color: var(--surface);
-    justify-self: end;
+    color: var(--canvas);
     min-height: 38px;
     padding: 0 16px;
+    white-space: nowrap;
 }
 
-.DarkButton:hover,
-.LightButton:hover {
+.LinkButtonDisabled {
+    cursor: not-allowed;
+    opacity: .36;
+}
+
+.ThemeButton {
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    min-height: 38px;
+    padding: 0 13px;
+}
+
+.ThemeIcon {
+    font-size: 15px;
+}
+
+.ThemeLightLabel {
+    display: none;
+}
+
+:global(html[data-theme='dark']) .ThemeDarkLabel {
+    display: none;
+}
+
+:global(html[data-theme='dark']) .ThemeLightLabel {
+    display: inline;
+}
+
+.LinkButton:hover,
+.ThemeButton:hover {
     transform: translateY(-2px);
+}
+
+.LinkButtonDisabled:hover {
+    transform: none;
 }
 
 .Hero {
@@ -315,27 +400,76 @@
     position: relative;
 }
 
-.BoxHeading {
-    align-self: start;
-    padding-top: clamp(60px, 10vh, 110px);
-    z-index: 2;
-}
-
-.BoxHeading > p:last-child {
-    color: var(--muted);
-    font-size: 11px;
-    line-height: 1.55;
-    margin: 18px 0 0;
-}
-
 .BoxStage {
     --box-gap: 4px;
     --box-size: clamp(112px, 9.3vw, 150px);
     --box-step: calc(var(--box-size) + var(--box-gap));
+    grid-column: 2;
     height: calc(var(--box-step) * 5);
     justify-self: center;
     position: relative;
     width: calc(var(--box-step) * 5);
+}
+
+.BoxPlacementToolbar {
+    align-items: center;
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    left: 0;
+    position: absolute;
+    top: -42px;
+    width: 100%;
+    z-index: 10;
+}
+
+.BoxPlacementToolbar span {
+    font-size: 11px;
+    font-weight: 650;
+}
+
+.BoxPlacementToolbar p {
+    color: var(--muted);
+    font-size: 9px;
+    margin: 0;
+}
+
+.BoxPlacementToolbar button {
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    color: var(--canvas);
+    font: inherit;
+    font-size: 9px;
+    min-height: 34px;
+    padding: 0 12px;
+}
+
+.BoxPlacementGrid {
+    border-left: 1px solid #ff3b20;
+    border-top: 1px solid #ff3b20;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    inset: 0;
+    position: absolute;
+    z-index: 2;
+}
+
+.BoxPlacementCell {
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid #ff3b20;
+    border-right: 1px solid #ff3b20;
+    color: #ff3b20;
+    font: inherit;
+    font-size: 9px;
+    opacity: 1;
+    padding: 0;
+}
+
+.BoxPlacementCell:disabled {
+    color: #ff3b20;
+    opacity: 1;
+    text-shadow: 0 0 5px var(--canvas);
 }
 
 .BoxTile {
@@ -356,12 +490,51 @@
     position: absolute;
     top: 50%;
     transition:
-        background-color 220ms ease,
-        color 220ms ease,
-        box-shadow 220ms ease,
-        scale 240ms var(--ease-out),
+        background-color 480ms cubic-bezier(.22, .8, .2, 1),
+        color 480ms cubic-bezier(.22, .8, .2, 1),
+        box-shadow 480ms cubic-bezier(.22, .8, .2, 1),
+        scale 480ms cubic-bezier(.22, .8, .2, 1),
         transform 480ms cubic-bezier(.22, .8, .2, 1);
     width: var(--box-size);
+}
+
+:global(html[data-theme='dark']) .BoxTile {
+    background: #f5f5f2;
+    color: #111111;
+}
+
+:global(html[data-theme='dark']) .BoxStage[data-state='idle'] .BoxCenter:hover {
+    background: #f5f5f2;
+    color: #111111;
+}
+
+.CompositeImageLayer {
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 1;
+}
+
+.CompositeImageTile {
+    animation: CompositeTileIn 440ms cubic-bezier(.22, .8, .2, 1) both;
+    animation-delay: var(--box-enter-delay);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    inset: 0;
+    position: absolute;
+    will-change: clip-path, opacity;
+}
+
+.BoxStage[data-phase='closing'] .CompositeImageTile {
+    animation-name: CompositeTileOut;
+    animation-delay: var(--box-exit-delay);
+    animation-duration: 360ms;
+}
+
+.BoxStage:not([data-state='idle']) .BoxTile {
+    background: transparent;
+    color: white;
 }
 
 .BoxTile::after {
@@ -387,6 +560,10 @@
     scale: 1.045;
 }
 
+.BoxStage:not([data-state='idle']) .BoxCenter {
+    box-shadow: none;
+}
+
 .BoxTile small {
     bottom: 12px;
     color: #8a8a86;
@@ -409,13 +586,42 @@
     z-index: 3;
 }
 
+.BoxTileEditing {
+    outline: 1px solid rgb(255 59 32 / 82%);
+    outline-offset: -3px;
+}
+
+.BoxTileSelected {
+    box-shadow: 0 0 0 3px #ff3b20;
+    scale: 1.025;
+}
+
 .BoxStage:not([data-state='idle']) .BoxTile:not(.BoxCenter) {
+    animation: BoxTileIn 440ms cubic-bezier(.22, .8, .2, 1) both;
+    animation-delay: var(--box-enter-delay);
     cursor: pointer;
     pointer-events: auto;
 }
 
+.BoxStage[data-phase='closing'] .BoxTile:not(.BoxCenter) {
+    animation-name: BoxTileOut;
+    animation-delay: var(--box-exit-delay);
+    animation-duration: 360ms;
+    pointer-events: none;
+}
+
+.BoxStage[data-phase='closing'] .BoxCenter {
+    pointer-events: none;
+}
+
 .BoxStage:not([data-state='idle']) .BoxTile:not(.BoxCenter):hover {
-    background: #1b1b1b;
+    background: rgb(255 255 255 / 7%);
+    box-shadow: 0 8px 18px rgb(0 0 0 / 7%);
+    scale: 1.008;
+}
+
+:global(html[data-theme='dark']) .BoxStage:not([data-state='idle']) .BoxTile:not(.BoxCenter):hover {
+    background: rgb(0 0 0 / 18%);
     box-shadow: 0 18px 38px rgb(0 0 0 / 18%);
     scale: 1.035;
 }
@@ -426,16 +632,18 @@
     font-weight: 560;
     letter-spacing: -0.01em;
     opacity: 0;
-    transition: opacity 160ms ease;
+    position: relative;
+    transition: opacity 480ms cubic-bezier(.22, .8, .2, 1);
 }
 
 .BoxTile:hover .BoxDestination,
-.BoxTile:focus-visible .BoxDestination {
+.BoxTile:focus-visible .BoxDestination,
+.BoxStage:not([data-state='idle']) .BoxDestination {
     opacity: 1;
 }
 
 .BoxStage[data-state='idle'] .BoxCenter {
-    cursor: default;
+    cursor: inherit;
 }
 
 .BoxStage[data-state='idle'] .BoxTile:not(.BoxCenter) {
@@ -457,13 +665,13 @@
 .WordButton {
     background: transparent;
     border: 0;
-    color: var(--soft);
+    color: color-mix(in srgb, var(--ink) 22%, transparent);
     cursor: pointer;
-    font-size: clamp(24px, 2.4vw, 38px);
-    font-weight: 540;
+    font-size: clamp(17px, 1.45vw, 23px);
+    font-weight: 500;
     height: var(--box-size);
     left: 50%;
-    letter-spacing: -0.06em;
+    letter-spacing: -0.035em;
     margin-left: calc(var(--box-size) / -2);
     margin-top: calc(var(--box-size) / -2);
     opacity: 1;
@@ -506,100 +714,18 @@
 }
 
 .CenterWord {
-    font-size: clamp(28px, 3vw, 48px);
-    font-weight: 520;
-    letter-spacing: -0.065em;
+    font-size: clamp(17px, 1.45vw, 23px);
+    font-weight: 500;
+    letter-spacing: -0.035em;
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.BoxTop {
-    transform: translate(0, calc(var(--box-step) * -1));
-}
-
-.BoxRight {
-    transform: translate(var(--box-step), 0);
-}
-
-.BoxBottom {
-    transform: translate(0, var(--box-step));
-}
-
-.BoxLeft {
-    transform: translate(calc(var(--box-step) * -1), 0);
-}
-
-.BoxStage[data-state='portraits'] .BoxTop {
-    transform: translate(
-        calc(var(--box-step) * -1),
-        calc(var(--box-step) * -1)
-    );
-}
-
-.BoxStage[data-state='architecture'] .BoxTop {
-    transform: translate(0, calc(var(--box-step) * -2));
-}
-
-.BoxStage[data-state='architecture'] .BoxRight {
-    transform: translate(var(--box-step), calc(var(--box-step) * -1));
-}
-
-.BoxStage[data-state='architecture'] .BoxBottom {
-    transform: translate(0, calc(var(--box-step) * -1));
-}
-
-.BoxStage[data-state='architecture'] .BoxLeft {
-    transform: translate(calc(var(--box-step) * -1), calc(var(--box-step) * -1));
-}
-
-.BoxStage[data-state='portraits'] .BoxRight {
-    transform: translate(var(--box-step), calc(var(--box-step) * -1));
-}
-
-.BoxStage[data-state='portraits'] .BoxBottom {
-    transform: translate(var(--box-step), var(--box-step));
-}
-
-.BoxStage[data-state='portraits'] .BoxLeft {
-    transform: translate(calc(var(--box-step) * -1), var(--box-step));
-}
-
-.BoxStage[data-state='journeys'] .BoxTop {
-    transform: translate(0, calc(var(--box-step) * -2));
-}
-
-.BoxStage[data-state='journeys'] .BoxRight {
-    transform: translate(var(--box-step), 0);
-}
-
-.BoxStage[data-state='journeys'] .BoxBottom {
-    transform: translate(0, calc(var(--box-step) * -1));
-}
-
-.BoxStage[data-state='journeys'] .BoxLeft {
-    transform: translate(calc(var(--box-step) * -1), 0);
-}
-
-.BoxStage[data-state='journal'] .BoxTop {
-    transform: translate(calc(var(--box-step) * -2), 0);
-}
-
-.BoxStage[data-state='journal'] .BoxLeft {
-    transform: translate(calc(var(--box-step) * -1), 0);
-}
-
-.BoxStage[data-state='journal'] .BoxRight {
-    transform: translate(var(--box-step), 0);
-}
-
-.BoxStage[data-state='journal'] .BoxBottom {
-    transform: translate(calc(var(--box-step) * 2), 0);
-}
-
 .BoxStatus {
     align-self: end;
     border-top: 1px solid var(--line);
+    grid-column: 3;
     margin-bottom: clamp(40px, 7vh, 75px);
     padding-top: 13px;
     z-index: 2;
@@ -944,6 +1070,52 @@
     }
 }
 
+@keyframes CompositeTileIn {
+    from {
+        clip-path: polygon(
+            calc(50% - var(--box-size) / 2)
+            calc(50% - var(--box-size) / 2),
+            calc(50% + var(--box-size) / 2)
+            calc(50% - var(--box-size) / 2),
+            calc(50% + var(--box-size) / 2)
+            calc(50% + var(--box-size) / 2),
+            calc(50% - var(--box-size) / 2)
+            calc(50% + var(--box-size) / 2)
+        );
+        opacity: 0;
+    }
+}
+
+@keyframes CompositeTileOut {
+    to {
+        clip-path: polygon(
+            calc(50% - var(--box-size) / 2)
+            calc(50% - var(--box-size) / 2),
+            calc(50% + var(--box-size) / 2)
+            calc(50% - var(--box-size) / 2),
+            calc(50% + var(--box-size) / 2)
+            calc(50% + var(--box-size) / 2),
+            calc(50% - var(--box-size) / 2)
+            calc(50% + var(--box-size) / 2)
+        );
+        opacity: 0;
+    }
+}
+
+@keyframes BoxTileIn {
+    from {
+        opacity: 0;
+        transform: translate(0, 0);
+    }
+}
+
+@keyframes BoxTileOut {
+    to {
+        opacity: 0;
+        transform: translate(0, 0);
+    }
+}
+
 @media (max-width: 1020px) {
     .HeroIntro {
         top: 45px;
@@ -1204,20 +1376,29 @@
         padding-top: 34px;
     }
 
-    .BoxHeading {
-        padding-top: 0;
-    }
-
-    .BoxHeading > p:last-child {
-        display: none;
-    }
-
     .BoxStage {
         --box-gap: 3px;
         --box-size: calc((100vw - 52px) / 5);
         height: calc(var(--box-step) * 5);
         margin: 18px auto 0;
         width: 100%;
+    }
+
+    .BoxStage[data-editing='true'] {
+        margin-top: 92px;
+    }
+
+    .BoxPlacementToolbar {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 7px 12px;
+        justify-content: space-between;
+        top: -76px;
+    }
+
+    .BoxPlacementToolbar p {
+        flex: 1 0 100%;
+        order: 3;
     }
 
     .BoxTile {
@@ -1229,11 +1410,11 @@
     }
 
     .WordButton {
-        font-size: clamp(18px, 5.8vw, 24px);
+        font-size: clamp(15px, 4.4vw, 18px);
     }
 
     .CenterWord {
-        font-size: clamp(20px, 6vw, 26px);
+        font-size: clamp(15px, 4.4vw, 18px);
     }
 
     .BoxTile small {
@@ -1260,7 +1441,11 @@
     }
 
     .BoxTile,
-    .WordButton {
+    .WordButton,
+    .CompositeImageTile,
+    .HomeCursor,
+    .HomeCursorBody {
+        animation: none;
         transition: none;
     }
 }

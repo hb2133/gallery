@@ -1,0 +1,212 @@
+.Backdrop {
+    align-items: center;
+    animation: BackdropIn 180ms ease;
+    background: rgb(12 12 12 / 58%);
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: 24px;
+    position: fixed;
+    z-index: 1100;
+}
+
+.Panel {
+    animation: PanelIn 320ms cubic-bezier(.2, .75, .25, 1);
+    background: var(--canvas);
+    border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+    box-shadow: 0 30px 100px rgb(0 0 0 / 28%);
+    color: var(--ink);
+    max-height: min(760px, calc(100svh - 48px));
+    overflow-y: auto;
+    padding: clamp(28px, 4vw, 48px);
+    transition:
+        background 180ms ease,
+        color 180ms ease;
+    width: min(820px, calc(100vw - 48px));
+}
+
+.Header {
+    align-items: start;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 28px;
+    justify-content: space-between;
+    padding-bottom: 30px;
+}
+
+.Header > div > span {
+    color: var(--muted);
+    display: block;
+    font-size: 9px;
+    letter-spacing: .16em;
+    margin-bottom: 16px;
+}
+
+.Header h2 {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 480;
+    letter-spacing: -.055em;
+    line-height: 1;
+    margin: 0;
+}
+
+.Header p {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
+    margin: 16px 0 0;
+}
+
+.CloseButton {
+    align-items: center;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    font-size: 9px;
+    gap: 12px;
+    min-height: 36px;
+    padding: 0 12px;
+}
+
+.CloseButton b {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.OptionGrid {
+    display: grid;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.Option {
+    align-items: center;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    display: grid;
+    font: inherit;
+    gap: 18px;
+    grid-template-columns:
+        34px
+        minmax(0, 1fr)
+        minmax(140px, auto)
+        24px;
+    min-height: 98px;
+    padding: 18px 20px;
+    text-align: left;
+    transition:
+        background 160ms ease,
+        border-color 160ms ease,
+        transform 160ms ease;
+    width: 100%;
+}
+
+.Option:not(:disabled):hover {
+    background: color-mix(in srgb, var(--ink) 5%, transparent);
+    border-color: var(--ink);
+    transform: translateX(3px);
+}
+
+.Option:disabled {
+    cursor: default;
+}
+
+.Option > span {
+    color: var(--soft);
+    font-size: 9px;
+}
+
+.Option h3 {
+    font-size: 14px;
+    font-weight: 560;
+    margin: 0;
+}
+
+.Option p {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.6;
+    margin: 7px 0 0;
+}
+
+.Option small {
+    color: var(--muted);
+    font-size: 9px;
+    line-height: 1.6;
+    max-width: 210px;
+    text-align: right;
+}
+
+.Option > b {
+    font-size: 16px;
+    font-weight: 400;
+    opacity: .45;
+    text-align: right;
+}
+
+.Option:disabled > b {
+    visibility: hidden;
+}
+
+.Footer {
+    align-items: center;
+    display: flex;
+    padding-top: 28px;
+}
+
+.Footer span {
+    color: var(--soft);
+    font-size: 9px;
+    line-height: 1.6;
+}
+
+@keyframes BackdropIn {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes PanelIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(.985);
+    }
+}
+
+@media (max-width: 620px) {
+    .Backdrop {
+        align-items: end;
+        padding: 0;
+    }
+
+    .Panel {
+        max-height: 88svh;
+        padding: 28px 20px 22px;
+        width: 100%;
+    }
+
+    .CloseButton span {
+        display: none;
+    }
+
+    .Option {
+        align-items: start;
+        grid-template-columns: 28px minmax(0, 1fr) 20px;
+    }
+
+    .Option small {
+        grid-column: 2;
+        text-align: left;
+    }
+
+    .Option > b {
+        grid-column: 3;
+        grid-row: 1 / span 2;
+    }
+}

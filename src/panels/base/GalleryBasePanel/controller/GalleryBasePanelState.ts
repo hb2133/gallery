@@ -1,7 +1,293 @@
 import type {
+    GalleryCategory,
     GalleryCategoryOption,
     GalleryProject,
+    StartPageCustomization,
 } from './GalleryBasePanelTypes';
+
+export const GalleryDailyMessages = [
+    '오늘은 서두르지 않아도 괜찮아요.',
+    '천천히 본 장면은 오래 남습니다.',
+    '좋아하는 기록부터 열어보세요.',
+    '오늘의 한 장면을 가볍게 남겨보세요.',
+];
+
+export function NormalizeDailyMessageRotationSeconds(
+    Value: unknown,
+): number
+{
+    return typeof Value === 'number' && Number.isFinite(Value)
+        ? Math.min(3600, Math.max(3, Math.round(Value)))
+        : 10;
+}
+
+export const DefaultStartPageCustomization: StartPageCustomization = {
+    CategoryBoxLayouts: {
+        architecture: [13, 8, 14, 18, 12],
+        portraits: [13, 12, 14, 15, 18],
+        journeys: [13, 9, 17, 19, 7],
+        journal: [13, 12, 14, 15, 11],
+    },
+    CategoryLabels: {
+        architecture: '로맨스',
+        portraits: '스릴러',
+        journeys: '다큐',
+        journal: 'SF',
+    },
+    CategoryImages: {
+        architecture: '/images/architecture-01.webp',
+        portraits: '/images/portrait-01.webp',
+        journeys: '/images/journey-01.webp',
+        journal: '/images/journal-01.webp',
+    },
+    CategoryCenterTextStyles: {
+        architecture: {
+            Color: '#777777',
+            Font: 'sans',
+            Size: 20,
+        },
+        portraits: {
+            Color: '#777777',
+            Font: 'sans',
+            Size: 20,
+        },
+        journeys: {
+            Color: '#777777',
+            Font: 'sans',
+            Size: 20,
+        },
+        journal: {
+            Color: '#777777',
+            Font: 'sans',
+            Size: 20,
+        },
+    },
+    CategoryTextStyles: {
+        architecture: {
+            Color: '#777777',
+            Font: 'sans',
+            Size: 20,
+        },
+        portraits: {
+            Color: '#777777',
+            Font: 'sans',
+            Size: 20,
+        },
+        journeys: {
+            Color: '#777777',
+            Font: 'sans',
+            Size: 20,
+        },
+        journal: {
+            Color: '#777777',
+            Font: 'sans',
+            Size: 20,
+        },
+    },
+    DailyMessages: [
+        ...GalleryDailyMessages,
+    ],
+    DailyMessageRotationSeconds: 10,
+    DestinationLabels: {
+        architecture: '02. 영상·음악',
+        portraits: '01. 사진',
+        journeys: '03. 긴 글',
+        journal: '04. 한 줄 메모',
+    },
+    DestinationTextStyles: {
+        architecture: {
+            Color: '#ffffff',
+            Font: 'sans',
+            Size: 10,
+        },
+        portraits: {
+            Color: '#ffffff',
+            Font: 'sans',
+            Size: 10,
+        },
+        journeys: {
+            Color: '#ffffff',
+            Font: 'sans',
+            Size: 10,
+        },
+        journal: {
+            Color: '#ffffff',
+            Font: 'sans',
+            Size: 10,
+        },
+    },
+    HeaderLink: {
+        Text: 'Instagram',
+        Url: 'https://www.instagram.com/',
+    },
+};
+
+export function IsGalleryBoxLayout(
+    Value: unknown,
+): Value is number[]
+{
+    return (
+        Array.isArray(Value)
+        && Value.length === 5
+        && Value.includes(13)
+        && new Set(Value).size === 5
+        && Value.every(
+            (Cell) =>
+                Number.isInteger(Cell)
+                && Cell >= 1
+                && Cell <= 25,
+        )
+    );
+}
+
+export function MoveGalleryBoxLayout(
+    Layout: number[],
+    FromCell: number,
+    ToCell: number,
+): number[]
+{
+    if(
+        IsGalleryBoxLayout(Layout) === false
+        || FromCell === 13
+        || ToCell === 13
+        || ToCell < 1
+        || ToCell > 25
+        || Layout.includes(FromCell) === false
+        || Layout.includes(ToCell)
+    )
+    {
+        return Layout;
+    }
+
+    return Layout.map((Cell) =>
+        Cell === FromCell ? ToCell : Cell,
+    );
+}
+
+export function NormalizeCategoryBoxLayouts(
+    Value: unknown,
+): StartPageCustomization['CategoryBoxLayouts']
+{
+    const Candidate =
+        typeof Value === 'object' && Value !== null
+            ? Value as Record<string, unknown>
+            : {};
+    const Categories: GalleryCategory[] = [
+        'architecture',
+        'portraits',
+        'journeys',
+        'journal',
+    ];
+
+    return Categories.reduce<
+        StartPageCustomization['CategoryBoxLayouts']
+    >(
+        (Layouts, Category) =>
+        {
+            const Layout = Candidate[Category];
+            Layouts[Category] = IsGalleryBoxLayout(Layout)
+                ? [
+                    13,
+                    ...Layout.filter((Cell) => Cell !== 13),
+                ]
+                : [
+                    ...DefaultStartPageCustomization
+                        .CategoryBoxLayouts[Category],
+                ];
+            return Layouts;
+        },
+        {
+            architecture: [],
+            portraits: [],
+            journeys: [],
+            journal: [],
+        },
+    );
+}
+
+export function CloneStartPageCustomization(
+    Customization: StartPageCustomization,
+): StartPageCustomization
+{
+    return {
+        CategoryBoxLayouts: {
+            architecture: [
+                ...Customization.CategoryBoxLayouts.architecture,
+            ],
+            portraits: [
+                ...Customization.CategoryBoxLayouts.portraits,
+            ],
+            journeys: [
+                ...Customization.CategoryBoxLayouts.journeys,
+            ],
+            journal: [
+                ...Customization.CategoryBoxLayouts.journal,
+            ],
+        },
+        CategoryLabels: {
+            ...Customization.CategoryLabels,
+        },
+        CategoryImages: {
+            ...Customization.CategoryImages,
+        },
+        CategoryCenterTextStyles: {
+            architecture: {
+                ...Customization.CategoryCenterTextStyles
+                    .architecture,
+            },
+            portraits: {
+                ...Customization.CategoryCenterTextStyles
+                    .portraits,
+            },
+            journeys: {
+                ...Customization.CategoryCenterTextStyles
+                    .journeys,
+            },
+            journal: {
+                ...Customization.CategoryCenterTextStyles.journal,
+            },
+        },
+        CategoryTextStyles: {
+            architecture: {
+                ...Customization.CategoryTextStyles.architecture,
+            },
+            portraits: {
+                ...Customization.CategoryTextStyles.portraits,
+            },
+            journeys: {
+                ...Customization.CategoryTextStyles.journeys,
+            },
+            journal: {
+                ...Customization.CategoryTextStyles.journal,
+            },
+        },
+        DailyMessages: [
+            ...Customization.DailyMessages,
+        ],
+        DailyMessageRotationSeconds:
+            Customization.DailyMessageRotationSeconds,
+        DestinationLabels: {
+            ...Customization.DestinationLabels,
+        },
+        DestinationTextStyles: {
+            architecture: {
+                ...Customization.DestinationTextStyles.architecture,
+            },
+            portraits: {
+                ...Customization.DestinationTextStyles.portraits,
+            },
+            journeys: {
+                ...Customization.DestinationTextStyles.journeys,
+            },
+            journal: {
+                ...Customization.DestinationTextStyles.journal,
+            },
+        },
+        HeaderLink: {
+            ...Customization.HeaderLink,
+        },
+    };
+}
 
 export const GalleryCategories: GalleryCategoryOption[] = [
     {

@@ -1,0 +1,498 @@
+.Page {
+    background: var(--canvas);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.Header {
+    align-items: center;
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    height: 68px;
+    justify-content: space-between;
+    padding: 0 var(--page-gutter);
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 20;
+    backdrop-filter: blur(14px);
+}
+
+.Brand {
+    align-items: center;
+    display: flex;
+    font-size: 13px;
+    font-weight: 600;
+    gap: 9px;
+}
+
+.BackLink {
+    background: var(--ink);
+    border-radius: 6px;
+    color: var(--canvas);
+    font-size: 10px;
+    padding: 11px 13px;
+}
+
+.Archive {
+    margin: 0 auto;
+    max-width: 1680px;
+    padding: clamp(72px, 8vw, 126px) var(--page-gutter) 120px;
+}
+
+.Masthead {
+    align-items: end;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 44px;
+}
+
+.Masthead h1 {
+    font-size: clamp(
+        calc(var(--media-heading-size) * .52),
+        4.6vw,
+        var(--media-heading-size)
+    );
+    font-weight: 560;
+    letter-spacing: -.07em;
+    line-height: .98;
+    margin: 0;
+}
+
+.Eyebrow {
+    display: grid;
+    font-size: 8px;
+    gap: 2px;
+    letter-spacing: .02em;
+    margin: 0 0 24px;
+    text-transform: uppercase;
+}
+
+.Eyebrow span {
+    color: var(--soft);
+}
+
+.MastheadAside {
+    align-items: end;
+    display: grid;
+    gap: 22px;
+    justify-items: end;
+    max-width: 360px;
+}
+
+.Introduction {
+    line-height: 1.6;
+    margin: 0;
+    max-width: 30em;
+    text-align: right;
+    white-space: pre-line;
+}
+
+.AdminToolbar {
+    display: flex;
+    gap: 8px;
+}
+
+.AdminToolbar button {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 10px;
+    min-height: 38px;
+    padding: 0 18px;
+}
+
+.AdminToolbar button:first-child,
+.AdminToolbar button[data-active='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--canvas);
+}
+
+.ManagementNotice {
+    color: var(--muted);
+    font-size: 9px;
+    margin: -22px 0 24px;
+    text-align: right;
+}
+
+.CategoryBar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: -2px 0 24px;
+}
+
+.CategoryItem {
+    position: relative;
+}
+
+.CategoryButton {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 10px;
+    min-height: 38px;
+    min-width: 64px;
+    padding: 0 18px;
+    transition:
+        background 180ms ease,
+        border-color 180ms ease,
+        color 180ms ease;
+}
+
+.CategoryButton:hover,
+.CategoryActive {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--canvas);
+}
+
+.CategoryDeleteButton {
+    align-items: center;
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    font-size: 11px;
+    height: 17px;
+    justify-content: center;
+    padding: 0 0 1px;
+    position: absolute;
+    right: -5px;
+    top: -5px;
+    width: 17px;
+    z-index: 2;
+}
+
+.CategoryAddButton,
+.CategoryAddForm button {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 10px;
+    min-height: 38px;
+}
+
+.CategoryAddButton {
+    font-size: 17px;
+    min-width: 38px;
+    padding: 0;
+}
+
+.CategoryAddForm {
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    display: flex;
+    min-height: 38px;
+    overflow: hidden;
+}
+
+.CategoryRenameForm {
+    border: 1px solid var(--ink);
+    border-radius: 999px;
+    display: flex;
+    min-height: 38px;
+    overflow: hidden;
+}
+
+.CategoryRenameForm input {
+    background: var(--surface);
+    border: 0;
+    color: var(--ink);
+    font: inherit;
+    font-size: 10px;
+    min-width: 64px;
+    outline: none;
+    padding: 0 14px;
+    width: 118px;
+}
+
+.CategoryAddForm input {
+    background: transparent;
+    border: 0;
+    color: var(--ink);
+    font: inherit;
+    font-size: 10px;
+    min-width: 0;
+    outline: none;
+    padding: 0 4px 0 14px;
+    width: 118px;
+}
+
+.CategoryAddForm button {
+    border: 0;
+    border-left: 1px solid var(--line);
+    border-radius: 0;
+    min-height: 36px;
+    padding: 0 10px;
+}
+
+.CategoryDeleteButton:hover,
+.CategoryAddButton:hover,
+.CategoryAddForm button:hover {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--canvas);
+}
+
+.CategoryDeleteButton:disabled,
+.CategoryAddButton:disabled,
+.CategoryAddForm input:disabled,
+.CategoryRenameForm input:disabled,
+.CategoryAddForm button:disabled {
+    cursor: wait;
+    opacity: .5;
+}
+
+.CategoryNotice {
+    color: var(--muted);
+    font-size: 9px;
+    margin: -14px 0 24px;
+}
+
+.Grid {
+    display: grid;
+    gap: clamp(18px, 2.2vw, 30px) 10px;
+    grid-template-columns:
+        repeat(var(--media-grid-columns, 3), minmax(0, 1fr));
+    view-transition-name: media-category-grid;
+}
+
+:global(::view-transition-group(media-category-grid)) {
+    animation-duration: 360ms;
+    animation-timing-function: cubic-bezier(.2, .75, .25, 1);
+}
+
+:global(::view-transition-old(media-category-grid)) {
+    animation: MediaCategoryGridOut 180ms ease both;
+}
+
+:global(::view-transition-new(media-category-grid)) {
+    animation: MediaCategoryGridIn 300ms cubic-bezier(.2, .75, .25, 1) both;
+}
+
+@keyframes MediaCategoryGridOut {
+    to {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes MediaCategoryGridIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.Card {
+    color: inherit;
+    display: block;
+    min-width: 0;
+}
+
+.Card[draggable='true'] {
+    cursor: grab;
+}
+
+.Card[data-dragging='true'] {
+    opacity: .38;
+}
+
+.Thumb {
+    aspect-ratio: 3 / 2;
+    background: #111111;
+    overflow: hidden;
+    position: relative;
+}
+
+.CategoryBadge {
+    background: rgb(0 0 0 / 68%);
+    border: 1px solid rgb(255 255 255 / 42%);
+    border-radius: 999px;
+    color: #ffffff;
+    font-size: 8px;
+    left: 9px;
+    max-width: calc(100% - 18px);
+    opacity: 0;
+    overflow: hidden;
+    padding: 6px 9px;
+    pointer-events: none;
+    position: absolute;
+    text-overflow: ellipsis;
+    top: 9px;
+    transition: opacity 160ms ease;
+    white-space: nowrap;
+    z-index: 3;
+}
+
+.Card:hover .CategoryBadge,
+.Card:focus-within .CategoryBadge {
+    opacity: 1;
+}
+
+.YouTubeThumbnail,
+.Thumb video {
+    border: 0;
+    display: block;
+    height: 100%;
+    pointer-events: none;
+}
+
+.PreviewButton {
+    align-items: center;
+    background: rgb(0 0 0 / 55%);
+    border: 0;
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    opacity: 0;
+    padding: 0;
+    position: absolute;
+    transition: opacity 180ms ease;
+    z-index: 2;
+}
+
+.PreviewButton span {
+    font-size: 15px;
+    letter-spacing: -.03em;
+}
+
+.Thumb video {
+    object-fit: cover;
+    width: 100%;
+}
+
+.YouTubeThumbnail {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 100%;
+}
+
+.CardAdminActions {
+    align-items: center;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding-top: 8px;
+}
+
+.CardAdminActions span {
+    color: var(--soft);
+    font-size: 8px;
+}
+
+.CardAdminActions button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 8px;
+    min-height: 26px;
+    padding: 0 10px;
+}
+
+.Card:hover .PreviewButton,
+.PreviewButton:focus-visible {
+    opacity: 1;
+}
+
+.CardMeta {
+    display: grid;
+    font-family: Arial, "Noto Sans KR", sans-serif;
+    gap: 7px;
+    line-height: 1;
+    padding: 7px 6px 0;
+}
+
+.CardMeta > strong {
+    font-size: clamp(15px, 1.15vw, 22px);
+    font-weight: 500;
+    letter-spacing: -.055em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.CardMetaLine {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    min-width: 0;
+}
+
+.CardMetaLine time {
+    color: var(--soft);
+    flex: 0 0 auto;
+    font-size: 7px;
+    font-weight: 500;
+    letter-spacing: .025em;
+    text-transform: uppercase;
+}
+
+.CardMetaLine span {
+    color: var(--muted);
+    flex: 1 1 auto;
+    font-size: 8px;
+    font-weight: 400;
+    letter-spacing: -.015em;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 1050px) {
+    .Grid {
+        grid-template-columns:
+            repeat(var(--media-grid-columns, 3), minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 680px) {
+    .Masthead {
+        align-items: start;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .MastheadAside {
+        align-items: start;
+        justify-items: start;
+    }
+
+    .Introduction {
+        text-align: left;
+    }
+
+    .Grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 420px) {
+    .Grid {
+        grid-template-columns: 1fr;
+    }
+}

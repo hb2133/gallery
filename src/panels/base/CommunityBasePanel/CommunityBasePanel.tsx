@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { AdminBrand } from '@/components/AdminBrand/AdminBrand';
 import { useCommunityBasePanelController } from './controller/CommunityBasePanelController';
 import { CommunityFeedSection } from './sections/CommunityFeedSection/CommunityFeedSection';
 import Styles from './CommunityBasePanel.module.css';
@@ -12,9 +13,7 @@ export function CommunityBasePanel()
     return (
         <main className={Styles.Page}>
             <header className={Styles.Header}>
-                <Link href="/" className={Styles.Brand}>
-                    <span>A</span> Archive
-                </Link>
+                <AdminBrand ClassName={Styles.Brand} />
                 <Link href="/" className={Styles.BackLink}>
                     Back to index ↖
                 </Link>

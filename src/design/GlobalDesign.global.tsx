@@ -18,6 +18,19 @@ export function GlobalDesign()
                     --ease-out: cubic-bezier(.2, .75, .25, 1);
                 }
 
+                html[data-theme='dark'] {
+                    --background: #111111;
+                    --foreground: #f5f5f2;
+                    --canvas: #111111;
+                    --surface: #1b1b1a;
+                    --ink: #f5f5f2;
+                    --muted: #c4c4bf;
+                    --soft: #92928d;
+                    --line: #383836;
+                    --line-strong: #5a5a56;
+                    color-scheme: dark;
+                }
+
                 html {
                     scroll-behavior: smooth;
                 }
@@ -25,6 +38,24 @@ export function GlobalDesign()
                 body {
                     background: var(--canvas);
                     color: var(--ink);
+                }
+
+                body > main {
+                    animation:
+                        RoutePanelEnter
+                        360ms
+                        cubic-bezier(.2, .75, .25, 1)
+                        both;
+                }
+
+                @keyframes RoutePanelEnter {
+                    from {
+                        opacity: 0;
+                    }
+
+                    to {
+                        opacity: 1;
+                    }
                 }
 
                 ::selection {
@@ -35,6 +66,12 @@ export function GlobalDesign()
                 :focus-visible {
                     outline: 2px solid var(--ink);
                     outline-offset: 3px;
+                }
+
+                @media (prefers-reduced-motion: reduce) {
+                    body > main {
+                        animation: none;
+                    }
                 }
             `}
         </style>

@@ -1,0 +1,250 @@
+.Brand {
+    align-items: center;
+    display: inline-flex;
+    gap: 11px;
+    min-width: 0;
+}
+
+.BrandLink {
+    display: inline-flex;
+    flex: 0 0 auto;
+}
+
+.BrandMark {
+    align-items: center;
+    background: var(--ink);
+    color: var(--canvas);
+    display: inline-flex;
+    font-size: 11px;
+    font-weight: 620;
+    height: 24px;
+    justify-content: center;
+    width: 24px;
+}
+
+.DailyMessage {
+    background: var(--canvas);
+    border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+    border-radius: 2px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 450;
+    line-height: 1.4;
+    margin: 0;
+    padding: 6px 11px;
+    position: relative;
+}
+
+.DailyMessage > span {
+    animation: DailyMessageIn 520ms cubic-bezier(.22, .72, .24, 1);
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@keyframes DailyMessageIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+}
+
+.DailyMessage::before {
+    background: var(--canvas);
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+    border-left: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+    content: '';
+    height: 6px;
+    left: -4px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+    width: 6px;
+}
+
+.SettingsButton {
+    align-items: center;
+    background: transparent;
+    border: 1px solid color-mix(in srgb, var(--ink) 28%, transparent);
+    color: var(--ink);
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    height: 28px;
+    justify-content: center;
+    padding: 0;
+    transition:
+        background 160ms ease,
+        color 160ms ease,
+        transform 160ms ease;
+    width: 28px;
+}
+
+.SettingsButton:hover {
+    background: var(--ink);
+    color: var(--canvas);
+    transform: rotate(18deg);
+}
+
+.SettingsButton svg {
+    fill: none;
+    height: 14px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.45;
+    width: 14px;
+}
+
+.LoginBackdrop {
+    align-items: center;
+    background: rgb(15 15 14 / 42%);
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: 24px;
+    position: fixed;
+    z-index: 1000;
+}
+
+.LoginDialog {
+    background: var(--surface);
+    border: 1px solid rgb(20 20 19 / 16%);
+    box-shadow: 0 28px 90px rgb(0 0 0 / 24%);
+    max-width: 410px;
+    padding: 40px;
+    position: relative;
+    width: 100%;
+}
+
+.CloseButton {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    font-size: 22px;
+    height: 36px;
+    justify-content: center;
+    position: absolute;
+    right: 14px;
+    top: 12px;
+    width: 36px;
+}
+
+.LoginEyebrow {
+    color: var(--muted);
+    display: block;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    margin-bottom: 18px;
+}
+
+.LoginDialog h2 {
+    font-size: clamp(24px, 4vw, 34px);
+    font-weight: 520;
+    letter-spacing: -0.045em;
+    margin: 0;
+}
+
+.LoginDialog > p {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
+    margin: 12px 0 28px;
+}
+
+.LoginDialog form {
+    display: grid;
+    gap: 16px;
+}
+
+.LoginDialog label {
+    display: grid;
+    gap: 8px;
+}
+
+.LoginDialog label span {
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.LoginDialog input {
+    background: var(--canvas);
+    border: 1px solid rgb(20 20 19 / 16%);
+    border-radius: 0;
+    font: inherit;
+    height: 44px;
+    outline: none;
+    padding: 0 13px;
+}
+
+.LoginDialog input:focus {
+    border-color: var(--ink);
+}
+
+.LoginDialog form > button {
+    background: var(--ink);
+    border: 0;
+    color: var(--canvas);
+    cursor: pointer;
+    font-size: 10px;
+    height: 44px;
+    margin-top: 4px;
+}
+
+.LoginDialog form > button:disabled,
+.AccountPanel button:disabled {
+    cursor: wait;
+    opacity: 0.55;
+}
+
+.AccountPanel {
+    display: grid;
+    gap: 16px;
+}
+
+.AccountPanel > span {
+    background: var(--canvas);
+    border: 1px solid rgb(20 20 19 / 16%);
+    color: var(--muted);
+    font-size: 11px;
+    overflow: hidden;
+    padding: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.AccountPanel button {
+    background: var(--ink);
+    border: 0;
+    color: var(--canvas);
+    cursor: pointer;
+    font-size: 10px;
+    height: 44px;
+}
+
+.LoginDialog .LoginNotice {
+    color: var(--ink);
+    margin: 16px 0 0;
+}
+
+@media (max-width: 520px) {
+    .DailyMessage {
+        max-width: 48vw;
+    }
+
+    .LoginDialog {
+        padding: 34px 24px 28px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .DailyMessage > span {
+        animation: none;
+    }
+}

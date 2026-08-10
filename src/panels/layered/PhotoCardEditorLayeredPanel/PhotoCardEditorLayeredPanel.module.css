@@ -1,0 +1,1085 @@
+.Backdrop {
+    align-items: center;
+    background: rgb(10 10 10 / 66%);
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: 24px;
+    position: fixed;
+    z-index: 1150;
+}
+
+.Panel {
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    box-shadow: 0 32px 100px rgb(0 0 0 / 34%);
+    color: var(--ink);
+    max-height: calc(100svh - 48px);
+    overflow-y: auto;
+    padding: clamp(24px, 3vw, 40px);
+    position: relative;
+    width: min(1080px, calc(100vw - 48px));
+}
+
+.Header {
+    align-items: start;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 24px;
+    justify-content: space-between;
+    padding-bottom: 22px;
+}
+
+.Header > div > span {
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: .14em;
+}
+
+.Header h2 {
+    font-size: clamp(27px, 3vw, 40px);
+    font-weight: 480;
+    letter-spacing: -.05em;
+    margin: 11px 0 0;
+}
+
+.Header p {
+    color: var(--muted);
+    font-size: 10px;
+    margin: 9px 0 0;
+}
+
+.Header > button,
+.LayerHeading button,
+.Footer button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 9px;
+    min-height: 36px;
+    padding: 0 13px;
+}
+
+.Header > button b {
+    font-size: 16px;
+    font-weight: 400;
+    margin-left: 8px;
+}
+
+.EditorSections {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-top: 22px;
+}
+
+.EditorSections > button {
+    align-items: center;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    min-height: 58px;
+    padding: 0 15px;
+    text-align: left;
+}
+
+.EditorSections > button[data-active='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--canvas);
+}
+
+.EditorSections > button[data-active='true'] small,
+.EditorSections > button[data-active='true'] b {
+    color: color-mix(in srgb, var(--canvas) 72%, transparent);
+}
+
+.EditorSections > button > span {
+    display: grid;
+    gap: 5px;
+}
+
+.EditorSections strong {
+    font-size: 10px;
+}
+
+.EditorSections small,
+.EditorSections b {
+    color: var(--muted);
+    font-size: 8px;
+    font-weight: 400;
+}
+
+.Workspace {
+    display: grid;
+    gap: clamp(24px, 4vw, 52px);
+    grid-template-columns: minmax(300px, 480px) minmax(260px, 1fr);
+    padding-top: 22px;
+}
+
+.CanvasColumn {
+    display: grid;
+    gap: 12px;
+}
+
+.Canvas {
+    aspect-ratio: 148 / 210;
+    background: #ddd;
+    box-shadow: 0 20px 50px rgb(0 0 0 / 18%);
+    overflow: hidden;
+    position: relative;
+    touch-action: none;
+}
+
+.Canvas > img {
+    object-fit: cover;
+}
+
+.Canvas::after {
+    border: 1px solid rgb(255 255 255 / 18%);
+    content: "";
+    inset: 8px;
+    pointer-events: none;
+    position: absolute;
+    z-index: 1;
+}
+
+.VerticalSnapGuide,
+.HorizontalSnapGuide {
+    background: #54a8ff;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 16%);
+    pointer-events: none;
+    position: absolute;
+    z-index: 3;
+}
+
+.VerticalSnapGuide {
+    bottom: 0;
+    top: 0;
+    width: 1px;
+}
+
+.HorizontalSnapGuide {
+    height: 1px;
+    left: 0;
+    right: 0;
+}
+
+.CanvasText {
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: grab;
+    font-weight: 500;
+    line-height: 1;
+    margin: 0;
+    max-width: 88%;
+    padding: 4px 5px;
+    position: absolute;
+    text-align: left;
+    touch-action: none;
+    white-space: nowrap;
+    z-index: 4;
+}
+
+.CanvasText:active {
+    cursor: grabbing;
+}
+
+.CanvasTextSelected {
+    border-color: #5aa7ff;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 35%);
+}
+
+.AlignmentHint {
+    color: var(--muted);
+    font-size: 8px;
+    line-height: 1.5;
+    margin: -2px 0 0;
+}
+
+.ThumbnailControl {
+    align-items: center;
+    border-bottom: 1px solid var(--ink);
+    display: flex;
+    gap: 18px;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+}
+
+.ThumbnailControl > div:first-child {
+    display: grid;
+    gap: 6px;
+}
+
+.ThumbnailControl strong {
+    font-size: 11px;
+}
+
+.ThumbnailControl small {
+    color: var(--muted);
+    font-size: 8px;
+}
+
+.ThumbnailPreview {
+    aspect-ratio: 148 / 210;
+    background: color-mix(in srgb, var(--ink) 8%, transparent);
+    border: 1px solid var(--line);
+    cursor: pointer;
+    flex: 0 0 auto;
+    overflow: hidden;
+    position: relative;
+    width: 58px;
+}
+
+.ThumbnailPreview img {
+    object-fit: cover;
+}
+
+.ThumbnailPreview span {
+    align-items: center;
+    background: rgb(0 0 0 / 62%);
+    color: white;
+    display: flex;
+    font-size: 9px;
+    inset: 0;
+    justify-content: center;
+    opacity: 0;
+    position: absolute;
+    transition: opacity 140ms ease;
+    z-index: 1;
+}
+
+.ThumbnailPreview:hover span {
+    opacity: 1;
+}
+
+.ThumbnailPreview input {
+    cursor: pointer;
+    inset: 0;
+    opacity: 0;
+    position: absolute;
+    z-index: 2;
+}
+
+.Inspector {
+    min-width: 0;
+}
+
+.PublishSettings {
+    border-bottom: 1px solid var(--ink);
+    margin-bottom: 20px;
+}
+
+.PublishSettings h3 {
+    font-size: 11px;
+    font-weight: 600;
+    margin: 0 0 18px;
+}
+
+.VisibilityControl {
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+}
+
+.VisibilityControl > div {
+    display: grid;
+    gap: 5px;
+}
+
+.VisibilityControl strong {
+    font-size: 10px;
+}
+
+.VisibilityControl span {
+    color: var(--muted);
+    font-size: 8px;
+}
+
+.VisibilityControl > button {
+    align-items: center;
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    border-radius: 999px;
+    color: var(--canvas);
+    cursor: pointer;
+    display: flex;
+    font-size: 9px;
+    gap: 8px;
+    min-height: 36px;
+    padding: 0 12px 0 7px;
+}
+
+.VisibilityControl > button i {
+    background: var(--canvas);
+    border-radius: 50%;
+    display: block;
+    height: 22px;
+    width: 22px;
+}
+
+.VisibilityControl > button[data-private='true'] {
+    background: transparent;
+    border-color: var(--line);
+    color: var(--muted);
+}
+
+.VisibilityControl > button[data-private='true'] i {
+    background: var(--muted);
+}
+
+.PasswordControl {
+    border-bottom: 1px solid var(--line);
+    display: grid;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+}
+
+.PublishSettings .PasswordControl {
+    border-bottom: 0;
+}
+
+.PasswordControl > div:first-child {
+    display: grid;
+    gap: 5px;
+}
+
+.PasswordControl strong {
+    font-size: 10px;
+}
+
+.PasswordControl span {
+    color: var(--muted);
+    font-size: 8px;
+}
+
+.PasswordControl > div:last-child {
+    display: flex;
+    gap: 6px;
+}
+
+.PasswordField {
+    flex: 1 1 auto;
+    min-width: 0;
+    position: relative;
+}
+
+.PasswordControl input {
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font: inherit;
+    font-size: 10px;
+    height: 38px;
+    min-width: 0;
+    padding: 0 42px 0 10px;
+    width: 100%;
+}
+
+.PasswordControl button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    cursor: pointer;
+    flex: 0 0 auto;
+    font-size: 8px;
+    padding: 0 10px;
+}
+
+.PasswordControl button[data-active='true'] {
+    background: #b94a45;
+    border-color: #b94a45;
+    color: white;
+}
+
+.PasswordControl .PasswordVisibilityButton {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    display: flex;
+    height: 36px;
+    justify-content: center;
+    padding: 0;
+    position: absolute;
+    right: 1px;
+    top: 1px;
+    width: 38px;
+}
+
+.PasswordVisibilityButton svg {
+    fill: none;
+    height: 17px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.6;
+    width: 17px;
+}
+
+.CategoryControl {
+    border-bottom: 1px solid var(--ink);
+    display: grid;
+    gap: 7px;
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    position: relative;
+}
+
+.CategoryControl > span {
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.CategoryToggle {
+    align-items: center;
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    font-size: 10px;
+    height: 40px;
+    justify-content: space-between;
+    padding: 0 12px;
+    text-align: left;
+    width: 100%;
+}
+
+.CategoryToggle svg {
+    fill: none;
+    height: 16px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.6;
+    transition: transform 160ms ease;
+    width: 16px;
+}
+
+.CategoryToggle svg[data-open='true'] {
+    transform: rotate(180deg);
+}
+
+.CategoryOptions {
+    background: var(--canvas);
+    border: 1px solid var(--ink);
+    box-shadow: 0 14px 34px rgb(0 0 0 / 16%);
+    display: grid;
+    left: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 5px;
+    position: absolute;
+    right: 0;
+    top: calc(100% - 13px);
+    z-index: 12;
+}
+
+.CategoryOptions button {
+    background: transparent;
+    border: 0;
+    color: var(--ink);
+    cursor: pointer;
+    font: inherit;
+    font-size: 10px;
+    min-height: 36px;
+    padding: 0 10px;
+    text-align: left;
+}
+
+.CategoryOptions button:hover,
+.CategoryOptions button[aria-selected='true'] {
+    background: var(--ink);
+    color: var(--canvas);
+}
+
+.LayerHeading {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.LayerHeading strong {
+    font-size: 11px;
+}
+
+.LayerHeading > div {
+    display: flex;
+    gap: 5px;
+}
+
+.LayerHeading button[data-active='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--canvas);
+}
+
+.LayerList {
+    display: grid;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.LayerRow {
+    align-items: center;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    display: grid;
+    gap: 8px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 44px;
+    padding: 5px 6px 5px 11px;
+    position: relative;
+}
+
+.LayerRow > p {
+    font-size: 10px;
+    margin: 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.LayerRow > p span {
+    color: var(--soft);
+    font-size: 8px;
+    margin-right: 10px;
+}
+
+.LayerRow > p input {
+    accent-color: var(--ink);
+    cursor: pointer;
+    height: 14px;
+    margin: 0 10px 0 0;
+    vertical-align: middle;
+    width: 14px;
+}
+
+.LayerRow > div {
+    display: flex;
+    gap: 4px;
+}
+
+.LayerRow button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 8px;
+    min-height: 30px;
+    padding: 0 8px;
+}
+
+.LayerRow button[data-active='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--canvas);
+}
+
+.LayerSettingsButton {
+    font-size: 13px !important;
+    font-weight: 700;
+    letter-spacing: -.08em;
+    min-width: 34px;
+}
+
+.LayerActive {
+    border-color: var(--ink);
+}
+
+.Controls {
+    border-top: 1px solid var(--ink);
+    display: grid;
+    gap: 13px;
+    margin-top: 20px;
+    padding-top: 18px;
+}
+
+.LayerSettingsBox {
+    background: var(--canvas);
+    border: 1px solid var(--ink);
+    box-shadow: 0 16px 38px rgb(0 0 0 / 16%);
+    display: grid;
+    gap: 13px;
+    margin: 0;
+    overflow-y: auto;
+    padding: 14px;
+    position: fixed;
+    width: min(288px, calc(100vw - 24px));
+    z-index: 1191;
+}
+
+.LayerSettingsBox[data-placement='above'] {
+    transform-origin: bottom right;
+}
+
+.LayerSettingsBox[data-placement='below'] {
+    transform-origin: top right;
+}
+
+.LayerSettingsBackdrop {
+    background: transparent;
+    inset: 0;
+    position: fixed;
+    z-index: 1190;
+}
+
+.Controls label {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+}
+
+.Controls label > span {
+    color: var(--muted);
+    font-size: 8px;
+}
+
+.Controls input,
+.Controls select {
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font: inherit;
+    font-size: 10px;
+    height: 38px;
+    min-width: 0;
+    padding: 0 10px;
+    width: 100%;
+}
+
+.Controls input[type='color'] {
+    cursor: pointer;
+    padding: 4px;
+}
+
+.ControlRow {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.Controls .WeightSelect {
+    height: 142px;
+    padding: 4px;
+}
+
+.WeightSelect option {
+    padding: 6px 8px;
+}
+
+.ContentEditor {
+    margin-top: 22px;
+}
+
+.ContentEditorHeading {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.ContentEditorHeading > div:first-child {
+    display: grid;
+    gap: 5px;
+}
+
+.ContentEditorHeading strong {
+    font-size: 11px;
+}
+
+.ContentEditorHeading span {
+    color: var(--muted);
+    font-size: 8px;
+}
+
+.ContentEditorActions {
+    display: flex;
+    gap: 6px;
+}
+
+.ContentEditorHeading label,
+.ContentEditorActions button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 9px;
+    min-height: 36px;
+    overflow: hidden;
+    padding: 11px 13px;
+    position: relative;
+}
+
+.ContentEditorActions button[data-active='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--canvas);
+}
+
+.ContentEditorActions button:disabled {
+    cursor: wait;
+    opacity: .5;
+}
+
+.ContentEditorHeading input {
+    inset: 0;
+    opacity: 0;
+    position: absolute;
+}
+
+.ContentLayoutViewport {
+    margin: 0 auto;
+    max-width: 720px;
+    position: relative;
+    width: 100%;
+}
+
+.ContentLayoutGrid {
+    display: grid;
+    gap: 7px;
+    grid-auto-rows: auto;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin: 16px auto 0;
+    max-height: min(460px, 58vh);
+    overflow-y: auto;
+    padding-right: 6px;
+    scrollbar-color: var(--line) transparent;
+    scrollbar-width: thin;
+    width: 100%;
+}
+
+.ContentLayoutLoading {
+    align-items: center;
+    color: var(--muted);
+    backdrop-filter: blur(2px);
+    background: color-mix(
+        in srgb,
+        var(--canvas) 78%,
+        transparent
+    );
+    display: flex;
+    flex-direction: column;
+    font-size: 8px;
+    gap: 12px;
+    justify-content: center;
+    inset: 16px 0 0;
+    min-height: 180px;
+    position: absolute;
+    z-index: 8;
+}
+
+.ContentImagePreviewReady {
+    animation: ContentImagePreviewReveal 260ms ease both;
+}
+
+.ContentLayoutLoading i {
+    animation: ContentImageLoadingSpin 800ms linear infinite;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    border-top-color: var(--ink);
+    height: 22px;
+    width: 22px;
+}
+
+@keyframes ContentImageLoadingSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes ContentImagePreviewReveal {
+    from {
+        filter: blur(5px);
+        opacity: 0;
+        transform: scale(1.025);
+    }
+
+    to {
+        filter: blur(0);
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.ContentLayoutGrid article {
+    aspect-ratio: 1;
+    background: #111111;
+    border: 1px solid var(--line);
+    min-width: 0;
+    overflow: hidden;
+    position: relative;
+    transition:
+        box-shadow 180ms ease,
+        filter 180ms ease;
+}
+
+.ContentLayoutGrid article[data-dragging='true'] {
+    box-shadow: 0 14px 32px rgb(0 0 0 / 36%);
+    filter: saturate(1.08);
+    z-index: 6;
+}
+
+.ContentImageDragSurface {
+    cursor: grab;
+    inset: 0;
+    position: absolute;
+    touch-action: none;
+}
+
+.ContentLayoutGrid article[data-dragging='true']
+.ContentImageDragSurface {
+    cursor: grabbing;
+}
+
+.ContentImageDragSurface img {
+    object-fit: cover;
+}
+
+.ContentLayoutGrid article > span {
+    background: rgb(17 17 17 / 74%);
+    color: white;
+    font-size: 7px;
+    left: 4px;
+    padding: 4px 6px;
+    position: absolute;
+    top: 4px;
+    z-index: 2;
+}
+
+.DirectionControls {
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 4;
+}
+
+.ContentLayoutGrid article[data-selecting='true']
+.DirectionControls {
+    display: none;
+}
+
+.DirectionButton {
+    align-items: center;
+    background: rgb(17 17 17 / 64%);
+    border: 0;
+    border-radius: 50%;
+    color: rgb(255 255 255 / 76%);
+    cursor: pointer;
+    display: flex;
+    font-size: 13px;
+    height: 24px;
+    justify-content: center;
+    padding: 0;
+    pointer-events: auto;
+    position: absolute;
+    width: 24px;
+}
+
+.DirectionButton[data-forward='true'] {
+    background: #f2a7a7;
+    color: #4a2020;
+}
+
+.DirectionButton[data-back='true'] {
+    background: #9ebcf2;
+    color: #18345f;
+    cursor: default;
+    opacity: 1;
+}
+
+.DirectionLeft,
+.DirectionRight {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.DirectionLeft {
+    left: 5px;
+}
+
+.DirectionRight {
+    right: 5px;
+}
+
+.DirectionUp,
+.DirectionDown {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.DirectionUp {
+    top: 5px;
+}
+
+.DirectionDown {
+    bottom: 5px;
+}
+
+.ContentImageCheckbox {
+    accent-color: #111111;
+    cursor: pointer;
+    height: 16px;
+    left: 6px;
+    margin: 0;
+    position: absolute;
+    top: 6px;
+    width: 16px;
+    z-index: 5;
+}
+
+.Footer {
+    align-items: center;
+    border-top: 1px solid var(--line);
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    margin-top: 28px;
+    padding-top: 20px;
+}
+
+.Footer p {
+    color: var(--muted);
+    font-size: 9px;
+    margin: 0;
+}
+
+.FooterLeft {
+    align-items: center;
+    display: flex;
+    gap: 14px;
+    min-width: 0;
+}
+
+.Footer .DeletePostButton {
+    background: transparent;
+    border-color: #b94a45;
+    color: #b94a45;
+    flex: 0 0 auto;
+}
+
+.Footer .CopyPostButton {
+    background: transparent;
+    border-color: var(--line);
+    color: var(--ink);
+    flex: 0 0 auto;
+}
+
+.Footer button {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--canvas);
+    min-height: 42px;
+    padding: 0 18px;
+}
+
+.DeleteConfirmationBackdrop {
+    align-items: center;
+    background: rgb(0 0 0 / 58%);
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: 24px;
+    position: absolute;
+    z-index: 10;
+    backdrop-filter: blur(5px);
+}
+
+.DeleteConfirmation {
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    box-shadow: 0 24px 70px rgb(0 0 0 / 28%);
+    color: var(--ink);
+    padding: 26px;
+    width: min(390px, 100%);
+}
+
+.DeleteConfirmation > span {
+    color: #b94a45;
+    font-size: 8px;
+    letter-spacing: .12em;
+}
+
+.DeleteConfirmation h3 {
+    font-size: 24px;
+    font-weight: 500;
+    margin: 14px 0 0;
+}
+
+.DeleteConfirmation p {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.6;
+    margin: 10px 0 24px;
+}
+
+.DeleteConfirmation > div {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.DeleteConfirmation button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    min-height: 40px;
+    padding: 0 15px;
+}
+
+.DeleteConfirmation button:last-child {
+    background: #b94a45;
+    border-color: #b94a45;
+    color: white;
+}
+
+.Header button:disabled,
+.LayerHeading button:disabled,
+.Footer button:disabled,
+.VisibilityControl button:disabled,
+.DeleteConfirmation button:disabled,
+.ThumbnailPreview:has(input:disabled) {
+    cursor: wait;
+    opacity: .5;
+}
+
+@media (max-width: 760px) {
+    .Backdrop {
+        align-items: end;
+        padding: 0;
+    }
+
+    .Panel {
+        max-height: 94svh;
+        padding: 24px 18px;
+        width: 100%;
+    }
+
+    .Workspace {
+        grid-template-columns: 1fr;
+    }
+
+    .EditorSections {
+        grid-template-columns: 1fr;
+    }
+
+    .CanvasColumn {
+        margin: 0 auto;
+        max-width: 440px;
+        width: 100%;
+    }
+}

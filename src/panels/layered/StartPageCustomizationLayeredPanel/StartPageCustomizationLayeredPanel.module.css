@@ -1,0 +1,552 @@
+.Backdrop {
+    align-items: center;
+    animation: BackdropIn 180ms ease;
+    background: rgb(12 12 12 / 58%);
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: 24px;
+    position: fixed;
+    z-index: 1100;
+}
+
+.Panel {
+    animation: PanelIn 320ms cubic-bezier(.2, .75, .25, 1);
+    background: var(--canvas);
+    border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+    box-shadow: 0 30px 100px rgb(0 0 0 / 28%);
+    color: var(--ink);
+    max-height: min(860px, calc(100svh - 48px));
+    overflow-y: auto;
+    padding: clamp(26px, 3.4vw, 44px);
+    width: min(1180px, calc(100vw - 48px));
+}
+
+.Header {
+    align-items: start;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 28px;
+    justify-content: space-between;
+    padding-bottom: 26px;
+}
+
+.Header > div > span {
+    color: var(--muted);
+    display: block;
+    font-size: 9px;
+    letter-spacing: .16em;
+    margin-bottom: 15px;
+}
+
+.Header h2 {
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 480;
+    letter-spacing: -.055em;
+    line-height: 1;
+    margin: 0;
+}
+
+.Header p {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
+    margin: 14px 0 0;
+}
+
+.HeaderActions {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: 8px;
+}
+
+.BackButton,
+.CloseButton {
+    align-items: center;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    font-size: 9px;
+    gap: 12px;
+    min-height: 36px;
+    padding: 0 12px;
+}
+
+.BackButton {
+    font-size: 9px;
+}
+
+.CloseButton b {
+    font-size: 17px;
+    font-weight: 400;
+}
+
+.BackButton:disabled,
+.CloseButton:disabled {
+    cursor: wait;
+    opacity: .5;
+}
+
+.Form {
+    margin-top: 20px;
+}
+
+.CategoryTabs {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-bottom: 16px;
+}
+
+.CategoryTabs button {
+    align-items: center;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    gap: 10px;
+    min-height: 50px;
+    padding: 0 13px;
+    text-align: left;
+}
+
+.CategoryTabs button[data-active='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--canvas);
+}
+
+.CategoryTabs button:disabled {
+    cursor: wait;
+    opacity: .5;
+}
+
+.CategoryTabs span {
+    font-size: 8px;
+    opacity: .58;
+}
+
+.CategoryTabs strong {
+    font-size: 10px;
+    font-weight: 560;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.EditorLayout {
+    align-items: start;
+    display: grid;
+    gap: 16px;
+    grid-template-columns: minmax(360px, .95fr) minmax(420px, 1.05fr);
+}
+
+.PreviewSection {
+    border: 1px solid var(--line);
+    display: grid;
+    gap: 14px;
+    padding: 18px;
+}
+
+.SectionHeading {
+    align-items: end;
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.SectionHeading strong {
+    font-size: 12px;
+    font-weight: 620;
+}
+
+.SectionHeading p {
+    color: var(--muted);
+    font-size: 9px;
+    line-height: 1.6;
+    margin: 0;
+    text-align: right;
+}
+
+.BoxPreview {
+    aspect-ratio: 1;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    overflow: hidden;
+    width: 100%;
+}
+
+.PreviewCell {
+    align-items: center;
+    background-color: var(--canvas);
+    background-repeat: no-repeat;
+    background-size: 500% 500%;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    display: flex;
+    font: inherit;
+    justify-content: center;
+    min-width: 0;
+    padding: 0;
+    position: relative;
+}
+
+.PreviewCell[draggable='true'] {
+    cursor: grab;
+}
+
+.PreviewCell[data-selected='true'] {
+    box-shadow: inset 0 0 0 3px var(--ink);
+    z-index: 1;
+}
+
+.PreviewCell:disabled {
+    opacity: 1;
+}
+
+.PreviewCell > span {
+    color: var(--soft);
+    font-size: 9px;
+}
+
+.PreviewCell[data-filled='true'] > span {
+    display: none;
+}
+
+.PreviewCell small {
+    background: transparent;
+    color: #fff;
+    font-size: 7px;
+    left: 50%;
+    max-width: calc(100% - 6px);
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    text-align: center;
+    text-overflow: ellipsis;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+}
+
+.PreviewHelp {
+    color: var(--muted);
+    font-size: 9px;
+    line-height: 1.65;
+    margin: 0;
+}
+
+.CategoryCard {
+    border: 1px solid var(--line);
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+    padding: 18px;
+}
+
+.CardTop {
+    align-items: start;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+}
+
+.CardTop > span {
+    color: var(--soft);
+    font-size: 9px;
+    letter-spacing: .08em;
+}
+
+.ImagePicker {
+    background: color-mix(in srgb, var(--ink) 8%, transparent);
+    cursor: pointer;
+    flex: 0 0 auto;
+    height: 74px;
+    overflow: hidden;
+    position: relative;
+    width: 74px;
+}
+
+.ImagePicker img {
+    object-fit: cover;
+    transition:
+        filter 180ms ease,
+        transform 240ms ease;
+}
+
+.ImagePickerOverlay {
+    align-items: center;
+    background: rgb(0 0 0 / 54%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    font-size: 9px;
+    gap: 5px;
+    inset: 0;
+    justify-content: center;
+    opacity: 0;
+    position: absolute;
+    transition: opacity 180ms ease;
+    z-index: 1;
+}
+
+.ImagePickerOverlay svg {
+    fill: none;
+    height: 17px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+    width: 17px;
+}
+
+.ImagePicker input {
+    cursor: pointer;
+    inset: 0;
+    opacity: 0;
+    position: absolute;
+    z-index: 2;
+}
+
+.ImagePickerActive .ImagePickerOverlay,
+.ImagePicker:has(input:focus-visible) .ImagePickerOverlay {
+    opacity: 1;
+}
+
+.ImagePickerActive img,
+.ImagePicker:has(input:focus-visible) img {
+    filter: brightness(.72);
+    transform: scale(1.04);
+}
+
+.ImagePickerDisabled {
+    cursor: wait;
+}
+
+.ImagePickerDisabled input {
+    cursor: wait;
+}
+
+.TextField {
+    display: grid;
+    gap: 7px;
+}
+
+.TextField span {
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.TextField input {
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--ink);
+    border-radius: 0;
+    color: var(--ink);
+    font: inherit;
+    font-size: 17px;
+    height: 42px;
+    outline: none;
+    padding: 0;
+}
+
+.TextField input:focus {
+    border-bottom-width: 2px;
+}
+
+.TextField input:disabled {
+    opacity: .55;
+}
+
+.TypographyGroup {
+    border-top: 1px solid var(--line);
+    display: grid;
+    gap: 10px;
+    padding-top: 12px;
+}
+
+.TypographyGroup > strong {
+    font-size: 9px;
+    font-weight: 600;
+}
+
+.TypographyFields {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: minmax(0, 1fr) 64px 54px;
+}
+
+.TypographyFields label {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+}
+
+.TypographyFields span {
+    color: var(--muted);
+    font-size: 8px;
+}
+
+.TypographyFields select,
+.TypographyFields input {
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font: inherit;
+    font-size: 9px;
+    height: 36px;
+    min-width: 0;
+    padding: 0 8px;
+    width: 100%;
+}
+
+.TypographyFields input[type='color'] {
+    cursor: pointer;
+    padding: 4px;
+}
+
+.TypographyFields select:focus,
+.TypographyFields input:focus {
+    border-color: var(--ink);
+    outline: none;
+}
+
+.TypographyFields select:disabled,
+.TypographyFields input:disabled {
+    opacity: .55;
+}
+
+.Footer {
+    align-items: center;
+    display: flex;
+    gap: 24px;
+    justify-content: space-between;
+    padding-top: 22px;
+}
+
+.Footer > p {
+    color: var(--muted);
+    font-size: 9px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.Footer > div {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 8px;
+}
+
+.Footer button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 10px;
+    min-height: 40px;
+    padding: 0 18px;
+}
+
+.Footer button[type='submit'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--canvas);
+}
+
+.Footer button:disabled {
+    cursor: wait;
+    opacity: .5;
+}
+
+@keyframes BackdropIn {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes PanelIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(.985);
+    }
+}
+
+@media (max-width: 900px) {
+    .EditorLayout {
+        grid-template-columns: 1fr;
+    }
+
+    .BoxPreview {
+        max-width: 520px;
+    }
+}
+
+@media (max-width: 680px) {
+    .Backdrop {
+        align-items: end;
+        padding: 0;
+    }
+
+    .Panel {
+        max-height: 92svh;
+        padding: 26px 18px 20px;
+        width: 100%;
+    }
+
+    .CloseButton span {
+        display: none;
+    }
+
+    .HeaderActions {
+        align-items: end;
+        flex-direction: column-reverse;
+    }
+
+    .CategoryTabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ImagePickerOverlay {
+        background: linear-gradient(
+            to top,
+            rgb(0 0 0 / 68%),
+            transparent 70%
+        );
+        flex-direction: row;
+        gap: 4px;
+        justify-content: center;
+        opacity: 1;
+        padding-top: 46px;
+    }
+
+    .ImagePickerOverlay svg {
+        height: 12px;
+        width: 12px;
+    }
+
+    .SectionHeading {
+        align-items: start;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .SectionHeading p {
+        text-align: left;
+    }
+
+    .Footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .Footer > div {
+        display: flex;
+        justify-content: flex-end;
+    }
+}

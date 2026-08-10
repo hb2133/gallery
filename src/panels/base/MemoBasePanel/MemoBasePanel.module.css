@@ -1,0 +1,1516 @@
+.Page {
+    background: var(--canvas);
+    min-height: 100vh;
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
+}
+
+.Header {
+    align-items: center;
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    height: 68px;
+    justify-content: space-between;
+    padding: 0 var(--page-gutter);
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 20;
+    backdrop-filter: blur(14px);
+}
+
+.Brand {
+    align-items: center;
+    display: flex;
+    font-size: 13px;
+    font-weight: 600;
+    gap: 9px;
+}
+
+.BackLink {
+    background: var(--ink);
+    border-radius: 6px;
+    color: var(--canvas);
+    font-size: 10px;
+    padding: 11px 13px;
+}
+
+.BookSection {
+    margin: 0 auto;
+    max-width: 1540px;
+    padding: clamp(70px, 8vw, 120px) var(--page-gutter) 130px;
+}
+
+.Intro {
+    align-items: end;
+    display: grid;
+    grid-template-columns: 1fr minmax(230px, 0.45fr);
+}
+
+.Intro > p:first-child {
+    color: var(--muted);
+    font-size: 9px;
+    grid-column: 1 / -1;
+    letter-spacing: 0.12em;
+    margin: 0 0 26px;
+    text-transform: uppercase;
+}
+
+.Intro h1 {
+    font-size: clamp(48px, 6.8vw, 98px);
+    font-weight: 430;
+    letter-spacing: -0.075em;
+    line-height: 0.9;
+    margin: 0;
+}
+
+.Intro h1 span {
+    display: block;
+}
+
+.Intro > p:last-child {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.7;
+    margin: 0 0 7px;
+}
+
+.Workspace {
+    border-top: 1px solid var(--ink);
+    display: grid;
+    gap: clamp(18px, 3vw, 42px);
+    grid-template-columns: minmax(170px, 0.35fr) minmax(520px, 1.65fr);
+    margin-top: 76px;
+    padding-top: 34px;
+}
+
+.Workspace > * {
+    min-width: 0;
+}
+
+.PageRail > div {
+    align-items: center;
+    display: flex;
+    font-size: 10px;
+    justify-content: space-between;
+}
+
+.PageRail > div button {
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font-size: 10px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.PageRail ol {
+    list-style: none;
+    margin: 24px 0 0;
+    padding: 0;
+}
+
+.PageRail li {
+    border-top: 1px solid var(--line);
+}
+
+.PageRail li:last-child {
+    border-bottom: 1px solid var(--line);
+}
+
+.PageRail li button {
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    display: grid;
+    gap: 8px;
+    padding: 16px 8px;
+    text-align: left;
+    transition: background 180ms ease;
+    width: 100%;
+}
+
+.PageRail li button:hover,
+.PageRail li .PageActive {
+    background: var(--surface);
+}
+
+.PageRail li span {
+    color: var(--soft);
+    font-size: 8px;
+}
+
+.PageRail li strong {
+    font-size: 11px;
+    font-weight: 520;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.MemoPagination {
+    align-items: center;
+    border-top: 1px solid var(--line);
+    display: flex;
+    gap: 4px;
+    padding: 14px 0;
+}
+
+.MemoPagination button {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    color: var(--muted);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 9px;
+    height: 30px;
+    justify-content: center;
+    min-width: 30px;
+}
+
+.MemoPagination button:hover,
+.MemoPagination .PageActive {
+    background: var(--ink);
+    color: var(--canvas);
+}
+
+.MemoPagination button:disabled {
+    cursor: default;
+    opacity: 0.28;
+}
+
+.FlipBookStage {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    min-height: 610px;
+    contain: layout paint;
+    overflow: clip;
+    perspective: 2000px;
+    position: relative;
+    width: 100%;
+}
+
+.FlipBook {
+    margin: 0 auto;
+    overflow: clip;
+}
+
+.FlipBookStage[data-book-initializing='true'] .FlipBook {
+    visibility: hidden;
+}
+
+.FlipBook > .EnginePage:not(:global(.stf__item)) {
+    display: none;
+}
+
+.FlipBookStage :global(.stf__innerShadow) {
+    filter: saturate(0);
+    opacity: .42 !important;
+}
+
+.FlipBookStage :global(.stf__outerShadow) {
+    filter: blur(.5px);
+    opacity: .58 !important;
+}
+
+.FlipBookStage[data-cover-closed='true'] :global(.stf__innerShadow),
+.FlipBookStage[data-cover-closed='true'] :global(.stf__outerShadow) {
+    display: none !important;
+}
+
+.EnginePage {
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.EnginePaper {
+    background:
+        linear-gradient(
+            90deg,
+            rgb(0 0 0 / 4%),
+            transparent 7%,
+            rgb(255 255 255 / 24%) 56%,
+            transparent
+        ),
+        #fbfaf5;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 3%);
+    color: #111111;
+}
+
+.EngineVerso {
+    background:
+        linear-gradient(270deg, #e9e6de 0, #fffefa 6%, #fbfaf5 100%);
+}
+
+.FlipBookStage[data-cover-settling='true'] .EngineRecto {
+    visibility: hidden !important;
+}
+
+.EngineCover {
+    background: #111111;
+    color: white;
+}
+
+.EngineCoverFace {
+    --engine-cover: #111111;
+    background:
+        linear-gradient(
+            135deg,
+            rgb(255 255 255 / 8%),
+            transparent 38%
+        ),
+        radial-gradient(
+            circle at 74% 30%,
+            transparent 0 52px,
+            rgb(255 255 255 / 13%) 53px 54px,
+            transparent 55px
+        ),
+        var(--engine-cover);
+    box-shadow:
+        inset 18px 0 28px rgb(0 0 0 / 18%),
+        inset 0 0 0 1px rgb(255 255 255 / 12%);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    padding: clamp(28px, 4vw, 48px);
+    text-align: left;
+}
+
+.EngineCoverFace[data-cover='mint'] {
+    --engine-cover: #c8f5d4;
+    color: #111111;
+}
+
+.EngineCoverFace[data-cover='rose'] {
+    --engine-cover: #ffd3dc;
+    color: #111111;
+}
+
+.EngineCoverFace[data-cover='sky'] {
+    --engine-cover: #c9e8ff;
+    color: #111111;
+}
+
+.EngineCoverFace small,
+.EngineCoverFace span {
+    font-size: 8px;
+    letter-spacing: .12em;
+}
+
+.EngineCoverFace strong {
+    font-size: clamp(28px, 3.2vw, 42px);
+    font-weight: 480;
+    letter-spacing: -.055em;
+    line-height: .96;
+}
+
+.EngineTitlePage {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    padding: clamp(30px, 4vw, 60px);
+    position: relative;
+}
+
+.EngineTitlePage::before {
+    border: 1px solid rgb(0 0 0 / 24%);
+    border-radius: 50%;
+    content: "";
+    height: min(16vw, 190px);
+    left: 50%;
+    position: absolute;
+    top: 45%;
+    transform: translate(-50%, -50%);
+    width: min(16vw, 190px);
+}
+
+.EngineTitlePage small,
+.EngineTitlePage span {
+    font-size: 8px;
+    letter-spacing: .11em;
+}
+
+.EngineTitlePage strong {
+    font-size: clamp(29px, 3.1vw, 46px);
+    font-weight: 480;
+    letter-spacing: -.06em;
+    line-height: .96;
+    position: relative;
+}
+
+.EngineMemoPage {
+    box-sizing: border-box;
+    height: 100%;
+    padding: clamp(30px, 4vw, 60px);
+    position: relative;
+}
+
+.EngineMemoPage[data-has-attachment='true'] .ContentInput {
+    min-height: 125px;
+}
+
+.EnginePageTitle {
+    border-bottom: 1px solid var(--line);
+    font-size: clamp(27px, 2.8vw, 42px);
+    font-weight: 460;
+    letter-spacing: -.06em;
+    line-height: 1;
+    margin: 0;
+    padding-bottom: 28px;
+}
+
+.EnginePageContent {
+    font-family: var(--font-noto-sans-kr), sans-serif;
+    font-size: 15px;
+    line-height: 1.9;
+    margin: 0;
+    padding-top: 34px;
+    white-space: pre-wrap;
+}
+
+.EngineBackCover {
+    align-items: end;
+    background: #111111;
+    color: white;
+    display: flex;
+    font-size: 8px;
+    justify-content: end;
+    letter-spacing: .12em;
+    padding: 34px;
+}
+
+.LastPageGuard {
+    background: transparent;
+    bottom: 0;
+    height: min(190px, 32%);
+    position: absolute;
+    right: 0;
+    touch-action: none;
+    width: min(190px, 24%);
+    z-index: 10000;
+}
+
+.FlipInputGuard {
+    background: transparent;
+    inset: 0;
+    position: absolute;
+    touch-action: none;
+    z-index: 10001;
+}
+
+.BookExperience {
+    min-height: 610px;
+    perspective: 1800px;
+    position: relative;
+}
+
+.Book {
+    --cover: #111111;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    isolation: isolate;
+    min-height: 610px;
+    perspective: 1800px;
+    perspective-origin: 50% 45%;
+    position: relative;
+    transform: rotateX(1.2deg);
+    transform-origin: center 72%;
+    transform-style: preserve-3d;
+}
+
+.Book[data-book-phase='closed'] {
+    transform:
+        translateX(-25%)
+        rotateX(2deg)
+        scale(.78);
+}
+
+.Book::before {
+    background: linear-gradient(
+        90deg,
+        rgb(0 0 0 / 18%),
+        rgb(255 255 255 / 28%),
+        rgb(0 0 0 / 22%)
+    );
+    bottom: 3px;
+    content: "";
+    left: calc(50% - 7px);
+    position: absolute;
+    top: 3px;
+    width: 14px;
+    z-index: 6;
+}
+
+.Book::after {
+    background: repeating-linear-gradient(
+        0deg,
+        #d8d5cc 0,
+        #d8d5cc 1px,
+        #f3f0e8 1px,
+        #f3f0e8 3px
+    );
+    bottom: -9px;
+    box-shadow: 0 14px 28px rgb(0 0 0 / 16%);
+    content: "";
+    height: 12px;
+    left: 9px;
+    position: absolute;
+    right: 5px;
+    transform: translateZ(-3px);
+    z-index: -1;
+}
+
+.Book[data-book-phase='opening'] {
+    animation: OpenBookSpread 900ms cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.Book[data-book-phase='closing'] {
+    animation: CloseBookSpread 720ms cubic-bezier(.55, .05, .5, .95)
+        both;
+}
+
+.Book[data-book-phase='closed']::before,
+.Book[data-book-phase='closed']::after {
+    opacity: 0;
+}
+
+.Book[data-book-phase='closed'] .LeftPaper,
+.Book[data-book-phase='closed'] .Paper {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+.Book[data-book-phase='opening'] .LeftPaper,
+.Book[data-book-phase='opening'] .Paper {
+    animation: PaperSurfaceReveal 900ms ease both;
+}
+
+@keyframes PaperSurfaceReveal {
+    0%,
+    12% {
+        opacity: 0;
+    }
+
+    52%,
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes OpenBookSpread {
+    0% {
+        transform:
+            translateX(-25%)
+            rotateX(2deg)
+            scale(.78);
+    }
+
+    56% {
+        transform:
+            translateX(-8%)
+            rotateX(1.5deg)
+            scale(.94);
+    }
+
+    80% {
+        transform: rotateX(.8deg) scale(1.01);
+    }
+
+    100% {
+        transform: rotateX(1.2deg) rotateY(0) scale(1);
+    }
+}
+
+@keyframes CloseBookSpread {
+    0% {
+        opacity: 1;
+        transform: rotateX(1.2deg) rotateY(0) scale(1);
+    }
+
+    100% {
+        transform:
+            translateX(-25%)
+            rotateX(2deg)
+            scale(.78);
+    }
+}
+
+.Book[data-cover='mint'] {
+    --cover: #c8f5d4;
+}
+
+.Book[data-cover='rose'] {
+    --cover: #ffd3dc;
+}
+
+.Book[data-cover='sky'] {
+    --cover: #c9e8ff;
+}
+
+.LeftPaper {
+    backface-visibility: hidden;
+    background:
+        linear-gradient(270deg, #ebe8df 0, #fffefa 6%, #fbfaf5 100%);
+    box-shadow:
+        -16px 22px 42px rgb(0 0 0 / 13%),
+        inset -12px 0 25px rgb(0 0 0 / 7%);
+    overflow: hidden;
+    padding: clamp(30px, 4vw, 62px);
+    position: relative;
+    transform: rotateY(-2.4deg) translateZ(-1px);
+    transform-origin: right;
+    transform-style: preserve-3d;
+    transition:
+        transform 420ms cubic-bezier(.22, 1, .36, 1),
+        filter 420ms ease,
+        box-shadow 420ms ease;
+    will-change: transform, filter;
+    z-index: 2;
+}
+
+.LeftPaper::before,
+.Paper::before {
+    bottom: 0;
+    content: "";
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    transition:
+        opacity 180ms ease,
+        width 420ms cubic-bezier(.22, 1, .36, 1);
+    width: calc(18px + var(--turn-progress) * 82px);
+    z-index: 6;
+}
+
+.LeftPaper::before {
+    background: linear-gradient(
+        270deg,
+        rgb(0 0 0 / 23%),
+        rgb(255 255 255 / 36%) 26%,
+        rgb(0 0 0 / 8%) 58%,
+        transparent
+    );
+    right: 0;
+}
+
+.Paper::before {
+    background: linear-gradient(
+        90deg,
+        rgb(0 0 0 / 24%),
+        rgb(255 255 255 / 38%) 26%,
+        rgb(0 0 0 / 8%) 58%,
+        transparent
+    );
+    left: 0;
+}
+
+.LeftPaper::after {
+    background: linear-gradient(
+        270deg,
+        rgb(0 0 0 / 11%),
+        transparent 7%,
+        rgb(0 0 0 / 2%) 96%,
+        rgb(0 0 0 / 6%)
+    );
+    content: "";
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+}
+
+.TargetPaper {
+    background:
+        linear-gradient(90deg, #e9e6de 0, #fffefa 6%, #fffefa 100%);
+    bottom: 0;
+    box-shadow:
+        16px 22px 42px rgb(0 0 0 / 12%),
+        inset 10px 0 24px rgb(0 0 0 / 6%);
+    overflow: hidden;
+    padding: clamp(30px, 5vw, 70px);
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 50%;
+    z-index: 1;
+}
+
+.TargetPaper::after {
+    background: linear-gradient(
+        90deg,
+        rgb(0 0 0 / 12%),
+        transparent 8%,
+        rgb(0 0 0 / 3%) 96%,
+        rgb(0 0 0 / 8%)
+    );
+    content: "";
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+}
+
+.TargetPageTitle {
+    border-bottom: 1px solid var(--line);
+    font-size: clamp(27px, 2.8vw, 42px);
+    font-weight: 460;
+    letter-spacing: -.06em;
+    line-height: 1;
+    margin: 0;
+    padding-bottom: 28px;
+}
+
+.TargetPageContent {
+    font-family: var(--font-noto-sans-kr), sans-serif;
+    font-size: 15px;
+    line-height: 1.9;
+    margin: 0;
+    padding-top: 34px;
+    white-space: pre-wrap;
+}
+
+.TargetAttachment {
+    aspect-ratio: 16 / 9;
+    margin-top: 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+.TargetAttachment img {
+    object-fit: cover;
+}
+
+.TitlePage {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    min-height: 480px;
+    position: relative;
+}
+
+.TitlePage::before {
+    border: 1px solid color-mix(in srgb, var(--cover) 56%, transparent);
+    border-radius: 50%;
+    content: "";
+    height: min(20vw, 220px);
+    left: 50%;
+    position: absolute;
+    top: 45%;
+    transform: translate(-50%, -50%);
+    width: min(20vw, 220px);
+}
+
+.TitlePage small,
+.TitlePage span {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+}
+
+.TitlePage strong {
+    font-size: clamp(30px, 3.4vw, 50px);
+    font-weight: 480;
+    letter-spacing: -0.06em;
+    line-height: .96;
+    position: relative;
+}
+
+.LeftPageTitle {
+    border-bottom: 1px solid var(--line);
+    font-size: clamp(27px, 2.8vw, 42px);
+    font-weight: 460;
+    letter-spacing: -.06em;
+    line-height: 1;
+    margin: 0;
+    padding-bottom: 28px;
+}
+
+.LeftPageContent {
+    font-family: var(--font-noto-sans-kr), sans-serif;
+    font-size: 15px;
+    line-height: 1.9;
+    margin: 0;
+    padding-top: 34px;
+    white-space: pre-wrap;
+}
+
+.LeftAttachment {
+    aspect-ratio: 16 / 9;
+    margin-top: 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+.LeftAttachment img {
+    object-fit: cover;
+}
+
+.Paper {
+    backface-visibility: hidden;
+    background:
+        linear-gradient(90deg, #ece9e1 0, #ffffff 5%, #fffefa 100%);
+    box-shadow:
+        16px 22px 42px rgb(0 0 0 / 14%),
+        inset 10px 0 24px rgb(0 0 0 / 5%);
+    padding: clamp(30px, 5vw, 70px);
+    position: relative;
+    transform: rotateY(1.2deg);
+    transform-origin: left center;
+    transform-style: preserve-3d;
+    transition:
+        transform 420ms cubic-bezier(.22, 1, .36, 1),
+        filter 420ms ease,
+        box-shadow 420ms ease,
+        clip-path 420ms cubic-bezier(.22, 1, .36, 1);
+    will-change: transform, filter;
+    z-index: 3;
+}
+
+.Paper::after {
+    background: linear-gradient(
+        90deg,
+        rgb(0 0 0 / 10%),
+        rgb(255 255 255 / 0%) 7%,
+        rgb(0 0 0 / 2%) 96%,
+        rgb(0 0 0 / 8%)
+    );
+    content: "";
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 5;
+}
+
+.Book[data-direction='next'][data-turn-phase='dragging'] .Paper,
+.Book[data-direction='previous'][data-turn-phase='dragging']
+    .LeftPaper,
+.Book[data-direction='previous'][data-turn-phase='dragging']
+    .Paper {
+    transition: none;
+}
+
+.Book[data-direction='next'][data-turn-phase='dragging'] .Paper,
+.Book[data-direction='next'][data-turn-phase='closing'] .Paper {
+    border-radius:
+        0
+        calc(var(--turn-progress) * 18px)
+        calc(var(--turn-progress) * 54px)
+        0;
+    box-shadow:
+        calc(12px + var(--turn-progress) * 24px)
+        20px
+        calc(30px + var(--turn-progress) * 26px)
+        rgb(0 0 0 / calc(14% + var(--turn-progress) * 18%));
+    clip-path: polygon(
+        0 0,
+        100% calc(var(--turn-progress) * 2%),
+        calc(100% - var(--turn-progress) * 7%) 100%,
+        0 100%
+    );
+    filter: brightness(
+        calc(1 - var(--turn-progress) * 0.18)
+    );
+    transform:
+        translateY(calc(var(--turn-progress) * -5px))
+        rotateZ(calc(var(--turn-progress) * -1.8deg))
+        rotateY(calc(var(--turn-progress) * -90deg))
+        skewY(calc(var(--turn-progress) * 1.5deg));
+}
+
+.Book[data-direction='previous'][data-turn-phase='dragging']
+    .LeftPaper,
+.Book[data-direction='previous'][data-turn-phase='closing']
+    .LeftPaper {
+    border-radius:
+        calc(var(--turn-progress) * 18px)
+        0
+        0
+        calc(var(--turn-progress) * 54px);
+    box-shadow:
+        calc(-12px - var(--turn-progress) * 24px)
+        20px
+        calc(30px + var(--turn-progress) * 26px)
+        rgb(0 0 0 / calc(14% + var(--turn-progress) * 18%));
+    clip-path: polygon(
+        0 calc(var(--turn-progress) * 2%),
+        100% 0,
+        100% 100%,
+        calc(var(--turn-progress) * 7%) 100%
+    );
+    filter: brightness(
+        calc(1 - var(--turn-progress) * 0.18)
+    );
+    transform:
+        translateY(calc(var(--turn-progress) * -5px))
+        rotateZ(calc(var(--turn-progress) * 1.8deg))
+        rotateY(calc(-2.4deg + var(--turn-progress) * 92.4deg))
+        skewY(calc(var(--turn-progress) * -1.5deg));
+    z-index: 8;
+}
+
+.Book[data-direction='next'][data-turn-phase='opening'] .Paper {
+    border-radius:
+        0
+        calc(var(--turn-progress) * 18px)
+        calc(var(--turn-progress) * 54px)
+        0;
+    box-shadow:
+        calc(12px + var(--turn-progress) * 24px)
+        20px
+        calc(30px + var(--turn-progress) * 26px)
+        rgb(0 0 0 / calc(14% + var(--turn-progress) * 18%));
+    clip-path: polygon(
+        0 0,
+        100% calc(var(--turn-progress) * 2%),
+        calc(100% - var(--turn-progress) * 7%) 100%,
+        0 100%
+    );
+    filter: brightness(
+        calc(1 - var(--turn-progress) * 0.18)
+    );
+    transform:
+        translateY(calc(var(--turn-progress) * -5px))
+        rotateZ(calc(var(--turn-progress) * 1.8deg))
+        rotateY(calc(var(--turn-progress) * 90deg))
+        skewY(calc(var(--turn-progress) * -1.5deg));
+}
+
+.Book[data-direction='previous'][data-turn-phase='opening']
+    .LeftPaper {
+    border-radius:
+        calc(var(--turn-progress) * 18px)
+        0
+        0
+        calc(var(--turn-progress) * 54px);
+    box-shadow:
+        calc(-12px - var(--turn-progress) * 24px)
+        20px
+        calc(30px + var(--turn-progress) * 26px)
+        rgb(0 0 0 / calc(14% + var(--turn-progress) * 18%));
+    clip-path: polygon(
+        0 calc(var(--turn-progress) * 2%),
+        100% 0,
+        100% 100%,
+        calc(var(--turn-progress) * 7%) 100%
+    );
+    filter: brightness(
+        calc(1 - var(--turn-progress) * 0.18)
+    );
+    transform:
+        translateY(calc(var(--turn-progress) * -5px))
+        rotateZ(calc(var(--turn-progress) * -1.8deg))
+        rotateY(calc(-2.4deg - var(--turn-progress) * 87.6deg))
+        skewY(calc(var(--turn-progress) * 1.5deg));
+    z-index: 8;
+}
+
+.Book[data-direction='previous'][data-turn-phase='dragging']
+    .Paper,
+.Book[data-direction='previous'][data-turn-phase='closing']
+    .Paper,
+.Book[data-direction='previous'][data-turn-phase='opening']
+    .Paper {
+    clip-path: inset(
+        0
+        0
+        0
+        calc(var(--turn-progress) * 100%)
+    );
+}
+
+.Book[data-direction='next']:not([data-turn-phase='idle'])
+    .Paper::before,
+.Book[data-direction='previous']:not([data-turn-phase='idle'])
+    .LeftPaper::before {
+    opacity: calc(.25 + var(--turn-progress) * .75);
+}
+
+.PageMeta {
+    display: flex;
+    font-size: 8px;
+    justify-content: space-between;
+    letter-spacing: 0.08em;
+    margin-bottom: 76px;
+    text-transform: uppercase;
+}
+
+.TitleInput,
+.ContentInput {
+    background: transparent;
+    border: 0;
+    color: var(--ink);
+    display: block;
+    padding: 0;
+    resize: none;
+    width: 100%;
+}
+
+.TitleInput {
+    border-bottom: 1px solid var(--line);
+    font-size: clamp(27px, 2.8vw, 42px);
+    font-weight: 460;
+    letter-spacing: -0.06em;
+    line-height: 1;
+    padding-bottom: 28px;
+}
+
+.ContentInput {
+    font-family: var(--font-noto-sans-kr), sans-serif;
+    font-size: 15px;
+    line-height: 1.9;
+    min-height: 180px;
+    padding-top: 34px;
+}
+
+.Attachment {
+    aspect-ratio: 1;
+    background: #f1efe8;
+    border-radius: 2px;
+    bottom: clamp(20px, 2vw, 30px);
+    box-shadow:
+        0 14px 28px rgb(28 25 20 / 12%),
+        0 0 0 1px rgb(28 25 20 / 7%);
+    left: 50%;
+    margin: 0;
+    max-width: 230px;
+    overflow: hidden;
+    position: absolute;
+    transform: translateX(-50%);
+    width: 72%;
+}
+
+.Attachment img {
+    object-fit: cover;
+}
+
+.PageCurl {
+    background:
+        linear-gradient(
+            135deg,
+            rgb(255 255 255 / 98%) 0 42%,
+            #d8d4c9 44% 54%,
+            #aaa59b 55% 58%,
+            transparent 60%
+        );
+    bottom: 0;
+    filter: drop-shadow(-8px -7px 8px rgb(0 0 0 / 20%));
+    border-radius: 72% 0 0 0;
+    height: calc(24px + var(--turn-progress) * 112px);
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+    transform-origin: bottom right;
+    transition:
+        height 320ms cubic-bezier(.22, 1, .36, 1),
+        opacity 180ms ease,
+        width 320ms cubic-bezier(.22, 1, .36, 1);
+    width: calc(24px + var(--turn-progress) * 112px);
+    z-index: 8;
+}
+
+.PreviousCurl {
+    filter: drop-shadow(8px -7px 8px rgb(0 0 0 / 20%));
+    left: 0;
+    right: auto;
+    transform:
+        scaleX(-1)
+        rotate(calc(var(--turn-progress) * 8deg));
+}
+
+.NextCurl {
+    right: 0;
+    transform:
+        rotate(calc(var(--turn-progress) * -8deg))
+        skewY(calc(var(--turn-progress) * 4deg));
+}
+
+.Book[data-direction='previous']:not([data-turn-phase='idle'])
+    .PreviousCurl,
+.Book[data-direction='next']:not([data-turn-phase='idle'])
+    .NextCurl {
+    opacity: 1;
+}
+
+.CornerHandle {
+    background: transparent;
+    border: 0;
+    bottom: 0;
+    cursor: grab;
+    height: 86px;
+    padding: 0;
+    position: absolute;
+    touch-action: none;
+    width: 86px;
+    z-index: 10;
+}
+
+.CornerHandle:active {
+    cursor: grabbing;
+}
+
+.CornerHandle span {
+    background: linear-gradient(
+        135deg,
+        transparent 48%,
+        #ddd9cf 50%,
+        #ffffff 72%
+    );
+    bottom: 0;
+    height: 24px;
+    opacity: 0.55;
+    position: absolute;
+    right: 0;
+    transition:
+        height 180ms ease,
+        opacity 180ms ease,
+        width 180ms ease;
+    width: 24px;
+}
+
+.CornerHandle:hover span,
+.CornerHandle:focus-visible span {
+    height: 38px;
+    opacity: 1;
+    width: 38px;
+}
+
+.LeftCorner {
+    left: 0;
+}
+
+.LeftCorner span {
+    left: 0;
+    right: auto;
+    transform: scaleX(-1);
+}
+
+.RightCorner {
+    right: 0;
+}
+
+.DragHint {
+    bottom: 17px;
+    color: var(--soft);
+    font-size: 8px;
+    left: 50%;
+    letter-spacing: 0.03em;
+    margin: 0;
+    pointer-events: none;
+    position: absolute;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.Toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.AttachButton {
+    align-items: center;
+    background: white;
+    border: 1px solid var(--line);
+    cursor: pointer;
+    display: flex;
+    font-size: 10px;
+    justify-content: center;
+    min-height: 40px;
+}
+
+.CoverPicker {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(2, 28px);
+}
+
+.CoverPicker > span {
+    font-size: 9px;
+    grid-column: 1 / -1;
+    margin-bottom: 3px;
+}
+
+.CoverPicker button {
+    background: #111111;
+    border: 2px solid transparent;
+    cursor: pointer;
+    height: 28px;
+    padding: 0;
+    width: 28px;
+}
+
+.CoverPicker button[data-theme='mint'] {
+    background: #c8f5d4;
+}
+
+.CoverPicker button[data-theme='rose'] {
+    background: #ffd3dc;
+}
+
+.CoverPicker button[data-theme='sky'] {
+    background: #c9e8ff;
+}
+
+.CoverPicker .CoverActive {
+    border-color: white;
+    box-shadow: 0 0 0 1px var(--ink);
+}
+
+.AttachButton {
+    padding: 0 12px;
+}
+
+.AttachButton input {
+    height: 1px;
+    opacity: 0;
+    position: absolute;
+    width: 1px;
+}
+
+.Book[data-book-phase='opening'] .OpeningCover {
+    animation: CoverSwingOpen 900ms cubic-bezier(.4, 0, .2, 1)
+        both;
+}
+
+.Book[data-book-phase='closing'] .OpeningCover {
+    animation: CoverSwingClose 720ms cubic-bezier(.55, .05, .5, .95)
+        both;
+}
+
+.Book[data-book-phase='open'] .OpeningCover {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+@keyframes CoverSwingOpen {
+    0% {
+        opacity: 1;
+        transform: rotateY(0deg);
+    }
+
+    55% {
+        opacity: 1;
+        transform: rotateY(-82deg);
+    }
+
+    78% {
+        opacity: 1;
+        transform: rotateY(-146deg);
+    }
+
+    100% {
+        opacity: 0;
+        transform: rotateY(-178deg);
+    }
+}
+
+@keyframes CoverSwingClose {
+    0% {
+        opacity: 0;
+        transform: rotateY(-178deg);
+    }
+
+    22% {
+        opacity: 1;
+        transform: rotateY(-146deg);
+    }
+
+    45% {
+        opacity: 1;
+        transform: rotateY(-82deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: rotateY(0deg);
+    }
+}
+
+.OpeningCover {
+    backface-visibility: visible;
+    background: transparent;
+    border: 0;
+    bottom: 0;
+    cursor: pointer;
+    left: 50%;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    transform: rotateY(0);
+    transform-origin: left center;
+    transform-style: preserve-3d;
+    transition: filter 240ms ease;
+    width: 50%;
+    z-index: 20;
+}
+
+.OpeningCover::after {
+    backface-visibility: hidden;
+    background:
+        linear-gradient(
+            270deg,
+            #dedbd2 0,
+            #fbfaf5 7%,
+            #f4f1e9 100%
+        );
+    box-shadow:
+        -16px 22px 38px rgb(0 0 0 / 16%),
+        inset -14px 0 26px rgb(0 0 0 / 10%);
+    content: "";
+    inset: 0;
+    position: absolute;
+    transform: rotateY(180deg) translateZ(2px);
+}
+
+.OpeningCover:hover,
+.OpeningCover:focus-visible {
+    filter: brightness(1.08);
+}
+
+.ClosedBookCover {
+    backface-visibility: hidden;
+    background:
+        linear-gradient(
+            135deg,
+            rgb(255 255 255 / 8%),
+            transparent 38%
+        ),
+        radial-gradient(
+            circle at 74% 30%,
+            transparent 0 52px,
+            rgb(255 255 255 / 13%) 53px 54px,
+            transparent 55px
+        ),
+        var(--cover);
+    border-radius: 2px 6px 6px 2px;
+    box-shadow:
+        -18px 34px 36px rgb(0 0 0 / 24%),
+        inset 16px 0 24px rgb(0 0 0 / 17%),
+        inset 0 0 0 1px rgb(255 255 255 / 12%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    inset: 0;
+    justify-content: space-between;
+    padding: 34px 30px;
+    position: absolute;
+    text-align: left;
+    transform: translateZ(14px);
+}
+
+.Book:not([data-cover='ink']) .ClosedBookCover {
+    color: #111111;
+}
+
+.ClosedBookCover small {
+    font-size: 8px;
+    letter-spacing: 0.12em;
+}
+
+.ClosedBookCover strong {
+    font-size: clamp(25px, 3vw, 40px);
+    font-weight: 480;
+    letter-spacing: -0.055em;
+    line-height: 0.95;
+}
+
+.ClosedBookCover i {
+    font-size: 8px;
+    font-style: normal;
+    letter-spacing: 0.1em;
+}
+
+.ClosedBookSpine {
+    background: color-mix(in srgb, var(--cover) 72%, #000000);
+    bottom: 0;
+    left: -13px;
+    position: absolute;
+    top: 0;
+    transform: rotateY(-90deg);
+    transform-origin: right;
+    width: 14px;
+}
+
+.ClosedPageBlock {
+    background: repeating-linear-gradient(
+        90deg,
+        #dedbd2 0,
+        #dedbd2 1px,
+        #f7f4eb 1px,
+        #f7f4eb 3px
+    );
+    bottom: -14px;
+    box-shadow: 0 15px 22px rgb(0 0 0 / 18%);
+    height: 15px;
+    left: 4px;
+    position: absolute;
+    right: 1px;
+    transform: rotateX(-90deg);
+    transform-origin: top;
+}
+
+@media (max-width: 980px) {
+    .Workspace {
+        grid-template-columns: 1fr;
+    }
+
+    .PageRail ol {
+        display: flex;
+        overflow-x: auto;
+    }
+
+    .PageRail li {
+        border-bottom: 1px solid var(--line);
+        flex: 0 0 180px;
+    }
+
+    .Toolbar {
+        display: grid;
+        grid-template-columns: 1fr 130px;
+    }
+}
+
+@media (max-width: 680px) {
+    .BookSection {
+        padding-right: calc(
+            var(--page-gutter) + (100vw - 100%)
+        );
+    }
+
+    .Intro {
+        display: block;
+    }
+
+    .Intro > p:last-child {
+        margin-top: 30px;
+    }
+
+    .Intro h1 {
+        font-size: clamp(38px, 12vw, 52px);
+        overflow-wrap: anywhere;
+    }
+
+    .Intro h1 span {
+        max-width: 100%;
+        word-break: break-all;
+    }
+
+    .Book {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        max-width: 100%;
+        min-height: clamp(390px, 112vw, 520px);
+        min-width: 0;
+        width: 100%;
+    }
+
+    .FlipBookStage {
+        min-height: clamp(420px, 142vw, 610px);
+    }
+
+    .EngineTitlePage,
+    .EngineMemoPage {
+        padding: 24px 20px;
+    }
+
+    .EngineTitlePage strong,
+    .EnginePageTitle,
+    .EngineMemoPage .TitleInput {
+        font-size: clamp(24px, 8vw, 34px);
+    }
+
+    .EnginePageContent,
+    .EngineMemoPage .ContentInput {
+        font-size: 13px;
+        line-height: 1.75;
+    }
+
+    .BookExperience {
+        min-height: clamp(390px, 112vw, 520px);
+    }
+
+    .Book::before {
+        width: 10px;
+        left: calc(50% - 5px);
+    }
+
+    .Workspace {
+        max-width: 100%;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .Workspace > * {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .PageRail ol {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .LeftPaper,
+    .Paper,
+    .TargetPaper {
+        min-height: clamp(390px, 112vw, 520px);
+        padding: 22px 18px;
+    }
+
+    .TitlePage {
+        min-height: 340px;
+    }
+
+    .TitlePage strong,
+    .LeftPageTitle,
+    .TargetPageTitle,
+    .TitleInput {
+        font-size: clamp(20px, 6.2vw, 30px);
+    }
+
+    .PageMeta {
+        margin-bottom: 42px;
+    }
+
+    .EngineMemoPage[data-has-attachment='true'] .ContentInput {
+        min-height: 76px;
+    }
+
+    .EngineMemoPage[data-has-attachment='true'] .Attachment {
+        bottom: 16px;
+        max-width: 175px;
+        width: 68%;
+    }
+
+    .LeftPageContent,
+    .TargetPageContent,
+    .ContentInput {
+        font-size: 12px;
+        line-height: 1.75;
+    }
+
+    .DragHint {
+        display: none;
+    }
+
+    .Toolbar {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .Book,
+    .LeftPaper,
+    .Paper,
+    .OpeningCover {
+        animation: none;
+        transition: none;
+    }
+}

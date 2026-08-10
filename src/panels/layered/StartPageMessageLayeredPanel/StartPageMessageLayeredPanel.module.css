@@ -1,0 +1,329 @@
+.Backdrop {
+    align-items: center;
+    animation: BackdropIn 180ms ease;
+    background: rgb(12 12 12 / 58%);
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: 24px;
+    position: fixed;
+    z-index: 1100;
+}
+
+.Panel {
+    animation: PanelIn 320ms cubic-bezier(.2, .75, .25, 1);
+    background: var(--canvas);
+    border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+    box-shadow: 0 30px 100px rgb(0 0 0 / 28%);
+    color: var(--ink);
+    max-height: min(760px, calc(100svh - 48px));
+    overflow-y: auto;
+    padding: clamp(26px, 3.4vw, 44px);
+    width: min(820px, calc(100vw - 48px));
+}
+
+.Header {
+    align-items: start;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 28px;
+    justify-content: space-between;
+    padding-bottom: 26px;
+}
+
+.Header > div:first-child > span {
+    color: var(--muted);
+    display: block;
+    font-size: 9px;
+    letter-spacing: .16em;
+    margin-bottom: 15px;
+}
+
+.Header h2 {
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 480;
+    letter-spacing: -.055em;
+    line-height: 1;
+    margin: 0;
+}
+
+.Header p {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
+    margin: 14px 0 0;
+}
+
+.HeaderActions {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: 8px;
+}
+
+.BackButton,
+.CloseButton {
+    align-items: center;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 9px;
+    gap: 12px;
+    min-height: 36px;
+    padding: 0 12px;
+}
+
+.CloseButton b {
+    font-size: 17px;
+    font-weight: 400;
+}
+
+.BackButton:disabled,
+.CloseButton:disabled {
+    cursor: wait;
+    opacity: .5;
+}
+
+.RotationSetting {
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    display: grid;
+    gap: 10px;
+    grid-template-columns: minmax(0, 1fr) 92px 12px;
+    padding: 18px 0;
+}
+
+.RotationSetting > span {
+    display: grid;
+    gap: 5px;
+}
+
+.RotationSetting strong {
+    font-size: 11px;
+}
+
+.RotationSetting small,
+.RotationSetting b {
+    color: var(--muted);
+    font-size: 9px;
+    font-weight: 400;
+}
+
+.RotationSetting input {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font: inherit;
+    font-size: 11px;
+    height: 38px;
+    min-width: 0;
+    padding: 0 10px;
+    width: 100%;
+}
+
+.ListHeader {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    padding: 22px 0 14px;
+}
+
+.ListHeader > div {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+}
+
+.ListHeader strong {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.ListHeader span {
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.ListHeader > button {
+    align-items: center;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 9px;
+    gap: 7px;
+    min-height: 36px;
+    padding: 0 12px;
+}
+
+.ListHeader > button:hover {
+    border-color: var(--ink);
+}
+
+.ListHeader > button b {
+    font-size: 15px;
+    font-weight: 400;
+}
+
+.MessageList {
+    display: grid;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.MessageList li {
+    align-items: center;
+    border: 1px solid var(--line);
+    display: grid;
+    gap: 14px;
+    grid-template-columns: 28px minmax(0, 1fr) 36px;
+    min-height: 58px;
+    padding: 0 10px 0 16px;
+}
+
+.MessageList li > span {
+    color: var(--soft);
+    font-size: 9px;
+}
+
+.MessageList input {
+    background: transparent;
+    border: 0;
+    color: var(--ink);
+    font: inherit;
+    font-size: 12px;
+    height: 44px;
+    min-width: 0;
+    outline: none;
+}
+
+.MessageList li:focus-within {
+    border-color: var(--ink);
+}
+
+.MessageList li > button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 17px;
+    height: 32px;
+    padding: 0;
+    width: 32px;
+}
+
+.MessageList li > button:hover {
+    background: var(--ink);
+    color: var(--canvas);
+}
+
+.EmptyState {
+    border: 1px dashed var(--line);
+    padding: 34px 20px;
+    text-align: center;
+}
+
+.EmptyState strong {
+    font-size: 12px;
+}
+
+.EmptyState p {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.65;
+    margin: 9px 0 0;
+}
+
+.Footer {
+    align-items: center;
+    display: flex;
+    gap: 24px;
+    justify-content: space-between;
+    padding-top: 22px;
+}
+
+.Footer > p {
+    color: var(--muted);
+    font-size: 9px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.Footer > div {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 8px;
+}
+
+.Footer button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 10px;
+    min-height: 40px;
+    padding: 0 18px;
+}
+
+.Footer button[type='submit'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--canvas);
+}
+
+.Footer button:disabled,
+.ListHeader > button:disabled,
+.MessageList li > button:disabled {
+    cursor: wait;
+    opacity: .5;
+}
+
+@keyframes BackdropIn {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes PanelIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(.985);
+    }
+}
+
+@media (max-width: 620px) {
+    .Backdrop {
+        align-items: end;
+        padding: 0;
+    }
+
+    .Panel {
+        max-height: 92svh;
+        padding: 26px 18px 20px;
+        width: 100%;
+    }
+
+    .HeaderActions {
+        align-items: end;
+        flex-direction: column-reverse;
+    }
+
+    .CloseButton span {
+        display: none;
+    }
+
+    .Footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .Footer > div {
+        display: flex;
+        justify-content: flex-end;
+    }
+}

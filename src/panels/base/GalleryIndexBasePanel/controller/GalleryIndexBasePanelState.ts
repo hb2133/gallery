@@ -2,83 +2,127 @@ import type { GalleryIndexItem } from './GalleryIndexBasePanelTypes';
 
 export const GalleryIndexItems: GalleryIndexItem[] = [
     {
-        Id: 'thresholds',
-        Title: 'Thresholds of Light',
+        Id: 'architecture-archive',
+        Title: 'Architecture Archive',
         Category: 'Architecture',
-        Date: '18 Jul 2025',
-        Description: '빛이 구조를 지나며 잠깐의 방이 되는 순간.',
-        ImagePath: '/images/architecture-01.webp',
+        Date: '2024—2025',
+        Description: '빛과 구조가 만드는 조용한 공간의 기록.',
+        ImagePaths: [
+            '/images/architecture-01.webp',
+            '/images/architecture-02.webp',
+            '/images/journey-01.webp',
+            '/images/journey-02.webp',
+            '/images/portrait-01.webp',
+            '/images/portrait-02.webp',
+            '/images/journal-01.webp',
+            '/images/journal-02.webp',
+            '/images/architecture-01.webp',
+            '/images/architecture-02.webp',
+            '/images/journey-01.webp',
+            '/images/journey-02.webp',
+            '/images/portrait-01.webp',
+            '/images/portrait-02.webp',
+            '/images/journal-01.webp',
+            '/images/journal-02.webp',
+            '/images/architecture-01.webp',
+            '/images/architecture-02.webp',
+            '/images/journey-01.webp',
+            '/images/journey-02.webp',
+        ],
+        CoverImagePath: '/images/architecture-02.webp',
         Alt: '빛과 그림자가 교차하는 콘크리트 건축',
-        Orientation: 'portrait',
+        DetailCategory: '공간',
+        TitlePosition: 'bottom-left',
+        DefaultViewMode: 'book',
+        EnabledViewModes: ['book'],
+        ScrollDirection: 'horizontal',
     },
     {
-        Id: 'concrete',
-        Title: 'Concrete Silence',
-        Category: 'Architecture',
-        Date: '02 Jun 2025',
-        Description: '재료가 가장 적은 말로 공간을 설명하는 방식.',
-        ImagePath: '/images/architecture-02.webp',
-        Alt: '흑백의 기하학적 콘크리트 공간',
-        Orientation: 'portrait',
-    },
-    {
-        Id: 'red-mile',
-        Title: 'The Red Mile',
+        Id: 'journey-notes',
+        Title: 'Journey Notes',
         Category: 'Journeys',
-        Date: '21 May 2025',
-        Description: '목적지보다 오래 남은 길 위의 온도.',
-        ImagePath: '/images/journey-01.webp',
-        Alt: '붉은 협곡 사이의 도로',
-        Orientation: 'portrait',
+        Date: '2023—2025',
+        Description: '길 위에서 오래 남은 풍경과 온도.',
+        ImagePaths: [
+            '/images/journey-01.webp',
+            '/images/journey-02.webp',
+        ],
+        CoverImagePath: '/images/journey-02.webp',
+        Alt: '붉은 협곡 사이로 이어진 여행길',
+        DetailCategory: '여행',
+        TitlePosition: 'top-left',
+        DefaultViewMode: 'book',
+        EnabledViewModes: ['book'],
+        ScrollDirection: 'vertical',
     },
     {
-        Id: 'morning',
-        Title: 'Morning, Still',
-        Category: 'Journeys',
-        Date: '09 Apr 2025',
-        Description: '아무 일도 일어나지 않아 완벽했던 아침.',
-        ImagePath: '/images/journey-02.webp',
-        Alt: '산과 호수가 있는 고요한 아침 풍경',
-        Orientation: 'landscape',
-    },
-    {
-        Id: 'quiet-gaze',
-        Title: 'Quiet Gaze',
+        Id: 'portrait-studies',
+        Title: 'Portrait Studies',
         Category: 'Portraits',
-        Date: '12 Mar 2025',
-        Description: '표정과 표정 사이, 가장 작은 움직임.',
-        ImagePath: '/images/portrait-01.webp',
-        Alt: '검은 배경 앞의 남성 인물',
-        Orientation: 'portrait',
+        Date: '2022—2025',
+        Description: '표정과 색 사이의 작은 움직임.',
+        ImagePaths: [
+            '/images/portrait-01.webp',
+            '/images/portrait-02.webp',
+        ],
+        CoverImagePath: '/images/portrait-02.webp',
+        Alt: '검은 배경 앞의 인물 사진',
+        DetailCategory: '인물',
+        TitlePosition: 'center',
+        DefaultViewMode: 'book',
+        EnabledViewModes: ['book'],
+        ScrollDirection: 'horizontal',
     },
     {
-        Id: 'blue-hour',
-        Title: 'Blue Hour',
-        Category: 'Portraits',
-        Date: '27 Feb 2025',
-        Description: '색이 인물의 또 다른 목소리가 되는 시간.',
-        ImagePath: '/images/portrait-02.webp',
-        Alt: '푸른 조명을 받은 여성 인물',
-        Orientation: 'portrait',
-    },
-    {
-        Id: 'shared-table',
-        Title: 'Shared Table',
+        Id: 'table-journal',
+        Title: 'Table Journal',
         Category: 'Journal',
-        Date: '16 Jan 2025',
-        Description: '한 잔의 온기에서 시작되는 일상의 기록.',
-        ImagePath: '/images/journal-01.webp',
+        Date: '2024—2025',
+        Description: '한 잔의 온기와 계절을 담은 일상의 기록.',
+        ImagePaths: [
+            '/images/journal-01.webp',
+            '/images/journal-02.webp',
+        ],
+        CoverImagePath: '/images/journal-02.webp',
         Alt: '여러 사람이 커피 잔을 맞대는 장면',
-        Orientation: 'landscape',
-    },
-    {
-        Id: 'summer-plate',
-        Title: 'Summer Plate',
-        Category: 'Journal',
-        Date: '04 Jan 2025',
-        Description: '계절을 기억하는 가장 직접적인 방법.',
-        ImagePath: '/images/journal-02.webp',
-        Alt: '밝은 식탁 위의 채소 요리',
-        Orientation: 'landscape',
+        DetailCategory: '일상',
+        TitlePosition: 'bottom-left',
+        DefaultViewMode: 'book',
+        EnabledViewModes: ['book'],
+        ScrollDirection: 'horizontal',
     },
 ];
+
+export function MoveGalleryIndexItem(
+    Items: GalleryIndexItem[],
+    SourceId: string,
+    TargetId: string,
+): GalleryIndexItem[]
+{
+    const SourceIndex = Items.findIndex(
+        (Item) => Item.Id === SourceId,
+    );
+    const TargetIndex = Items.findIndex(
+        (Item) => Item.Id === TargetId,
+    );
+
+    if(
+        SourceIndex < 0
+        || TargetIndex < 0
+        || SourceIndex === TargetIndex
+    )
+    {
+        return Items;
+    }
+
+    const Next = [...Items];
+    const [Moved] = Next.splice(SourceIndex, 1);
+
+    if(Moved === undefined)
+    {
+        return Items;
+    }
+
+    Next.splice(TargetIndex, 0, Moved);
+    return Next;
+}

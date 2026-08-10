@@ -5,40 +5,222 @@
     display: flex;
     inset: 0;
     justify-content: center;
-    padding: 22px;
+    padding: 22px 22px 58px;
     position: fixed;
     z-index: 100;
     backdrop-filter: blur(10px);
 }
 
+.PanelShell {
+    height: min(680px, calc(100vh - 104px));
+    position: relative;
+    width: min(1020px, calc(100% - 110px));
+}
+
 .Panel {
     animation: PanelIn 420ms cubic-bezier(.2, .75, .25, 1);
-    background: #f7f7f5;
-    display: grid;
-    grid-template-columns: minmax(360px, 1.45fr) minmax(270px, 0.55fr);
-    height: min(850px, calc(100vh - 44px));
-    max-width: 1320px;
+    background: transparent;
+    height: 100%;
     overflow: hidden;
     position: relative;
     width: 100%;
 }
 
+.Panel[data-view-mode='book'],
+.Panel[data-view-mode='book'] .ImageFrame {
+    background: transparent;
+    overflow: visible;
+}
+
+.Panel[data-view-mode='scroll'][data-scroll-direction='horizontal'] {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
 .Close {
     align-items: center;
-    background: #111111;
+    background: transparent;
     border: 0;
     border-radius: 6px;
-    color: #ffffff;
+    color: #a0a09c;
     cursor: pointer;
     display: flex;
     font-size: 10px;
-    gap: 14px;
-    min-height: 36px;
-    padding: 0 12px;
+    height: 36px;
+    justify-content: center;
+    padding: 0;
     position: absolute;
-    right: 14px;
-    top: 14px;
-    z-index: 4;
+    right: 0;
+    top: -42px;
+    width: 36px;
+    z-index: 100;
+}
+
+.InteractionGuard {
+    cursor: default;
+    inset: 0;
+    position: fixed;
+    z-index: 1000;
+}
+
+.BookPageIndex {
+    background: #f7f7f5;
+    bottom: 0;
+    color: #111111;
+    opacity: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    position: absolute;
+    left: 0;
+    pointer-events: none;
+    scrollbar-color: rgb(17 17 17 / 28%) transparent;
+    scrollbar-width: thin;
+    top: 0;
+    transform: translateX(-18px);
+    transition:
+        opacity 220ms ease,
+        transform 300ms cubic-bezier(.2, .75, .25, 1),
+        visibility 0s linear 300ms;
+    visibility: hidden;
+    width: min(370px, 88vw);
+    z-index: 120;
+}
+
+.BookPageIndex[data-open='true'] {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+    transition:
+        opacity 220ms ease,
+        transform 300ms cubic-bezier(.2, .75, .25, 1),
+        visibility 0s;
+    visibility: visible;
+}
+
+.BookPageIndexControls {
+    left: 0;
+    position: absolute;
+    top: -42px;
+    z-index: 101;
+}
+
+.PageIndexForm {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: minmax(0, 1fr) 54px;
+    padding: 14px 16px 0;
+}
+
+.PageIndexForm input {
+    appearance: textfield;
+    background: #ffffff;
+    border: 1px solid #ddddda;
+    color: #111111;
+    font-size: 9px;
+    height: 36px;
+    min-width: 0;
+    padding: 0 9px;
+}
+
+.PageIndexForm input::-webkit-inner-spin-button,
+.PageIndexForm input::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+}
+
+.PageIndexForm button {
+    background: #222222;
+    border: 1px solid #222222;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 9px;
+    padding: 0;
+}
+
+.BookIndexHeader {
+    align-items: center;
+    border-bottom: 1px solid #dededb;
+    display: flex;
+    height: 48px;
+    justify-content: space-between;
+    padding: 0 16px;
+}
+
+.BookIndexHeader strong {
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.BookIndexHeader button {
+    background: transparent;
+    border: 0;
+    color: #999999;
+    cursor: pointer;
+    font-size: 18px;
+    height: 32px;
+    width: 32px;
+}
+
+.BookIndexGrid {
+    display: grid;
+    gap: 18px 12px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 18px 16px 24px;
+}
+
+.BookIndexGrid > button {
+    background: transparent;
+    border: 0;
+    color: #92928e;
+    cursor: pointer;
+    font-size: 8px;
+    min-width: 0;
+    padding: 0;
+}
+
+.BookIndexThumbnail {
+    aspect-ratio: 3 / 4;
+    background: #ffffff;
+    border: 1px solid #dadad7;
+    box-shadow: 0 2px 5px rgb(0 0 0 / 13%);
+    display: block;
+    margin-bottom: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+.BookIndexThumbnail img {
+    object-fit: contain;
+}
+
+.BookIndexGrid > button:hover,
+.BookIndexGrid > .PageIndexActive {
+    color: #111111;
+}
+
+.BookIndexGrid > .PageIndexActive .BookIndexThumbnail {
+    border-color: #111111;
+}
+
+.PageIndexToggle {
+    background: transparent;
+    border: 0;
+    color: #a0a09c;
+    cursor: pointer;
+    font-size: 20px;
+    height: 36px;
+    padding: 0;
+    width: 36px;
+}
+
+.PageIndexToggle:hover,
+.PageIndexToggle:focus-visible {
+    color: #ffffff;
+}
+
+:global(html[data-theme='dark']) .Close {
+    color: #c8c8c5;
 }
 
 .Close span {
@@ -47,58 +229,329 @@
 }
 
 .ImageFrame {
-    background: #111111;
+    background: transparent;
+    height: 100%;
     min-height: 0;
+    overflow: hidden;
     position: relative;
+}
+
+.Panel[data-view-mode='scroll'][data-scroll-direction='horizontal']
+.ImageFrame {
+    aspect-ratio: 1;
+    cursor: grab;
+    height: auto;
+    touch-action: none;
+    width: min(680px, 100%, calc(100dvh - 104px));
+}
+
+.Panel[data-view-mode='scroll'][data-scroll-direction='horizontal']
+.ImageFrame[data-dragging='true'] {
+    cursor: grabbing;
 }
 
 .ImageFrame img {
     object-fit: contain;
+    user-select: none;
 }
 
-.Details {
-    align-content: end;
-    display: grid;
-    padding: clamp(26px, 4vw, 60px);
+.HorizontalSlide {
+    inset: 0;
+    position: absolute;
 }
 
-.Details > p {
-    color: #777774;
+.SwipeStage,
+.SwipeSlide {
+    inset: 0;
+    position: absolute;
+}
+
+.SwipeSlide {
+    will-change: opacity, transform;
+}
+
+.SwipeStage[data-phase='settling'] .SwipeSlide {
+    transition: opacity 620ms cubic-bezier(.16, .78, .24, 1);
+}
+
+.SwipeStage[data-direction='up'] {
+    --photo-wobble-x: -1;
+    --photo-wobble-y: 0;
+}
+
+.SwipeStage[data-direction='down'] {
+    --photo-wobble-x: 1;
+    --photo-wobble-y: 0;
+}
+
+.SwipeStage[data-direction='left'] {
+    --photo-wobble-x: 0;
+    --photo-wobble-y: -1;
+}
+
+.SwipeStage[data-direction='right'] {
+    --photo-wobble-x: 0;
+    --photo-wobble-y: 1;
+}
+
+.SwipeStage[data-phase='settling'][data-completing='true']
+.SwipeSlide {
+    --photo-wobble-phase: 1;
+    animation: PhotoTransitionWobble 620ms cubic-bezier(.16, .78, .24, 1);
+}
+
+.SwipeStage[data-phase='settling'][data-completing='true']
+.SwipeSlide:nth-child(2) {
+    --photo-wobble-phase: -1;
+}
+
+.ViewModePicker {
+    background: transparent;
+    display: flex;
+    gap: 1px;
+    left: auto;
+    padding: 8px 0;
+    position: absolute;
+    right: 38px;
+    top: -42px;
+    z-index: 5;
+}
+
+.ViewModePicker button {
+    background: transparent;
+    border: 1px solid #8f8f8c;
+    color: rgb(255 255 255 / 68%);
+    cursor: pointer;
     font-size: 9px;
-    letter-spacing: 0.1em;
-    margin: 0 0 auto;
-    text-transform: uppercase;
+    height: 18px;
+    padding: 0;
+    width: 18px;
 }
 
-.Details h2 {
-    font-size: clamp(36px, 4vw, 64px);
-    font-weight: 460;
-    letter-spacing: -0.065em;
-    line-height: 0.92;
-    margin: 40px 0;
+.ViewModePicker button:hover,
+.ViewModePicker .ViewModeActive {
+    background: white;
+    color: #111111;
 }
 
-.Details > div {
-    border-top: 1px solid #111111;
-    display: grid;
+.VerticalGallery {
+    height: 100%;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: thin;
+}
+
+.VerticalImage {
+    height: 100%;
+    min-height: 100%;
+    opacity: .72;
+    position: relative;
+    scroll-snap-align: start;
+    transition: opacity 180ms ease;
+}
+
+.VerticalImage[data-active='true'] {
+    opacity: 1;
+}
+
+.PhotoBookStage {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    padding: 0;
+    perspective: 2000px;
+    position: relative;
+}
+
+.PhotoFlipBook {
+    margin: 0 auto;
+    overflow: clip;
+    z-index: 1;
+}
+
+.PhotoFlipBook > .PhotoFlipPage:not(:global(.stf__item)) {
+    display: none;
+}
+
+.PhotoBookStage :global(.stf__innerShadow) {
+    filter: saturate(0);
+    opacity: .46 !important;
+}
+
+.PhotoBookStage :global(.stf__outerShadow) {
+    filter: blur(.6px);
+    opacity: .62 !important;
+}
+
+.PhotoFlipPage {
+    background: #f7f7f5;
+    box-shadow: 0 0 0 1px #f7f7f5;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.PhotoBookPage {
+    height: 100%;
+    margin: 0;
+    position: relative;
+}
+
+.PhotoBookImage {
+    background: #f7f7f5;
+    inset: 0;
+    overflow: hidden;
+    position: absolute;
+}
+
+.PhotoBookImage img {
+    object-fit: cover;
+}
+
+.BookCoverText {
+    font-weight: 500;
+    line-height: 1;
+    max-width: 88%;
+    pointer-events: none;
+    position: absolute;
+    white-space: nowrap;
+    z-index: 2;
+}
+
+.BookPageStatus {
+    bottom: 13px;
     font-size: 10px;
-    gap: 14px;
-    padding-top: 16px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    position: absolute;
+    right: 13px;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 50%);
+    z-index: 5;
 }
 
-.Details > div p {
-    font-size: 12px;
-    line-height: 1.65;
-    margin: 0 0 28px;
+.PhotoFlipPage:global(.--left) .BookPageStatus {
+    left: 13px;
+    right: auto;
+    text-align: left;
 }
 
-.Details > div span {
-    color: #777774;
+.PhotoFlipPage:global(.--right) .BookPageStatus {
+    left: auto;
+    right: 13px;
+    text-align: right;
 }
 
-.Details > div a {
-    text-decoration: underline;
-    text-underline-offset: 4px;
+.PageProgress {
+    bottom: -31px;
+    color: #a0a09c;
+    font-size: 9px;
+    position: absolute;
+    right: 0;
+}
+
+.ImageNavigation {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    color: rgb(255 255 255 / 82%);
+    cursor: pointer;
+    display: flex;
+    height: 44px;
+    justify-content: center;
+    left: 50%;
+    mix-blend-mode: difference;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    transition:
+        opacity 180ms ease,
+        left 420ms cubic-bezier(.22, .75, .25, 1),
+        top 420ms cubic-bezier(.22, .75, .25, 1),
+        transform 420ms cubic-bezier(.22, .75, .25, 1);
+    width: 44px;
+    z-index: 3;
+}
+
+:global(html[data-theme='dark']) .ImageNavigation {
+    background: transparent;
+    color: rgb(255 255 255 / 82%);
+}
+
+.ImageNavigation::before {
+    border-bottom: 3px solid currentColor;
+    border-right: 3px solid currentColor;
+    content: "";
+    height: 14px;
+    width: 14px;
+}
+
+.ImageNavigation[data-direction='left']::before {
+    transform: rotate(135deg);
+}
+
+.ImageNavigation[data-direction='right']::before {
+    transform: rotate(-45deg);
+}
+
+.ImageNavigation[data-direction='up']::before {
+    transform: rotate(-135deg);
+}
+
+.ImageNavigation[data-direction='down']::before {
+    transform: rotate(45deg);
+}
+
+.Panel:hover .ImageNavigation,
+.ImageNavigation:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.Panel:hover
+.ImageNavigation[data-direction='left'] {
+    transform: translate(2px, -50%);
+}
+
+.Panel:hover
+.ImageNavigation[data-direction='right'] {
+    transform: translate(-2px, -50%);
+}
+
+.Panel:hover
+.ImageNavigation[data-direction='up'] {
+    transform: translate(-50%, 2px);
+}
+
+.Panel:hover
+.ImageNavigation[data-direction='down'] {
+    transform: translate(-50%, -2px);
+}
+
+.ImageNavigation[data-direction='left'] {
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.ImageNavigation[data-direction='right'] {
+    left: calc(100% - 60px);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.ImageNavigation[data-direction='up'] {
+    left: 50%;
+    top: 16px;
+    transform: translateX(-50%);
+}
+
+.ImageNavigation[data-direction='down'] {
+    left: 50%;
+    top: calc(100% - 60px);
+    transform: translateX(-50%);
 }
 
 @keyframes BackdropIn {
@@ -123,39 +576,112 @@
     }
 }
 
+@keyframes PhotoTransitionWobble {
+    0%,
+    100% {
+        transform: perspective(1100px) rotate3d(
+            var(--photo-wobble-x),
+            var(--photo-wobble-y),
+            0,
+            0deg
+        ) scale(1);
+    }
+
+    18% {
+        transform: perspective(1100px) rotate3d(
+            var(--photo-wobble-x),
+            var(--photo-wobble-y),
+            0,
+            calc(4deg * var(--photo-wobble-phase))
+        ) scale(.99);
+    }
+
+    43% {
+        transform: perspective(1100px) rotate3d(
+            var(--photo-wobble-x),
+            var(--photo-wobble-y),
+            0,
+            calc(-1.35deg * var(--photo-wobble-phase))
+        ) scale(1.008);
+    }
+
+    70% {
+        transform: perspective(1100px) rotate3d(
+            var(--photo-wobble-x),
+            var(--photo-wobble-y),
+            0,
+            calc(.55deg * var(--photo-wobble-phase))
+        ) scale(1);
+    }
+}
+
 @media (max-width: 760px) {
     .Backdrop {
-        padding: 0;
+        padding: 0 0 0 48px;
+    }
+
+    .PanelShell {
+        height: 100dvh;
+        width: 100%;
+    }
+
+    .PanelShell[data-view-mode='book'] {
+        height: 100dvh;
+        width: 100%;
     }
 
     .Panel {
-        display: grid;
-        grid-template-columns: 1fr;
-        grid-template-rows: minmax(320px, 58vh) 1fr;
-        height: 100dvh;
+        height: 100%;
     }
 
-    .Details {
-        align-content: start;
-        overflow-y: auto;
+    .ViewModePicker {
+        left: auto;
+        right: 52px;
+        top: 8px;
     }
 
-    .Details > p {
-        margin-bottom: 22px;
+    .Close {
+        right: 8px;
+        top: 8px;
     }
 
-    .Details h2 {
-        margin: 0 0 25px;
+    .BookPageIndex {
+        bottom: 0;
+        max-height: none;
+        top: 0;
+        width: min(330px, calc(100vw - 48px));
     }
 
-    .Details > div p {
-        margin-bottom: 10px;
+    .BookPageIndexControls {
+        left: 8px;
+        top: 8px;
+    }
+
+    .PhotoBookStage {
+        padding: 48px 24px 18px;
+    }
+
+    .PageProgress {
+        bottom: 8px;
+        right: 12px;
+    }
+
+}
+
+@media (hover: none) {
+    .ImageNavigation {
+        opacity: 1;
+        pointer-events: auto;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .Backdrop,
-    .Panel {
+    .Panel,
+    .ImageNavigation,
+    .BookPageIndex,
+    .SwipeSlide {
         animation: none;
+        transition: none;
     }
 }

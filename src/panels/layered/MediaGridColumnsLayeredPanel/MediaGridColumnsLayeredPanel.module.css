@@ -1,0 +1,119 @@
+.Backdrop {
+    align-items: center;
+    background: rgb(12 12 12 / 58%);
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: 24px;
+    position: fixed;
+    z-index: 1120;
+}
+
+.Panel {
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    box-shadow: 0 30px 100px rgb(0 0 0 / 28%);
+    color: var(--ink);
+    padding: clamp(26px, 4vw, 46px);
+    width: min(620px, calc(100vw - 48px));
+}
+
+.Header,
+.Footer {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.Header button,
+.Footer button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    min-height: 36px;
+    padding: 0 12px;
+}
+
+.Copy {
+    border-bottom: 1px solid var(--line);
+    padding: 38px 0 26px;
+}
+
+.Copy > span {
+    color: var(--muted);
+    font-size: 8px;
+    letter-spacing: .14em;
+}
+
+.Copy h2 {
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 500;
+    letter-spacing: -.055em;
+    margin: 12px 0 0;
+}
+
+.Copy p {
+    color: var(--muted);
+    font-size: 10px;
+    margin: 14px 0 0;
+}
+
+.InputField {
+    display: grid;
+    gap: 10px;
+    padding: 24px 0;
+}
+
+.InputField > span,
+.InputField small,
+.Notice {
+    font-size: 8px;
+}
+
+.InputField > span {
+    color: var(--muted);
+}
+
+.InputField input {
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font: inherit;
+    font-size: 24px;
+    min-height: 56px;
+    padding: 0 14px;
+    width: 100%;
+}
+
+.InputField input:focus {
+    border-color: var(--ink);
+    outline: none;
+}
+
+.InputField small {
+    color: var(--muted);
+}
+
+.Notice {
+    color: #b94a45;
+    margin: 0 0 16px;
+}
+
+.Footer {
+    border-top: 1px solid var(--line);
+    justify-content: flex-end;
+    padding-top: 18px;
+}
+
+.Footer button {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--canvas);
+    min-width: 90px;
+}
+
+.Panel button:disabled {
+    cursor: wait;
+    opacity: .5;
+}
