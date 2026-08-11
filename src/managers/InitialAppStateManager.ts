@@ -13,8 +13,14 @@ import {
 } from '@/managers/WritingPageCategoryManager';
 import {
     NormalizeWritingPosts,
-    type WritingPost,
+    type WritingSavedPost,
 } from '@/managers/WritingPostManager';
+import {
+    ParseWritingReaderPreferenceCookie,
+    WritingReaderPreferenceCookie,
+    type WritingReaderPreferences,
+} from '@/managers/WritingReaderPreferenceManager';
+import { cookies } from 'next/headers';
 import {
     DefaultPhotoPageCategories,
     DefaultPhotoPageDescription,
@@ -47,7 +53,6 @@ import {
     type MediaPageCustomization,
 } from '@/panels/base/MediaBasePanel/controller/MediaBasePanelState';
 import type { MediaArchiveItem } from '@/panels/base/MediaBasePanel/controller/MediaBasePanelTypes';
-import { WritingArticles } from '@/panels/base/WritingBasePanel/controller/WritingBasePanelState';
 
 interface StartPageSettingsRow
 {
@@ -77,7 +82,8 @@ export interface InitialAppState
     StartPageCustomization: StartPageCustomization;
     WritingPageCategories: string[];
     WritingArticleOrder: string[];
-    WritingPosts: WritingPost[];
+    WritingPosts: WritingSavedPost[];
+    WritingReaderPreferences: WritingReaderPreferences;
 }
 
 const CategoryIds: GalleryCategory[] = [
@@ -272,6 +278,12 @@ function NormalizeStartPageCustomization(
 export async function LoadInitialAppState():
     Promise<InitialAppState>
 {
+    const CookieStore = await cookies();
+    const WritingReaderPreferences =
+        ParseWritingReaderPreferenceCookie(
+            CookieStore.get(WritingReaderPreferenceCookie)?.value,
+        );
+
     try
     {
         const Supabase = await CreateSupabaseServerClient();
@@ -316,7 +328,8 @@ export async function LoadInitialAppState():
                 .from('writing_posts')
                 .select(
                     'id, category, title, summary, content_html, is_private, updated_at',
-                ),
+                )
+                .order('updated_at', { ascending: false }),
             Supabase
                 .from('media_posts')
                 .select(
@@ -396,12 +409,16 @@ export async function LoadInitialAppState():
                     WritingPageSettingsResult.data.categories,
                 )
                 : [...DefaultWritingPageCategories];
-        const WritingPosts =
-            WritingPostsResult.error === null
-                ? NormalizeWritingPosts(
-                    WritingPostsResult.data,
+        const WritingArticleOrder =
+            WritingPageSettingsResult.error === null
+            && WritingPageSettingsResult.data !== null
+                ? NormalizeWritingArticleOrder(
+                    WritingPageSettingsResult.data.article_order,
                 )
                 : [];
+        const WritingPosts = WritingPostsResult.error === null
+            ? NormalizeWritingPosts(WritingPostsResult.data)
+            : [];
         const MediaPosts =
             MediaPostsResult.error === null
                 ? NormalizeMediaPosts(MediaPostsResult.data)
@@ -413,24 +430,6 @@ export async function LoadInitialAppState():
                     MediaPageSettingsResult.data,
                 )
                 : NormalizeMediaPageCustomization(null);
-        const WritingArticleOrder =
-            NormalizeWritingArticleOrder(
-                WritingPageSettingsResult.data?.article_order,
-                [
-                    ...WritingArticles.map(
-                        (Article) => Article.Id,
-                    ),
-                    ...WritingPosts
-                        .filter((Post) =>
-                            WritingArticles.some(
-                                (Article) =>
-                                    Article.Id === Post.Id,
-                            ) === false,
-                        )
-                        .map((Post) => Post.Id),
-                ],
-            );
-
         return {
             AdminEmail,
             MediaPageCustomization,
@@ -445,6 +444,7 @@ export async function LoadInitialAppState():
             WritingPageCategories,
             WritingArticleOrder,
             WritingPosts,
+            WritingReaderPreferences,
         };
     }
     catch
@@ -483,9 +483,9 @@ export async function LoadInitialAppState():
             WritingPageCategories: [
                 ...DefaultWritingPageCategories,
             ],
-            WritingArticleOrder:
-                WritingArticles.map((Article) => Article.Id),
+            WritingArticleOrder: [],
             WritingPosts: [],
+            WritingReaderPreferences,
         };
     }
 }

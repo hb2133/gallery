@@ -13,6 +13,11 @@
 ## Decision Notes
 - 방향이 바뀐 이유와 폐기한 가설을 적는다.
 
+## Initial Render Harness
+- 첫 화면에 영향을 주는 저장값과 SSOT를 적는다.
+- 서버 첫 HTML과 hydration에서 같은 값을 쓰는 방법을 적는다.
+- 저장형 기능이 아니면 해당 없음으로 적는다.
+
 ## Fix Notes
 - 현재 적용한 수정이나 구현 내용을 요약한다.
 - 기능 작업이면 `Implementation Notes`로 바꿔도 된다.

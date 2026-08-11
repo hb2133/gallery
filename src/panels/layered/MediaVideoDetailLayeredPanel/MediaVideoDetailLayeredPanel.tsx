@@ -152,6 +152,11 @@ export function MediaVideoDetailLayeredPanel(
                 SetDuration(PlayerInfo.Duration);
             }
 
+            if(PlayerInfo.IsEnded === true)
+            {
+                SetCurrentTime(PlayerInfo.Duration ?? Duration);
+            }
+
             if(PlayerInfo.IsMuted !== undefined)
             {
                 SetIsMuted(PlayerInfo.IsMuted);
@@ -183,7 +188,7 @@ export function MediaVideoDetailLayeredPanel(
                 HandleYouTubeMessage,
             );
         };
-    }, []);
+    }, [Duration]);
 
     function SendYouTubeMessage(Message: Record<string, unknown>)
     {
@@ -421,6 +426,11 @@ export function MediaVideoDetailLayeredPanel(
                             onTimeUpdate={(Event) =>
                                 SetCurrentTime(
                                     Event.currentTarget.currentTime,
+                                )
+                            }
+                            onEnded={(Event) =>
+                                SetCurrentTime(
+                                    Event.currentTarget.duration,
                                 )
                             }
                             onVolumeChange={(Event) =>

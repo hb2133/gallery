@@ -677,6 +677,8 @@ export function ImageDetailLayeredPanel(
 
     const StartVisualImageTransitionEvent =
         useEffectEvent(StartVisualImageTransition);
+    const RequestImageTransitionEvent =
+        useEffectEvent(RequestImageTransition);
 
     useEffect(() =>
     {
@@ -748,7 +750,7 @@ export function ImageDetailLayeredPanel(
 
             if(KeyDirection === ForwardDirection)
             {
-                RequestImageTransition(
+                RequestImageTransitionEvent(
                     'forward',
                     NavigationImageIndex,
                     ForwardDirection,
@@ -756,7 +758,7 @@ export function ImageDetailLayeredPanel(
             }
             else if(KeyDirection === BackDirection)
             {
-                RequestImageTransition(
+                RequestImageTransitionEvent(
                     'back',
                     NavigationImageIndex,
                     BackDirection,

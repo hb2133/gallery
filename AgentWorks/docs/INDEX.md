@@ -32,7 +32,7 @@ docs/
 - `project-rules/review/`
   - 리뷰와 평가가 따라야 하는 기준 문서
 - `project-rules/platform/`
-  - Flutter / Electron 같은 플랫폼 특화 제약 문서
+  - Next.js 초기 렌더링 하네스와 Flutter / Electron 같은 플랫폼 특화 제약 문서
 - `architecture/`
   - 현재 프로젝트 특화 구조 정리, 설계 초안, 장기 방향 메모
 - `reports/`
@@ -44,6 +44,7 @@ docs/
    - `ARCHITECTURE_RULES_PANEL_SECTION_*` 문서를 읽는다.
    - `ARCHITECTURE_RULES_PANEL_LAYER_*` 문서를 읽는다.
 2. 플랫폼 특화 제약이 있으면 `project-rules/platform/`
+   - Next.js 저장형 기능은 `HARNESS_ENGINEERING_INITIAL_RENDER_NEXTJS_V1.md`를 항상 읽는다.
 3. 현재 프로젝트 구조나 장기 방향이 필요하면 `architecture/`
 4. 이전 결과나 외부 공유 요약이 필요하면 `reports/`
 
@@ -51,6 +52,7 @@ docs/
 
 - 구현 세션은 먼저 `project-rules/architecture/`를 확인한다.
 - 플랫폼 특화 제약이 있으면 `project-rules/platform/`을 추가로 확인한다.
+- Next.js의 저장형·인증형·커스텀 기능은 초기 렌더링 하네스 규칙을 필수 적용한다.
 - `project-rules/`와 `architecture/`의 역할을 혼동하지 않는다.
 - 개별 작업의 최신 진행 상태나 완료 판정은 `docs/`에 두지 않는다.
 - `reports/`는 프로젝트 밖으로 공유해야 하는 요약이 있을 때만 사용한다.

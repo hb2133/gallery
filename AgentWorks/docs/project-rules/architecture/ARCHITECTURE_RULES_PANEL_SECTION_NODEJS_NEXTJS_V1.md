@@ -463,6 +463,14 @@ export interface ConfirmLayeredPanelBindings
 - `npx tsc --noEmit`
 - 에러와 경고 0
 
+### 20-1) 저장 설정 초기 렌더링
+
+- Supabase, 인증, 쿠키, 로컬 저장소의 값이 첫 화면에 영향을 주면
+  `project-rules/platform/HARNESS_ENGINEERING_INITIAL_RENDER_NEXTJS_V1.md`를 필수 적용한다.
+- 서버에서 읽을 수 있는 값은 서버 초기 상태에 포함하고 Client Controller 최초 state에 주입한다.
+- 정적 기본값을 먼저 렌더링한 뒤 `useEffect`에서 저장값으로 교체하는 구현을 금지한다.
+- 완료 전 비기본 저장값이 route의 서버 첫 HTML에 포함되는지 검증한다.
+
 ## 21) 생성 시 금지 패턴
 - `<BasePanelName>.tsx` 없이 route 파일이 직접 화면을 조립하는 구조
 - `Section`마다 별도 Controller를 만드는 구조

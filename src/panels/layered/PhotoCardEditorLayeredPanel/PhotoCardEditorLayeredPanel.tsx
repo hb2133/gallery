@@ -368,15 +368,23 @@ export function PhotoCardEditorLayeredPanel(
                 PreviewUrl: ContentImage.PreviewUrl,
             }),
         );
+        let IsCancelled = false;
 
-        SetReadyContentImageIds([]);
+        queueMicrotask(() =>
+        {
+            if(IsCancelled === false)
+            {
+                SetReadyContentImageIds([]);
+            }
+        });
 
         if(PreviewItems.length === 0)
         {
-            return;
+            return () =>
+            {
+                IsCancelled = true;
+            };
         }
-
-        let IsCancelled = false;
 
         PreviewItems.forEach((PreviewItem) =>
         {

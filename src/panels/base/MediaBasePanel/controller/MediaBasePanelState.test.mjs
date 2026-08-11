@@ -40,6 +40,10 @@ assert.equal(
     false,
 );
 assert.deepEqual(
+    GetYouTubePlayerInfo({ event: 'onStateChange', info: 0 }),
+    { IsEnded: true, IsPlaying: false },
+);
+assert.deepEqual(
     GetYouTubePlayerInfo({
         event: 'infoDelivery',
         info: {

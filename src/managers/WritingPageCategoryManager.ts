@@ -1,19 +1,14 @@
 import { GetSupabaseBrowserClient } from '@/core/infra/supabase/SupabaseBrowserClient';
 
 const WritingPageSettingsId = true;
-const MaximumCategoryCount = 20;
-const MaximumCategoryLength = 20;
 
 export const DefaultWritingPageCategories = [
-    '기타 마케팅 칼럼',
-    '디자인 노트',
-    '생활 기록',
-    '작업 기록',
+    '공간',
+    '여행',
+    '생각',
 ] as const;
 
-export function NormalizeWritingPageCategories(
-    Value: unknown,
-): string[]
+export function NormalizeWritingPageCategories(Value: unknown): string[]
 {
     if(Array.isArray(Value) === false)
     {
@@ -29,10 +24,7 @@ export function NormalizeWritingPageCategories(
             continue;
         }
 
-        const Category = Candidate.trim().slice(
-            0,
-            MaximumCategoryLength,
-        );
+        const Category = Candidate.trim().slice(0, 20);
 
         if(
             Category === ''
@@ -45,20 +37,52 @@ export function NormalizeWritingPageCategories(
 
         Categories.push(Category);
 
-        if(Categories.length >= MaximumCategoryCount)
+        if(Categories.length >= 20)
         {
             break;
         }
     }
 
-    return Categories;
+    const LegacyDefaults = [
+        '기타 마케팅 칼럼',
+        '디자인 노트',
+        '생활 기록',
+        '작업 기록',
+    ];
+    const IsLegacyDefault = Categories.some((Category) =>
+        LegacyDefaults.includes(Category),
+    );
+
+    return Categories.length > 0 && IsLegacyDefault === false
+        ? Categories
+        : [...DefaultWritingPageCategories];
 }
 
-export async function LoadWritingPageCategories():
-    Promise<string[]>
+export function NormalizeWritingArticleOrder(Value: unknown): string[]
 {
-    const Supabase = GetSupabaseBrowserClient();
-    const { data, error } = await Supabase
+    if(Array.isArray(Value) === false)
+    {
+        return [];
+    }
+
+    return Value.reduce<string[]>((Order, Candidate) =>
+    {
+        if(
+            typeof Candidate === 'string'
+            && Candidate !== ''
+            && Order.includes(Candidate) === false
+        )
+        {
+            Order.push(Candidate.slice(0, 160));
+        }
+
+        return Order;
+    }, []).slice(0, 500);
+}
+
+export async function LoadWritingPageCategories(): Promise<string[]>
+{
+    const { data, error } = await GetSupabaseBrowserClient()
         .from('writing_page_settings')
         .select('categories')
         .eq('id', WritingPageSettingsId)
@@ -78,14 +102,12 @@ export async function SaveWritingPageCategories(
     Categories: string[],
 ): Promise<string[]>
 {
-    const NormalizedCategories =
-        NormalizeWritingPageCategories(Categories);
-    const Supabase = GetSupabaseBrowserClient();
-    const { error } = await Supabase
+    const Normalized = NormalizeWritingPageCategories(Categories);
+    const { error } = await GetSupabaseBrowserClient()
         .from('writing_page_settings')
         .upsert({
             id: WritingPageSettingsId,
-            categories: NormalizedCategories,
+            categories: Normalized,
             updated_at: new Date().toISOString(),
         });
 
@@ -94,73 +116,17 @@ export async function SaveWritingPageCategories(
         throw error;
     }
 
-    return NormalizedCategories;
+    return Normalized;
 }
 
-export function NormalizeWritingArticleOrder(
-    Value: unknown,
-    AvailableArticleIds: string[],
-): string[]
+export async function SaveWritingArticleOrder(Order: string[]): Promise<string[]>
 {
-    const SavedIds =
-        Array.isArray(Value)
-            ? Value.filter(
-                (Candidate): Candidate is string =>
-                    typeof Candidate === 'string',
-            )
-            : [];
-    const OrderedIds = SavedIds.filter(
-        (Id, Index) =>
-            AvailableArticleIds.includes(Id)
-            && SavedIds.indexOf(Id) === Index,
-    );
-
-    return [
-        ...OrderedIds,
-        ...AvailableArticleIds.filter(
-            (Id) => OrderedIds.includes(Id) === false,
-        ),
-    ];
-}
-
-export async function LoadWritingArticleOrder(
-    AvailableArticleIds: string[],
-): Promise<string[]>
-{
-    const Supabase = GetSupabaseBrowserClient();
-    const { data, error } = await Supabase
-        .from('writing_page_settings')
-        .select('article_order')
-        .eq('id', WritingPageSettingsId)
-        .maybeSingle();
-
-    if(error)
-    {
-        throw error;
-    }
-
-    return NormalizeWritingArticleOrder(
-        data?.article_order,
-        AvailableArticleIds,
-    );
-}
-
-export async function SaveWritingArticleOrder(
-    ArticleOrder: string[],
-    AvailableArticleIds: string[],
-): Promise<string[]>
-{
-    const NormalizedOrder =
-        NormalizeWritingArticleOrder(
-            ArticleOrder,
-            AvailableArticleIds,
-        );
-    const Supabase = GetSupabaseBrowserClient();
-    const { error } = await Supabase
+    const Normalized = NormalizeWritingArticleOrder(Order);
+    const { error } = await GetSupabaseBrowserClient()
         .from('writing_page_settings')
         .upsert({
             id: WritingPageSettingsId,
-            article_order: NormalizedOrder,
+            article_order: Normalized,
             updated_at: new Date().toISOString(),
         });
 
@@ -169,5 +135,5 @@ export async function SaveWritingArticleOrder(
         throw error;
     }
 
-    return NormalizedOrder;
+    return Normalized;
 }

@@ -301,6 +301,7 @@ export interface YouTubePlayerInfo
 {
     CurrentTime?: number;
     Duration?: number;
+    IsEnded?: boolean;
     IsMuted?: boolean;
     IsPlaying?: boolean;
     PlaybackRate?: number;
@@ -348,6 +349,11 @@ export function GetYouTubePlayerInfo(
     else if(PlayerState === 0 || PlayerState === 2)
     {
         Result.IsPlaying = false;
+
+        if(PlayerState === 0)
+        {
+            Result.IsEnded = true;
+        }
     }
 
     if(

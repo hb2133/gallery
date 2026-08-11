@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Noto_Sans_KR } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Gowun_Dodum,
+  Inspiration,
+  Nanum_Gothic_Coding,
+  Noto_Sans_KR,
+  Noto_Serif_KR,
+} from "next/font/google";
 import { AuthSessionProvider } from "@/app/shell/AuthSessionProvider";
 import { InitialAppStateProvider } from "@/app/shell/InitialAppStateProvider";
 import { GlobalDesign } from "@/design/GlobalDesign.global";
@@ -21,6 +29,30 @@ const notoSansKorean = Noto_Sans_KR({
   variable: "--font-noto-sans-kr",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
+});
+
+const notoSerifKorean = Noto_Serif_KR({
+  variable: "--font-noto-serif-kr",
+  subsets: ["latin"],
+  weight: ["400", "600"],
+});
+
+const gowunDodum = Gowun_Dodum({
+  variable: "--font-gowun-dodum",
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const nanumGothicCoding = Nanum_Gothic_Coding({
+  variable: "--font-nanum-gothic-coding",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+
+const inspiration = Inspiration({
+  variable: "--font-inspiration",
+  subsets: ["latin"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -51,7 +83,7 @@ export default async function RootLayout({
       lang="ko"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${geistMono.variable} ${notoSansKorean.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${notoSansKorean.variable} ${notoSerifKorean.variable} ${gowunDodum.variable} ${nanumGothicCoding.variable} ${inspiration.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: ThemeInitializationScript }} />
