@@ -1,13 +1,29 @@
 import { CreateUniqueId } from '@/core/identity/UniqueId';
 import { GetSupabaseBrowserClient } from '@/core/infra/supabase/SupabaseBrowserClient';
+import {
+    IsPhotoPageDirection,
+    NormalizePhotoPageDirectionSequence,
+} from '@/core/navigation/PhotoPageDirection';
+import {
+    NormalizePhotoCardTextLayers,
+    type PhotoCardTextLayer,
+} from '@/managers/PhotoCardCustomizationManager';
 import type {
     WritingArticle,
+    WritingEnabledViewMode,
     WritingPage,
 } from '@/panels/base/WritingBasePanel/controller/WritingBasePanelTypes';
 
 export interface WritingSavedPost extends WritingArticle
 {
+    EnabledViewModes: WritingEnabledViewMode[];
+    IsContentLocked: boolean;
+    IsDeleted: boolean;
+    IsPasswordProtected: boolean;
     IsPrivate: boolean;
+    PageNumberColor: string;
+    PageNumberOpacity: number;
+    TextLayers: PhotoCardTextLayer[];
 }
 
 interface WritingPostRow
@@ -17,7 +33,11 @@ interface WritingPostRow
     title: unknown;
     summary: unknown;
     content_html: unknown;
+    is_content_locked: unknown;
+    is_password_protected: unknown;
     is_private: unknown;
+    text_layers: unknown;
+    thumbnail_url: unknown;
     updated_at: unknown;
 }
 
@@ -42,6 +62,41 @@ function IsCurrentWritingContent(Value: unknown): boolean
     {
         return false;
     }
+}
+
+function IsDeletedWritingContent(Value: unknown): boolean
+{
+    if(typeof Value !== 'string')
+    {
+        return false;
+    }
+
+    try
+    {
+        const Parsed = JSON.parse(Value) as unknown;
+        return IsRecord(Parsed) && Parsed.is_deleted === true;
+    }
+    catch
+    {
+        return false;
+    }
+}
+
+function SerializeWritingPostContent(Post: WritingSavedPost): string
+{
+    return JSON.stringify({
+        version: 1,
+        image: Post.Image,
+        enabled_view_modes: Post.EnabledViewModes,
+        page_number_color: Post.PageNumberColor,
+        page_number_opacity: Post.PageNumberOpacity,
+        pages: Post.Pages.map((Page) => ({
+            forward_direction: Page.ForwardDirection,
+            heading: Page.Heading,
+            paragraphs: Page.Paragraphs,
+        })),
+        text_layers: Post.TextLayers,
+    });
 }
 
 function NormalizePages(Value: unknown, Title: string): WritingPage[]
@@ -69,28 +124,100 @@ function NormalizePages(Value: unknown, Title: string): WritingPage[]
 
             return Heading === '' && Paragraphs.length === 0
                 ? []
-                : [{ Heading: Heading || Title, Paragraphs }];
+                : [{
+                    ForwardDirection:
+                        IsPhotoPageDirection(
+                            Candidate.forward_direction,
+                        )
+                            ? Candidate.forward_direction
+                            : null,
+                    Heading: Heading || Title,
+                    Paragraphs,
+                }];
         });
 
         if(Pages.length > 0)
         {
-            return Pages.slice(0, 100);
+            const LimitedPages = Pages.slice(0, 100);
+            const Directions = NormalizePhotoPageDirectionSequence(
+                LimitedPages.map(
+                    (Page) => Page.ForwardDirection,
+                ),
+            );
+
+            return LimitedPages.map((Page, PageIndex) => ({
+                ...Page,
+                ForwardDirection: Directions[PageIndex],
+            }));
         }
     }
 
     return [{
+        ForwardDirection: null,
         Heading: Title,
         Paragraphs: ['아직 작성된 본문이 없습니다.'],
     }];
 }
 
-function ParseContent(Value: unknown, Title: string)
+function NormalizeEnabledViewModes(
+    Value: unknown,
+): WritingEnabledViewMode[]
 {
+    if(Array.isArray(Value))
+    {
+        const Modes = Value.filter(
+            (Candidate): Candidate is WritingEnabledViewMode =>
+                Candidate === 'book' || Candidate === 'scroll',
+        );
+
+        if(Modes.length > 0)
+        {
+            return [...new Set(Modes)];
+        }
+    }
+
+    return ['book', 'scroll'];
+}
+
+function NormalizePageNumberColor(Value: unknown)
+{
+    return typeof Value === 'string' && /^#[0-9a-f]{6}$/i.test(Value)
+        ? Value
+        : '#222222';
+}
+
+function NormalizePageNumberOpacity(Value: unknown)
+{
+    return typeof Value === 'number' && Number.isFinite(Value)
+        ? Math.min(1, Math.max(0, Value))
+        : .58;
+}
+
+function ParseContent(
+    Value: unknown,
+    Title: string,
+    ThumbnailUrl: unknown,
+    StoredTextLayers: unknown,
+)
+{
+    const StoredImage =
+        typeof ThumbnailUrl === 'string'
+        && ThumbnailUrl.trim() !== ''
+            ? ThumbnailUrl
+            : '/images/journal-01.webp';
+    const DatabaseTextLayers = NormalizePhotoCardTextLayers(
+        StoredTextLayers,
+    );
+
     if(typeof Value !== 'string')
     {
         return {
-            Image: '/images/journal-01.webp',
+            EnabledViewModes: NormalizeEnabledViewModes(null),
+            Image: StoredImage,
+            PageNumberColor: NormalizePageNumberColor(null),
+            PageNumberOpacity: NormalizePageNumberOpacity(null),
             Pages: NormalizePages(null, Title),
+            TextLayers: DatabaseTextLayers,
         };
     }
 
@@ -101,12 +228,28 @@ function ParseContent(Value: unknown, Title: string)
         if(IsRecord(Parsed))
         {
             return {
+                EnabledViewModes: NormalizeEnabledViewModes(
+                    Parsed.enabled_view_modes,
+                ),
                 Image:
-                    typeof Parsed.image === 'string'
+                    StoredImage !== '/images/journal-01.webp'
+                        ? StoredImage
+                        : typeof Parsed.image === 'string'
                     && Parsed.image.trim() !== ''
                         ? Parsed.image
                         : '/images/journal-01.webp',
+                PageNumberColor: NormalizePageNumberColor(
+                    Parsed.page_number_color,
+                ),
+                PageNumberOpacity: NormalizePageNumberOpacity(
+                    Parsed.page_number_opacity,
+                ),
                 Pages: NormalizePages(Parsed.pages, Title),
+                TextLayers: DatabaseTextLayers.length > 0
+                    ? DatabaseTextLayers
+                    : NormalizePhotoCardTextLayers(
+                        Parsed.text_layers,
+                    ),
             };
         }
     }
@@ -120,19 +263,28 @@ function ParseContent(Value: unknown, Title: string)
             .trim();
 
         return {
-            Image: '/images/journal-01.webp',
+            EnabledViewModes: NormalizeEnabledViewModes(null),
+            Image: StoredImage,
+            PageNumberColor: NormalizePageNumberColor(null),
+            PageNumberOpacity: NormalizePageNumberOpacity(null),
             Pages: [{
+                ForwardDirection: null,
                 Heading: Title,
                 Paragraphs: Text === ''
                     ? ['아직 작성된 본문이 없습니다.']
                     : Text.split(/\n{2,}/).map((Item) => Item.trim()),
             }],
+            TextLayers: DatabaseTextLayers,
         };
     }
 
     return {
-        Image: '/images/journal-01.webp',
+        EnabledViewModes: NormalizeEnabledViewModes(null),
+        Image: StoredImage,
+        PageNumberColor: NormalizePageNumberColor(null),
+        PageNumberOpacity: NormalizePageNumberOpacity(null),
         Pages: NormalizePages(null, Title),
+        TextLayers: DatabaseTextLayers,
     };
 }
 
@@ -146,19 +298,29 @@ export function NormalizeWritingPosts(Value: unknown): WritingSavedPost[]
     return Value.flatMap((Candidate) =>
     {
         const Row = Candidate as WritingPostRow;
+        const IsDeleted = IsDeletedWritingContent(Row.content_html);
 
         if(
             typeof Row.id !== 'string'
             || typeof Row.title !== 'string'
             || typeof Row.category !== 'string'
-            || IsCurrentWritingContent(Row.content_html) === false
+            || (
+                IsDeleted === false
+                && IsCurrentWritingContent(Row.content_html) === false
+                && Row.is_content_locked !== true
+            )
         )
         {
             return [];
         }
 
         const Title = Row.title.trim().slice(0, 160);
-        const Content = ParseContent(Row.content_html, Title);
+        const Content = ParseContent(
+            Row.content_html,
+            Title,
+            Row.thumbnail_url,
+            Row.text_layers,
+        );
         const UpdatedAt = typeof Row.updated_at === 'string'
             ? new Date(Row.updated_at)
             : new Date();
@@ -185,7 +347,15 @@ export function NormalizeWritingPosts(Value: unknown): WritingSavedPost[]
             ReadTime: `${Math.max(1, Math.ceil(CharacterCount / 500))} min read`,
             Image: Content.Image,
             Pages: Content.Pages,
+            EnabledViewModes: Content.EnabledViewModes,
+            IsContentLocked: Row.is_content_locked === true,
+            IsDeleted,
+            IsPasswordProtected:
+                Row.is_password_protected === true,
             IsPrivate: Row.is_private === true,
+            PageNumberColor: Content.PageNumberColor,
+            PageNumberOpacity: Content.PageNumberOpacity,
+            TextLayers: Content.TextLayers,
         }];
     });
 }
@@ -193,9 +363,7 @@ export function NormalizeWritingPosts(Value: unknown): WritingSavedPost[]
 export async function LoadWritingPosts(): Promise<WritingSavedPost[]>
 {
     const { data, error } = await GetSupabaseBrowserClient()
-        .from('writing_posts')
-        .select('id, category, title, summary, content_html, is_private, updated_at')
-        .order('updated_at', { ascending: false });
+        .rpc('load_writing_posts');
 
     if(error)
     {
@@ -207,8 +375,20 @@ export async function LoadWritingPosts(): Promise<WritingSavedPost[]>
 
 export async function SaveWritingPost(
     Post: WritingSavedPost,
+    PasswordUpdate: string | null,
 ): Promise<WritingSavedPost>
 {
+    const Password = PasswordUpdate?.trim() ?? null;
+
+    if(
+        Password !== null
+        && Password !== ''
+        && (Password.length < 4 || Password.length > 72)
+    )
+    {
+        throw new Error('invalid_writing_password');
+    }
+
     const { data, error } = await GetSupabaseBrowserClient()
         .from('writing_posts')
         .upsert({
@@ -216,18 +396,14 @@ export async function SaveWritingPost(
             category: Post.Category.trim().slice(0, 20),
             title: Post.Title.trim().slice(0, 160),
             summary: Post.Summary.trim().slice(0, 320),
-            content_html: JSON.stringify({
-                version: 1,
-                image: Post.Image,
-                pages: Post.Pages.map((Page) => ({
-                    heading: Page.Heading,
-                    paragraphs: Page.Paragraphs,
-                })),
-            }),
+            content_html: SerializeWritingPostContent(Post),
+            is_deleted: false,
             is_private: Post.IsPrivate,
+            thumbnail_url: Post.Image,
+            text_layers: Post.TextLayers,
             updated_at: new Date().toISOString(),
         })
-        .select('id, category, title, summary, content_html, is_private, updated_at')
+        .select('id, category, title, summary, content_html, is_private, is_password_protected, thumbnail_url, text_layers, updated_at')
         .single();
 
     if(error)
@@ -235,7 +411,109 @@ export async function SaveWritingPost(
         throw error;
     }
 
-    return NormalizeWritingPosts([data])[0];
+    const IsPasswordProtected = Password === null
+        ? Post.IsPasswordProtected
+        : await SetWritingPostPassword(Post.Id, Password);
+    const Saved = NormalizeWritingPosts([{
+        ...data,
+        is_content_locked: false,
+        is_password_protected: IsPasswordProtected,
+    }])[0];
+
+    if(Saved === undefined)
+    {
+        throw new Error('invalid_saved_writing_post');
+    }
+
+    return Saved;
+}
+
+export async function DeleteWritingPost(Post: WritingSavedPost): Promise<void>
+{
+    const { error } = await GetSupabaseBrowserClient()
+        .from('writing_posts')
+        .upsert({
+            id: Post.Id,
+            category: Post.Category.trim().slice(0, 20),
+            title: Post.Title.trim().slice(0, 160),
+            summary: Post.Summary.trim().slice(0, 320),
+            content_html: SerializeWritingPostContent(Post),
+            is_deleted: true,
+            is_private: Post.IsPrivate,
+            thumbnail_url: Post.Image,
+            text_layers: Post.TextLayers,
+            updated_at: new Date().toISOString(),
+        });
+
+    if(error)
+    {
+        throw error;
+    }
+}
+
+export async function UnlockWritingPost(
+    PostId: string,
+    Password: string,
+): Promise<WritingSavedPost>
+{
+    const { data, error } = await GetSupabaseBrowserClient()
+        .rpc('unlock_writing_post', {
+            candidate_password: Password,
+            target_post_id: PostId,
+        })
+        .maybeSingle();
+
+    if(error)
+    {
+        throw error;
+    }
+
+    const Post = NormalizeWritingPosts([data])[0];
+
+    if(Post === undefined)
+    {
+        throw new Error('invalid_writing_password');
+    }
+
+    return Post;
+}
+
+export async function SetWritingPostPassword(
+    PostId: string,
+    Password: string,
+): Promise<boolean>
+{
+    const { data, error } = await GetSupabaseBrowserClient().rpc(
+        'set_writing_post_password',
+        {
+            next_password: Password,
+            target_post_id: PostId,
+        },
+    );
+
+    if(error)
+    {
+        throw error;
+    }
+
+    return data === true;
+}
+
+export async function LoadWritingPostPassword(
+    PostId: string,
+): Promise<string | null>
+{
+    const { data, error } = await GetSupabaseBrowserClient().rpc(
+        'get_writing_post_password',
+        { target_post_id: PostId },
+    );
+
+    if(error)
+    {
+        throw error;
+    }
+
+    return typeof data === 'string' ? data : null;
 }
 
 export async function UploadWritingCover(File: File): Promise<string>

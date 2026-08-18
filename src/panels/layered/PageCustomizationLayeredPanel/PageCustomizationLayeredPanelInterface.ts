@@ -1,4 +1,4 @@
-export type PageCustomizationKind = 'start' | 'photo' | 'media';
+export type PageCustomizationKind = 'start' | 'photo' | 'media' | 'writing';
 
 export interface PageCustomizationLayeredPanelProps
 {

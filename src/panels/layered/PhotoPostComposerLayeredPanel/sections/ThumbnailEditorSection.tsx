@@ -65,6 +65,7 @@ interface SnapResult
 
 interface ThumbnailEditorSectionProps
 {
+    AspectRatio?: 'portrait' | 'square';
     Categories: string[];
     Category: string | null;
     FallbackPreviewUrl: string | null;
@@ -79,6 +80,7 @@ interface ThumbnailEditorSectionProps
     ) => void;
     OnSelectThumbnail: (File: File | null) => void;
     TextLayers: PhotoCardTextLayer[];
+    ThumbnailFileSizeLabel?: string;
     ThumbnailPreviewUrl: string | null;
 }
 
@@ -637,6 +639,7 @@ export function ThumbnailEditorSection(
                 <div
                     ref={CanvasReference}
                     className={Styles.ThumbnailCanvas}
+                    data-aspect={Props.AspectRatio ?? 'portrait'}
                     data-empty={DisplayPreviewUrl === null}
                 >
                     {DisplayPreviewUrl !== null ? (
@@ -745,11 +748,13 @@ export function ThumbnailEditorSection(
                     <div>
                         <strong>썸네일</strong>
                         <small>
-                            JPG · PNG · WebP · GIF, 최대 10MB
+                            JPG · PNG · WebP · GIF, 최대{' '}
+                            {Props.ThumbnailFileSizeLabel ?? '10MB'}
                         </small>
                     </div>
                     <label
                         className={Styles.ThumbnailMiniPreview}
+                        data-aspect={Props.AspectRatio ?? 'portrait'}
                         data-empty={DisplayPreviewUrl === null}
                     >
                         {DisplayPreviewUrl !== null ? (

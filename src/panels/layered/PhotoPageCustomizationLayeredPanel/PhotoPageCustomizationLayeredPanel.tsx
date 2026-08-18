@@ -123,6 +123,11 @@ export function PhotoPageCustomizationLayeredPanel(
     const OnRequestCloseReference =
         useRef(Props.OnRequestClose);
     const IsMedia = Props.Kind === 'media';
+    const PageLabel = IsMedia
+        ? '영상'
+        : Props.Kind === 'writing'
+            ? '글'
+            : '사진';
 
     function AddCategory()
     {
@@ -213,13 +218,15 @@ export function PhotoPageCustomizationLayeredPanel(
                         <span>
                             {IsMedia
                                 ? 'MEDIA PAGE CUSTOMIZE'
-                                : 'PHOTO PAGE CUSTOMIZE'}
+                                : Props.Kind === 'writing'
+                                    ? 'WRITING PAGE CUSTOMIZE'
+                                    : 'PHOTO PAGE CUSTOMIZE'}
                         </span>
                         <h2 id="page-heading-customization-title">
                             상단 제목
                         </h2>
                         <p>
-                            {IsMedia ? '영상' : '사진'} 게시판 상단의 제목과 소개 문구를
+                            {PageLabel} 게시판 상단의 제목과 소개 문구를
                             설정합니다.
                         </p>
                     </div>
@@ -238,7 +245,7 @@ export function PhotoPageCustomizationLayeredPanel(
                             type="button"
                             onClick={Props.OnRequestClose}
                             disabled={IsBusy}
-                            aria-label={`${IsMedia ? '영상' : '사진'} 게시판 설정창 닫기`}
+                            aria-label={`${PageLabel} 게시판 설정창 닫기`}
                         >
                             Close <b aria-hidden="true">×</b>
                         </button>

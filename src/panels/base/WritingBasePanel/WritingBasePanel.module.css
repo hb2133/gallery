@@ -5,59 +5,90 @@
     background: #fbfbfa;
     color: var(--writing-ink);
     min-height: 100dvh;
-    overflow: hidden;
 }
 
 .Header {
     align-items: center;
-    background: #fbfbfa;
+    backdrop-filter: blur(14px);
+    background: color-mix(in srgb, #fbfbfa 90%, transparent);
     border-bottom: 1px solid var(--writing-line);
     display: flex;
     height: 68px;
     justify-content: space-between;
-    padding: 0 clamp(24px, 4.2vw, 76px);
-    position: relative;
-    z-index: 50;
+    padding: 0 var(--page-gutter);
+    position: sticky;
+    top: 0;
+    z-index: 20;
 }
 
 .Brand {
+    align-items: center;
     color: var(--writing-ink);
+    display: flex;
+    font-size: 13px;
+    font-weight: 600;
+    gap: 9px;
 }
 
 .BackLink {
     background: var(--writing-ink);
-    border-radius: 5px;
+    border-radius: 6px;
     color: #fff;
     font-size: 10px;
-    font-weight: 600;
-    padding: 12px 14px;
-    transition: transform 180ms ease;
-}
-
-.BackLink:hover {
-    transform: translateY(-2px);
+    padding: 11px 13px;
 }
 
 .Archive {
-    height: calc(100dvh - 68px);
-    min-height: 620px;
-    overflow: hidden;
-    padding: clamp(48px, 7vh, 86px) clamp(24px, 4vw, 72px) 36px;
+    margin: 0 auto;
+    max-width: 1480px;
+    padding: clamp(70px, 8vw, 120px) var(--page-gutter) 120px;
+}
+
+.Heading {
+    align-items: end;
+    display: grid;
+    grid-template-columns: 1fr auto;
+}
+
+.Heading > p {
+    color: var(--writing-muted);
+    font-size: 9px;
+    grid-column: 1 / -1;
+    letter-spacing: .1em;
+    margin: 0 0 25px;
+    text-transform: uppercase;
+}
+
+.Heading h1 {
+    font-size: clamp(38px, 5.5vw, 72px);
+    font-weight: 440;
+    letter-spacing: -.07em;
+    line-height: .95;
+    margin: 0;
+    white-space: pre-line;
+}
+
+.Heading > span {
+    color: var(--writing-muted);
+    font-size: 11px;
+    line-height: 1.6;
+    white-space: pre-line;
 }
 
 .ArchiveTools {
     align-items: center;
     display: flex;
-    gap: clamp(24px, 3vw, 48px);
+    gap: 8px;
     justify-content: space-between;
-    margin: 0 auto;
-    max-width: 1200px;
+    margin-top: 42px;
 }
 
 .CategoryTabs {
     align-items: center;
     display: flex;
-    gap: 5px;
+    flex: 1;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .ArchiveRightTools {
@@ -76,8 +107,8 @@
     color: #898883;
     cursor: pointer;
     font-size: 10px;
-    height: 34px;
-    min-width: 58px;
+    min-height: 38px;
+    min-width: 64px;
     padding: 0 17px;
     transition: background 160ms ease, color 160ms ease;
 }
@@ -115,15 +146,15 @@
 }
 
 .CategoryAddButton {
-    font-size: 15px;
-    min-width: 36px;
+    font-size: 17px;
+    min-width: 38px;
     padding: 0;
 }
 
 .CategoryAddForm,
 .CategoryRenameForm {
     display: flex;
-    height: 34px;
+    min-height: 38px;
 }
 
 .CategoryAddForm input,
@@ -150,16 +181,8 @@
 }
 
 .NewPostButton {
-    border-radius: 4px;
+    border-radius: 999px;
     padding-inline: 16px;
-}
-
-.CategoryNotice {
-    color: #a34238;
-    font-size: 9px;
-    margin: 8px auto -18px;
-    max-width: 1200px;
-    text-align: right;
 }
 
 .ArchiveSearch {
@@ -200,11 +223,79 @@
     align-items: center;
     display: flex;
     gap: clamp(12px, 1.4vw, 24px);
-    height: min(70vh, 560px);
-    justify-content: center;
-    margin: clamp(60px, 8vh, 90px) auto 0;
+    height: min(64vh, 520px);
+    justify-content: flex-start;
+    margin: 24px auto 0;
     max-width: 1320px;
+    overflow-x: auto;
+    overflow-y: hidden;
     perspective: 1400px;
+    scroll-behavior: smooth;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    touch-action: pan-y;
+    user-select: none;
+    view-transition-name: writing-category-shelf;
+}
+
+.BookShelf::-webkit-scrollbar {
+    display: none;
+}
+
+.BookShelf[data-pan-enabled='true'] {
+    cursor: grab;
+}
+
+.BookShelf[data-panning='true'],
+.BookShelf[data-panning='true'] * {
+    cursor: grabbing;
+}
+
+.BookShelf[data-panning='true'],
+.BookShelf[data-wheel-scrolling='true'] {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+}
+
+.BookShelf[data-reordering='true'] {
+    view-transition-name: none;
+}
+
+:global(html[data-writing-reordering='true']::view-transition-group(*)) {
+    animation-duration: 460ms;
+    animation-timing-function: cubic-bezier(.18, .82, .22, 1);
+}
+
+:global(::view-transition-group(writing-category-shelf)) {
+    animation-duration: 360ms;
+    animation-timing-function: cubic-bezier(.2, .75, .25, 1);
+}
+
+:global(::view-transition-old(writing-category-shelf)) {
+    animation: WritingCategoryShelfOut 180ms ease both;
+}
+
+:global(::view-transition-new(writing-category-shelf)) {
+    animation: WritingCategoryShelfIn 300ms cubic-bezier(.2, .75, .25, 1) both;
+}
+
+@keyframes WritingCategoryShelfOut {
+    to {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes WritingCategoryShelfIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .BookCard {
@@ -216,17 +307,19 @@
     color: #0e0e0c;
     cursor: pointer;
     clip-path: var(--book-edge, var(--book-random-edge));
-    flex: 0 1 128px;
+    flex: 0 0 128px;
     height: min(56vh, 400px);
     min-width: 82px;
     overflow: hidden;
     padding: 0;
     position: relative;
+    scroll-snap-align: start;
     text-align: left;
     transform: translateZ(0);
     transition:
-        flex-basis 620ms cubic-bezier(.2, .72, .2, 1),
-        height 620ms cubic-bezier(.2, .72, .2, 1),
+        flex-basis 720ms cubic-bezier(.2, .72, .2, 1),
+        min-width 720ms cubic-bezier(.2, .72, .2, 1),
+        height 720ms cubic-bezier(.2, .72, .2, 1),
         clip-path 520ms cubic-bezier(.22, .68, .18, 1),
         filter 420ms ease;
 }
@@ -237,7 +330,38 @@
 
 .BookCard[data-dragging='true'] {
     cursor: grabbing;
-    opacity: .42;
+    opacity: 0;
+}
+
+.NativeDragImage {
+    height: 1px;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    width: 1px;
+}
+
+.ArticleDragPreview {
+    background-color: #ccc;
+    background-position: center;
+    background-size: cover;
+    box-shadow: 0 18px 52px rgb(15 15 13 / 24%);
+    height: min(42vh, 320px);
+    left: 0;
+    overflow: hidden;
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    transform: translate3d(-200px, -200px, 0);
+    transition: transform 72ms cubic-bezier(.2, .75, .25, 1);
+    width: clamp(96px, 9vw, 132px);
+    z-index: 1001;
+}
+
+.ArticleDragPreview .BookTextLayer {
+    opacity: 1;
 }
 
 .BookShelf:has(.BookCard[data-active='true']) .BookCard:not([data-active='true']) {
@@ -251,6 +375,24 @@
     min-width: min(28vw, 540px);
     z-index: 2;
     --book-edge: polygon(.35% .15%, 20% .3%, 40% .1%, 60% .3%, 80% .1%, 99.7% .3%, 99.9% 20%, 99.7% 40%, 100% 60%, 99.7% 80%, 99.8% 99.7%, 80% 99.8%, 60% 100%, 40% 99.7%, 20% 100%, .2% 99.7%, .1% 80%, .3% 60%, 0 40%, .3% 20%);
+}
+
+.BookCard[data-active='true'][data-custom-thumbnail='true'] {
+    --writing-thumbnail-size: min(480px, 78vw, calc(100dvh - 180px));
+    clip-path: none;
+    flex-basis: var(--writing-thumbnail-size);
+    height: var(--writing-thumbnail-size);
+    min-width: var(--writing-thumbnail-size);
+}
+
+.BookCard[data-active='true'][data-custom-thumbnail='true']::before,
+.BookCard[data-active='true'][data-custom-thumbnail='true']::after {
+    opacity: 0;
+}
+
+.BookCard[data-custom-thumbnail='true'] .BookCategory,
+.BookCard[data-custom-thumbnail='true'] .BookDetails {
+    display: none;
 }
 
 .BookCard::before,
@@ -313,6 +455,24 @@
     position: absolute;
     top: 12px;
     z-index: 2;
+}
+
+.BookTextLayer {
+    border: 1px solid transparent;
+    font-weight: 500;
+    line-height: 1;
+    max-width: 88%;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    padding: 4px 5px;
+    transition: opacity 420ms ease 140ms;
+    white-space: nowrap;
+    z-index: 3;
+}
+
+.BookCard[data-active='true'] .BookTextLayer {
+    opacity: 1;
 }
 
 .BookDetails {
@@ -378,42 +538,18 @@
     font-size: 12px;
 }
 
-.ArchivePagination {
-    display: flex;
-    justify-content: center;
-    margin-top: clamp(52px, 7vh, 78px);
-}
-
-.ArchivePagination button {
-    background: #f5f5f3;
-    border: 0;
-    color: #aaa9a4;
-    cursor: pointer;
-    font-size: 10px;
-    height: 34px;
-    width: 34px;
-}
-
-.ArchivePagination button[data-active='true'] {
-    background: var(--writing-ink);
-    color: #fff;
-}
-
 .Reader {
     --reader-background: #fbfbfa;
     --reader-foreground: #22221f;
-    background: var(--reader-background);
+    background: transparent;
     color: var(--reader-foreground);
     display: grid;
-    grid-template-rows: 70px minmax(0, 1fr) 78px;
-    height: calc(100dvh - 68px);
+    grid-template-rows: minmax(0, 1fr);
+    height: 100%;
     margin: 0 auto;
-    max-width: 1450px;
-    min-height: 620px;
+    min-height: 0;
     position: relative;
     width: 100%;
-    box-shadow: 0 0 0 100vmax var(--reader-background);
-    clip-path: inset(0 -100vmax);
 }
 
 .Reader[data-tone='paper'] {
@@ -463,13 +599,15 @@
 
 .ReaderToolbar {
     align-items: center;
-    border-bottom: 1px solid color-mix(in srgb, var(--reader-foreground) 14%, transparent);
+    color: #a0a09c;
     display: flex;
-    margin: 0 auto;
-    max-width: 1450px;
-    padding: 0 22px;
-    width: calc(100% - 40px);
-    z-index: 10;
+    height: 36px;
+    left: 0;
+    padding: 0;
+    position: absolute;
+    right: 104px;
+    top: -42px;
+    z-index: 100;
 }
 
 .ContentsButton,
@@ -520,15 +658,6 @@
 
 .FontButton small {
     font-size: 12px;
-}
-
-.CloseReader {
-    margin-left: 3px;
-}
-
-.CloseReader svg {
-    height: 24px;
-    width: 24px;
 }
 
 .ViewMenuWrap {
@@ -632,67 +761,185 @@
 }
 
 .ReaderCanvas {
+    display: grid;
     min-height: 0;
+    overflow: hidden;
     position: relative;
 }
 
 .Reader[data-view='scroll'] .ReaderCanvas {
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-color: color-mix(in srgb, var(--reader-foreground) 24%, transparent) transparent;
-    scrollbar-width: thin;
+    align-self: center;
+    aspect-ratio: 1;
+    cursor: grab;
+    height: auto;
+    justify-self: center;
+    touch-action: none;
+    user-select: none;
+    width: min(680px, 100%, calc(100dvh - 104px));
+}
+
+.Reader[data-view='scroll'] .ReaderCanvas[data-dragging='true'] {
+    cursor: grabbing;
 }
 
 .PageSpread {
+    align-self: center;
+    aspect-ratio: 1;
+    background: var(--reader-background);
     display: grid;
-    gap: 0;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    height: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
     margin: 0 auto;
-    max-width: 1340px;
-    padding: 18px clamp(48px, 7vw, 110px) 8px;
-}
-
-.Reader[data-view='single'] .PageSpread {
-    grid-template-columns: minmax(0, 1340px);
-    justify-content: center;
+    max-width: 660px;
+    padding: 18px clamp(48px, 7vw, 88px) 8px;
+    width: min(100%, calc(100dvh - 160px), 660px);
+    justify-self: center;
 }
 
 .Reader[data-view='scroll'] .PageSpread {
-    gap: 52px;
-    grid-template-columns: minmax(0, 1340px);
-    height: auto;
-    justify-content: center;
-    padding-block: 36px 80px;
+    height: 100%;
+    max-width: none;
+    width: 100%;
 }
 
-.Reader[data-view='scroll'] .ReaderPage {
-    background: transparent;
-    border: 0;
-    box-shadow: none;
-    min-height: min(720px, calc(100dvh - 210px));
+.SpatialTransitionStage,
+.SpatialTransitionSlide {
+    inset: 0;
+    position: absolute;
+}
+
+.SpatialTransitionSlide {
+    will-change: opacity, transform;
+}
+
+.SpatialTransitionStage[data-phase='settling']
+.SpatialTransitionSlide {
+    transition: opacity 620ms cubic-bezier(.16, .78, .24, 1);
+}
+
+.SpatialTransitionStage[data-direction='up'] {
+    --writing-wobble-x: -1;
+    --writing-wobble-y: 0;
+}
+
+.SpatialTransitionStage[data-direction='down'] {
+    --writing-wobble-x: 1;
+    --writing-wobble-y: 0;
+}
+
+.SpatialTransitionStage[data-direction='left'] {
+    --writing-wobble-x: 0;
+    --writing-wobble-y: -1;
+}
+
+.SpatialTransitionStage[data-direction='right'] {
+    --writing-wobble-x: 0;
+    --writing-wobble-y: 1;
+}
+
+.SpatialTransitionStage[data-phase='settling'][data-completing='true']
+.SpatialTransitionSlide {
+    --writing-wobble-phase: 1;
+    animation:
+        WritingSpatialWobble 620ms cubic-bezier(.16, .78, .24, 1);
+}
+
+.SpatialTransitionStage[data-phase='settling'][data-completing='true']
+.SpatialTransitionSlide:nth-child(2) {
+    --writing-wobble-phase: -1;
 }
 
 .ReaderPage {
     align-self: stretch;
-    border-right: 1px solid color-mix(in srgb, var(--reader-foreground) 10%, transparent);
+    background: var(--reader-background);
     min-height: 0;
     overflow: hidden;
-    padding: var(--reader-vertical-padding) var(--reader-horizontal-padding);
     position: relative;
 }
 
-.ReaderPage:last-child,
-.Reader[data-view='single'] .ReaderPage {
-    border-right: 0;
+.ReaderPageContent {
+    height: 100%;
+    overflow: auto;
+    padding: var(--reader-vertical-padding) var(--reader-horizontal-padding);
+}
+
+.WritingFlipPage .ReaderPageContent {
+    scrollbar-color:
+        color-mix(in srgb, var(--reader-foreground) 34%, transparent)
+        transparent;
+    scrollbar-width: thin;
+}
+
+.WritingFlipPage .ReaderPageContent::-webkit-scrollbar {
+    cursor: url('/start-cursor.svg') 2 2, default !important;
+    width: 5px;
+}
+
+.WritingFlipPage .ReaderPageContent::-webkit-scrollbar-button,
+.WritingFlipPage .ReaderPageContent::-webkit-scrollbar-button:single-button,
+.WritingFlipPage .ReaderPageContent::-webkit-scrollbar-button:vertical:decrement,
+.WritingFlipPage .ReaderPageContent::-webkit-scrollbar-button:vertical:increment {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    cursor: url('/start-cursor.svg') 2 2, default !important;
+    display: none;
+    height: 0 !important;
+    min-height: 0 !important;
+    width: 0 !important;
+}
+
+.WritingFlipPage .ReaderPageContent::-webkit-scrollbar-track {
+    background: transparent;
+    cursor: url('/start-cursor.svg') 2 2, default !important;
+}
+
+.WritingFlipPage .ReaderPageContent::-webkit-scrollbar-thumb {
+    background: color-mix(
+        in srgb,
+        var(--reader-foreground) 34%,
+        transparent
+    );
+    border: 0;
+    border-radius: 999px;
+    cursor: url('/start-cursor.svg') 2 2, default !important;
+    min-height: 42px;
+}
+
+.WritingFlipPage .ReaderPageContent::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(
+        in srgb,
+        var(--reader-foreground) 48%,
+        transparent
+    );
 }
 
 .ReaderPageNumber {
-    color: color-mix(in srgb, var(--reader-foreground) 42%, transparent);
-    font-size: 9px;
+    bottom: 13px;
+    font-family:
+        var(--font-geist-sans),
+        var(--font-noto-sans-kr),
+        Arial,
+        sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .04em;
     position: absolute;
-    right: 18px;
-    top: 16px;
+    right: 13px;
+    text-align: right;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 50%);
+    z-index: 5;
+}
+
+.Reader[data-view='scroll'] .ReaderPageNumber {
+    display: none;
+}
+
+.InteractionGuard {
+    cursor: default;
+    inset: 0;
+    position: fixed;
+    z-index: 1000;
 }
 
 .ReaderPage h2 {
@@ -703,18 +950,75 @@
     margin: 0 0 1.4em;
 }
 
-.Reader[data-view='single'] .ReaderPageNumber,
-.Reader[data-view='scroll'] .ReaderPageNumber {
-    display: block;
-    margin-bottom: 18px;
-    position: static;
+.ReaderPage h2 {
+    margin-bottom: 3em;
     text-align: center;
 }
 
-.Reader[data-view='single'] .ReaderPage h2,
-.Reader[data-view='scroll'] .ReaderPage h2 {
-    margin-bottom: 3em;
-    text-align: center;
+.WritingBookStage {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    padding: 0;
+    perspective: 2000px;
+    width: 100%;
+}
+
+.WritingFlipBook {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    margin: 0 auto;
+    outline: 0;
+    overflow: clip;
+}
+
+.WritingFlipBook > .WritingFlipPage:not(:global(.stf__item)) {
+    display: none;
+}
+
+.WritingFlipPage {
+    background: var(--reader-background);
+    border: 0;
+    box-shadow: none;
+    height: 100%;
+    outline: 0;
+    overflow: hidden;
+}
+
+.WritingFlipPage .ReaderPage {
+    height: 100%;
+}
+
+.WritingFlipPage:global(.--left) .ReaderPageNumber {
+    left: 13px;
+    right: auto;
+    text-align: left;
+}
+
+.WritingFlipPage:global(.--right) .ReaderPageNumber {
+    left: auto;
+    right: 13px;
+    text-align: right;
+}
+
+.WritingBookStage :global(.stf__parent),
+.WritingBookStage :global(.stf__block),
+.WritingBookStage :global(.stf__item) {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+}
+
+.WritingBookStage :global(.stf__parent) {
+    overflow: hidden !important;
+}
+
+.WritingBookStage :global(.stf__innerShadow) {
+    filter: saturate(0);
+    opacity: .46 !important;
 }
 
 .ReaderPage p {
@@ -817,82 +1121,105 @@
 .PageArrow {
     align-items: center;
     background: transparent;
-    border: 1px solid color-mix(in srgb, var(--reader-foreground) 18%, transparent);
-    border-radius: 50%;
-    color: inherit;
+    border: 0;
+    color: rgb(255 255 255 / 82%);
     cursor: pointer;
     display: flex;
-    font-family: serif;
-    font-size: 42px;
-    font-weight: 200;
-    height: 56px;
+    height: 44px;
     justify-content: center;
-    padding: 0 0 7px;
+    left: 50%;
+    mix-blend-mode: difference;
+    opacity: 0;
+    padding: 0;
+    pointer-events: none;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 56px;
-    z-index: 4;
+    transition:
+        opacity 180ms ease,
+        left 420ms cubic-bezier(.22, .75, .25, 1),
+        top 420ms cubic-bezier(.22, .75, .25, 1),
+        transform 420ms cubic-bezier(.22, .75, .25, 1);
+    width: 44px;
+    z-index: 3;
 }
 
-.PageArrow:disabled {
-    opacity: .2;
-}
-
-.PageArrowPrevious {
-    left: 2.5vw;
-}
-
-.PageArrowNext {
-    right: 2.5vw;
-}
-
-.ReaderProgress {
-    margin: 0 auto;
-    max-width: 1450px;
-    padding: 0 22px;
-    width: calc(100% - 40px);
-}
-
-.ReaderProgress input {
-    --reader-progress: 0%;
-    appearance: none;
-    background: linear-gradient(90deg, #405d9b var(--reader-progress), color-mix(in srgb, var(--reader-foreground) 18%, transparent) var(--reader-progress));
-    cursor: pointer;
-    display: block;
-    height: 2px;
-    margin: 8px 0 25px;
-    width: 100%;
-}
-
-.ReaderProgress input::-webkit-slider-thumb {
-    appearance: none;
-    background: var(--reader-background);
-    border: 2px solid #405d9b;
-    border-radius: 50%;
-    height: 17px;
-    width: 17px;
-}
-
-.ReaderProgress input::-moz-range-thumb {
-    background: var(--reader-background);
-    border: 2px solid #405d9b;
-    border-radius: 50%;
+.PageArrow::before {
+    border-bottom: 3px solid currentColor;
+    border-right: 3px solid currentColor;
+    content: '';
     height: 14px;
     width: 14px;
 }
 
-.ReaderProgress div {
-    align-items: center;
-    color: color-mix(in srgb, var(--reader-foreground) 64%, transparent);
-    display: flex;
-    font-size: 11px;
-    gap: 7px;
+.PageArrow[data-direction='left']::before {
+    transform: rotate(135deg);
 }
 
-.ReaderProgress strong {
-    color: var(--reader-foreground);
-    font-weight: 500;
+.PageArrow[data-direction='right']::before {
+    transform: rotate(-45deg);
+}
+
+.PageArrow[data-direction='up']::before {
+    transform: rotate(-135deg);
+}
+
+.PageArrow[data-direction='down']::before {
+    transform: rotate(45deg);
+}
+
+.ReaderCanvas:hover .PageArrow,
+.PageArrow:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.ReaderCanvas:hover .PageArrow[data-direction='left'] {
+    transform: translate(2px, -50%);
+}
+
+.ReaderCanvas:hover .PageArrow[data-direction='right'] {
+    transform: translate(-2px, -50%);
+}
+
+.ReaderCanvas:hover .PageArrow[data-direction='up'] {
+    transform: translate(-50%, 2px);
+}
+
+.ReaderCanvas:hover .PageArrow[data-direction='down'] {
+    transform: translate(-50%, -2px);
+}
+
+.PageArrow[data-direction='left'] {
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.PageArrow[data-direction='right'] {
+    left: calc(100% - 60px);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.PageArrow[data-direction='up'] {
+    left: 50%;
+    top: 16px;
+    transform: translateX(-50%);
+}
+
+.PageArrow[data-direction='down'] {
+    left: 50%;
+    top: calc(100% - 60px);
+    transform: translateX(-50%);
+}
+
+.ReaderProgress {
+    bottom: -31px;
+    color: #a0a09c;
+    font-size: 9px;
+    position: absolute;
+    right: 0;
 }
 
 .ContentsDrawer,
@@ -903,15 +1230,31 @@
     box-shadow: 18px 0 44px rgb(0 0 0 / 7%);
     color: var(--reader-foreground);
     left: 0;
+    opacity: 0;
     overflow-y: auto;
+    pointer-events: none;
     position: absolute;
-    top: 70px;
+    top: 0;
+    transform: translateX(-18px);
+    transition:
+        opacity 220ms ease,
+        transform 300ms cubic-bezier(.2, .75, .25, 1),
+        visibility 0s linear 300ms;
+    visibility: hidden;
     width: min(420px, 34vw);
     z-index: 20;
 }
 
-.ContentsDrawer {
-    animation: ContentsDrawerIn 360ms cubic-bezier(.2, .72, .2, 1) both;
+.ContentsDrawer[data-open='true'],
+.ReaderSettings[data-open='true'] {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+    transition:
+        opacity 220ms ease,
+        transform 300ms cubic-bezier(.2, .75, .25, 1),
+        visibility 0s;
+    visibility: visible;
 }
 
 .ContentsDrawer > header,
@@ -1007,13 +1350,14 @@
 }
 
 .ReaderSettings {
-    animation: ReaderSettingsIn 320ms cubic-bezier(.2, .72, .2, 1) both;
+    animation: none;
     border-left: 1px solid color-mix(in srgb, var(--reader-foreground) 14%, transparent);
     border-right: 0;
     box-shadow: -18px 0 44px rgb(0 0 0 / 7%);
     left: auto;
     padding-bottom: 0;
     right: 0;
+    transform: translateX(18px);
     width: min(410px, 34vw);
 }
 
@@ -1187,14 +1531,6 @@
     position: sticky;
 }
 
-.SettingsFooter p {
-    color: #405d9b;
-    font-size: 9px;
-    grid-column: 1 / -1;
-    margin: 0;
-    min-height: 13px;
-}
-
 .SettingsFooter button {
     background: transparent;
     border: 1px solid color-mix(in srgb, var(--reader-foreground) 24%, transparent);
@@ -1209,28 +1545,6 @@
     color: var(--reader-background);
 }
 
-@keyframes ContentsDrawerIn {
-    from {
-        opacity: 0;
-        transform: translateX(-100%);
-    }
-    to {
-        opacity: 1;
-        transform: none;
-    }
-}
-
-@keyframes ReaderSettingsIn {
-    from {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-    to {
-        opacity: 1;
-        transform: none;
-    }
-}
-
 @keyframes ViewTransitionGuide {
     0% {
         opacity: 0;
@@ -1243,6 +1557,45 @@
     100% {
         opacity: 0;
         transform: translate(-50%, -50%) scale(.94);
+    }
+}
+
+@keyframes WritingSpatialWobble {
+    0%,
+    100% {
+        transform: perspective(1100px) rotate3d(
+            var(--writing-wobble-x),
+            var(--writing-wobble-y),
+            0,
+            0deg
+        ) scale(1);
+    }
+
+    18% {
+        transform: perspective(1100px) rotate3d(
+            var(--writing-wobble-x),
+            var(--writing-wobble-y),
+            0,
+            calc(4deg * var(--writing-wobble-phase))
+        ) scale(.99);
+    }
+
+    43% {
+        transform: perspective(1100px) rotate3d(
+            var(--writing-wobble-x),
+            var(--writing-wobble-y),
+            0,
+            calc(-1.35deg * var(--writing-wobble-phase))
+        ) scale(1.008);
+    }
+
+    70% {
+        transform: perspective(1100px) rotate3d(
+            var(--writing-wobble-x),
+            var(--writing-wobble-y),
+            0,
+            calc(.55deg * var(--writing-wobble-phase))
+        ) scale(1);
     }
 }
 
@@ -1275,19 +1628,13 @@
 }
 
 @media (max-width: 760px) {
-    .Header {
-        height: 60px;
-        padding: 0 18px;
+    .Heading {
+        display: block;
     }
 
-    .BackLink {
-        padding: 10px 11px;
-    }
-
-    .Archive {
-        height: calc(100dvh - 60px);
-        min-height: 540px;
-        padding: 30px 18px 22px;
+    .Heading > span {
+        display: block;
+        margin-top: 28px;
     }
 
     .ArchiveTools {
@@ -1335,19 +1682,14 @@
         min-width: 78vw;
     }
 
-    .ArchivePagination {
-        margin-top: 28px;
-    }
-
     .Reader {
-        grid-template-rows: 58px minmax(0, 1fr) 70px;
-        height: calc(100dvh - 60px);
-        min-height: 540px;
+        grid-template-rows: minmax(0, 1fr);
+        height: 100%;
+        min-height: 0;
     }
 
     .ReaderToolbar {
-        padding: 0;
-        width: calc(100% - 24px);
+        right: 98px;
     }
 
     .ReaderToolbar > strong {
@@ -1364,15 +1706,10 @@
         width: 38px;
     }
 
-    .PageSpread,
-    .Reader[data-view='spread'] .PageSpread {
+    .PageSpread {
         display: grid;
         grid-template-columns: minmax(0, 1fr);
         padding: 8px 48px 0;
-    }
-
-    .Reader[data-view='spread'] .ReaderPage:nth-child(2) {
-        display: none;
     }
 
     .ReaderPage {
@@ -1388,29 +1725,14 @@
         font-size: min(var(--reader-font-size), 16px);
     }
 
-    .PageArrow {
-        border: 0;
-        font-size: 38px;
-        height: 46px;
-        width: 38px;
-    }
-
-    .PageArrowPrevious {
-        left: 2px;
-    }
-
-    .PageArrowNext {
-        right: 2px;
-    }
-
     .ReaderProgress {
-        padding: 0;
-        width: calc(100% - 36px);
+        bottom: 8px;
+        right: 12px;
     }
 
     .ContentsDrawer,
     .ReaderSettings {
-        top: 58px;
+        top: 0;
         width: min(88vw, 390px);
     }
 
@@ -1419,9 +1741,17 @@
     }
 }
 
+@media (hover: none) {
+    .PageArrow {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .BookCard,
     .BookDetails,
+    .ArticleDragPreview,
     .ContentsDrawer,
     .ReaderSettings,
     .ViewTransitionGuide {

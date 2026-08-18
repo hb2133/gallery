@@ -1,5 +1,70 @@
 import type { WritingArticle } from './WritingBasePanelTypes';
 
+export type WritingPageDirection = 'left' | 'right' | 'up' | 'down';
+
+const WritingPageDirections: readonly WritingPageDirection[] = [
+    'right',
+    'down',
+    'left',
+    'up',
+];
+
+export function GetWritingPageTransitionDirection(
+    FromPage: number,
+    ToPage: number,
+    ForwardDirections: readonly (
+        WritingPageDirection | null | undefined
+    )[] = [],
+): WritingPageDirection
+{
+    const Page = Math.max(0, Math.min(FromPage, ToPage));
+    const Direction = ForwardDirections[Page]
+        ?? WritingPageDirections[
+            Page % WritingPageDirections.length
+        ];
+
+    if(ToPage > FromPage)
+    {
+        return Direction;
+    }
+
+    if(Direction === 'left')
+    {
+        return 'right';
+    }
+
+    if(Direction === 'right')
+    {
+        return 'left';
+    }
+
+    if(Direction === 'up')
+    {
+        return 'down';
+    }
+
+    return 'up';
+}
+
+export function IsWritingContentsPageVisible(
+    PageIndex: number,
+    CurrentPage: number,
+    IsBookView: boolean,
+): boolean
+{
+    return PageIndex === CurrentPage
+        || (IsBookView && PageIndex === CurrentPage + 1);
+}
+
+export function ShouldPromptForWritingPassword(
+    IsPasswordProtected: boolean,
+    IsAuthenticated: boolean,
+    IsUnlocked: boolean,
+): boolean
+{
+    return IsPasswordProtected && !IsAuthenticated && !IsUnlocked;
+}
+
 const SharedPages = [
     {
         Heading: '오래 남는 문장을 생각하며',
@@ -55,6 +120,12 @@ function Pages(Subject: string)
 {
     return SharedPages.map((Page, Index) => ({
         ...Page,
+        ForwardDirection:
+            Index === SharedPages.length - 1
+                ? null
+                : WritingPageDirections[
+                    Index % WritingPageDirections.length
+                ],
         Heading: Index === 0 ? Subject : Page.Heading,
     }));
 }

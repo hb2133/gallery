@@ -1,0 +1,63 @@
+.Toast {
+    animation: NoticeToastLife 3.6s cubic-bezier(.2, .75, .25, 1) both;
+    backdrop-filter: blur(12px);
+    background: rgb(22 22 20 / 92%);
+    border: 1px solid rgb(255 255 255 / 14%);
+    border-radius: 9px;
+    bottom: 30px;
+    box-shadow: 0 16px 46px rgb(0 0 0 / 24%);
+    color: #fff;
+    font-size: 13px;
+    left: 50%;
+    line-height: 1.5;
+    max-width: min(520px, calc(100vw - 32px));
+    padding: 12px 18px;
+    pointer-events: none;
+    position: fixed;
+    text-align: center;
+    transform: translate(-50%, 14px);
+    width: max-content;
+    z-index: 5000;
+}
+
+@keyframes NoticeToastLife {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 14px);
+    }
+
+    9%,
+    84% {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -5px);
+        visibility: hidden;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .Toast {
+        animation-name: NoticeToastLifeReduced;
+        transform: translate(-50%, 0);
+    }
+}
+
+@keyframes NoticeToastLifeReduced {
+    0% {
+        opacity: 0;
+    }
+
+    1%,
+    84% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        visibility: hidden;
+    }
+}

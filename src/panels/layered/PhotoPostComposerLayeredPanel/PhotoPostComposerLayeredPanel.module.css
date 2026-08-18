@@ -139,6 +139,10 @@
     width: 100%;
 }
 
+.ThumbnailCanvas[data-aspect='square'] {
+    aspect-ratio: 1;
+}
+
 .ThumbnailCanvas[data-empty='true'] {
     background: color-mix(
         in srgb,
@@ -330,6 +334,10 @@
     overflow: hidden;
     position: relative;
     width: 58px;
+}
+
+.ThumbnailMiniPreview[data-aspect='square'] {
+    aspect-ratio: 1;
 }
 
 .ThumbnailMiniPreview img {

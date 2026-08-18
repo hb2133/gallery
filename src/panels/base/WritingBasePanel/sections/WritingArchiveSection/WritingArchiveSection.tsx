@@ -1,13 +1,24 @@
 'use client';
 
 import {
+    forwardRef,
+    useEffect,
     useRef,
     useState,
     type CSSProperties,
+    type DragEvent as ReactDragEvent,
     type PointerEvent as ReactPointerEvent,
     type ReactNode,
 } from 'react';
+import HTMLFlipBook from 'react-pageflip';
+import { NoticeToast } from '@/components/NoticeToast/NoticeToast';
+import { FormatArchiveIndex } from '@/core/date/ArchiveYearRange';
 import type { useWritingBasePanelController } from '../../controller/WritingBasePanelController';
+import {
+    GetWritingPageTransitionDirection,
+    IsWritingContentsPageVisible,
+    type WritingPageDirection,
+} from '../../controller/WritingBasePanelState';
 import type {
     WritingArticle,
     WritingPage,
@@ -51,16 +62,6 @@ function FullscreenIcon()
     );
 }
 
-function BookmarkIcon()
-{
-    return (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M6 3h12v18l-6-4-6 4z" />
-            <path d="m9 8 6 6M15 8l-6 6" />
-        </svg>
-    );
-}
-
 function ViewStyleIcon({ Mode }: { Mode: WritingViewMode })
 {
     return (
@@ -70,12 +71,7 @@ function ViewStyleIcon({ Mode }: { Mode: WritingViewMode })
             viewBox="0 0 30 26"
             aria-hidden="true"
         >
-            {Mode === 'single' ? (
-                <>
-                    <rect x="8" y="2" width="14" height="22" />
-                    <path d="M11 6h8M11 9h8" />
-                </>
-            ) : Mode === 'spread' ? (
+            {Mode !== 'scroll' ? (
                 <>
                     <path d="M2 3h12v20H2zM16 3h12v20H16z" />
                     <path d="M14 3v20M5 7h6M19 7h6" />
@@ -83,7 +79,7 @@ function ViewStyleIcon({ Mode }: { Mode: WritingViewMode })
             ) : (
                 <>
                     <rect x="7" y="2" width="16" height="22" />
-                    <path d="m15 6-3 3m3-3 3 3M15 20l-3-3m3 3 3-3M15 6v14" />
+                    <path d="m15 5-3 3m3-3 3 3M15 21l-3-3m3 3 3-3M5 13l3-3m-3 3 3 3M25 13l-3-3m3 3-3 3" />
                 </>
             )}
         </svg>
@@ -92,13 +88,72 @@ function ViewStyleIcon({ Mode }: { Mode: WritingViewMode })
 
 function GetViewModeLabel(Mode: WritingViewMode): string
 {
-    if(Mode === 'single')
-    {
-        return '한 페이지 보기';
-    }
-
-    return Mode === 'spread' ? '양면 보기' : '스크롤 보기';
+    return Mode === 'scroll' ? '상하좌우 보기' : '책넘김 보기';
 }
+
+interface WritingFlipPageProps
+{
+    Children: ReactNode;
+}
+
+interface WritingFlipBookApi
+{
+    flip: (
+        PageIndex: number,
+        Corner?: 'top' | 'bottom',
+    ) => void;
+    flipNext: () => void;
+    flipPrev: () => void;
+    turnToPage: (PageIndex: number) => void;
+}
+
+interface WritingFlipBookHandle
+{
+    pageFlip: () => WritingFlipBookApi | undefined;
+}
+
+interface WritingFlipEvent
+{
+    data: number;
+}
+
+interface WritingFlipStateEvent
+{
+    data: 'user_fold' | 'fold_corner' | 'flipping' | 'read';
+}
+
+interface WritingSpatialPointer
+{
+    PointerId: number;
+    StartTime: number;
+    StartX: number;
+    StartY: number;
+}
+
+interface WritingSpatialTransition
+{
+    Direction: WritingPageDirection;
+    FromPage: number;
+    Id: number;
+    OffsetX: number;
+    OffsetY: number;
+    Phase: 'dragging' | 'ready' | 'settling';
+    Progress: number;
+    TargetPage: number;
+}
+
+const WritingSpatialTransitionDuration = 620;
+
+const WritingFlipPage = forwardRef<HTMLDivElement, WritingFlipPageProps>(
+    function WritingFlipPageComponent(Props, Reference)
+    {
+        return (
+            <div ref={Reference} className={Styles.WritingFlipPage}>
+                {Props.Children}
+            </div>
+        );
+    },
+);
 
 function HighlightText(Text: string, Query: string): ReactNode
 {
@@ -187,10 +242,14 @@ function CreatePaperEdge(Value: string): string
 function ReaderPage({
     Page,
     PageNumber,
+    PageNumberColor,
+    PageNumberOpacity,
     SearchQuery,
 }: {
     Page: WritingPage;
     PageNumber: number;
+    PageNumberColor: string;
+    PageNumberOpacity: number;
     SearchQuery: string;
 })
 {
@@ -199,13 +258,23 @@ function ReaderPage({
             className={Styles.ReaderPage}
             data-reader-page-index={PageNumber - 1}
         >
-            <span className={Styles.ReaderPageNumber}>
-                {String(PageNumber).padStart(2, '0')}
+            <span
+                className={Styles.ReaderPageNumber}
+                style={{
+                    color: PageNumberColor,
+                    opacity: PageNumberOpacity,
+                }}
+            >
+                {PageNumber}
             </span>
-            <h2>{HighlightText(Page.Heading, SearchQuery)}</h2>
-            {Page.Paragraphs.map((Paragraph) => (
-                <p key={Paragraph}>{HighlightText(Paragraph, SearchQuery)}</p>
-            ))}
+            <div className={Styles.ReaderPageContent}>
+                <h2>{HighlightText(Page.Heading, SearchQuery)}</h2>
+                {Page.Paragraphs.map((Paragraph) => (
+                    <p key={Paragraph}>
+                        {HighlightText(Paragraph, SearchQuery)}
+                    </p>
+                ))}
+            </div>
         </article>
     );
 }
@@ -213,17 +282,26 @@ function ReaderPage({
 function ContentsDrawer({
     Article,
     CurrentPage,
+    IsBookView,
+    IsOpen,
     OnClose,
     OnSelectPage,
 }: {
     Article: WritingArticle;
     CurrentPage: number;
+    IsBookView: boolean;
+    IsOpen: boolean;
     OnClose: () => void;
     OnSelectPage: (Page: number) => void;
 })
 {
     return (
-        <aside className={Styles.ContentsDrawer}>
+        <aside
+            className={Styles.ContentsDrawer}
+            data-open={IsOpen}
+            aria-hidden={IsOpen === false}
+            inert={IsOpen === false}
+        >
             <header>
                 <strong>목차</strong>
                 <button type="button" onClick={OnClose} aria-label="목차 닫기">×</button>
@@ -237,7 +315,15 @@ function ContentsDrawer({
                     <li key={`${Page.Heading}-${Index}`}>
                         <button
                             type="button"
-                            className={Index === CurrentPage ? Styles.ContentsPageActive : ''}
+                            className={
+                                IsWritingContentsPageVisible(
+                                    Index,
+                                    CurrentPage,
+                                    IsBookView,
+                                )
+                                    ? Styles.ContentsPageActive
+                                    : ''
+                            }
                             onClick={() => OnSelectPage(Index)}
                         >
                             <small>{Math.round(((Index + 1) / Article.Pages.length) * 100)}%</small>
@@ -250,10 +336,18 @@ function ContentsDrawer({
     );
 }
 
-function ReaderSettings({ Controller }: WritingArchiveSectionProps)
+function ReaderSettings({
+    Controller,
+    IsOpen,
+}: WritingArchiveSectionProps & { IsOpen: boolean })
 {
     return (
-        <aside className={Styles.ReaderSettings}>
+        <aside
+            className={Styles.ReaderSettings}
+            data-open={IsOpen}
+            aria-hidden={IsOpen === false}
+            inert={IsOpen === false}
+        >
             <header>
                 <strong>보기설정</strong>
                 <button
@@ -399,7 +493,6 @@ function ReaderSettings({ Controller }: WritingArchiveSectionProps)
                 </button>
             </div>
             <footer className={Styles.SettingsFooter}>
-                <p role="status">{Controller.ReaderSettingsNotice}</p>
                 <button type="button" onClick={Controller.SaveReaderSettings}>
                     설정 저장
                 </button>
@@ -407,38 +500,90 @@ function ReaderSettings({ Controller }: WritingArchiveSectionProps)
                     설정 초기화
                 </button>
             </footer>
+            <NoticeToast Message={Controller.ReaderSettingsNotice} />
         </aside>
     );
 }
 
-function Reader({ Controller }: WritingArchiveSectionProps)
+export function WritingReader({ Controller }: WritingArchiveSectionProps)
 {
     const Article = Controller.ReaderArticle;
-    const ReaderCanvasReference = useRef<HTMLDivElement>(null);
     const ReaderReference = useRef<HTMLElement>(null);
+    const WritingFlipBookReference =
+        useRef<WritingFlipBookHandle | null>(null);
+    const PreviousReaderPageReference = useRef(Controller.ReaderPage);
+    const SpatialPointerReference =
+        useRef<WritingSpatialPointer | null>(null);
+    const SpatialTransitionTimerReference = useRef<number | null>(null);
+    const SpatialTransitionFrameReferences = useRef<number[]>([]);
     const [ViewTransition, SetViewTransition] = useState<{
         Id: number;
         Mode: WritingViewMode;
     } | null>(null);
+    const [SpatialTransition, SetSpatialTransition] =
+        useState<WritingSpatialTransition | null>(null);
+    const [IsBookLayoutReady, SetIsBookLayoutReady] = useState(false);
+    const [IsFlipAnimating, SetIsFlipAnimating] = useState(false);
+
+    useEffect(() =>
+    {
+        const Frame = window.requestAnimationFrame(() =>
+            SetIsBookLayoutReady(true),
+        );
+
+        return () => window.cancelAnimationFrame(Frame);
+    }, []);
+
+    useEffect(() => () =>
+    {
+        if(SpatialTransitionTimerReference.current !== null)
+        {
+            window.clearTimeout(
+                SpatialTransitionTimerReference.current,
+            );
+        }
+
+        SpatialTransitionFrameReferences.current.forEach(
+            (Frame) => window.cancelAnimationFrame(Frame),
+        );
+    }, []);
+
+    useEffect(() =>
+    {
+        const PreviousPage = PreviousReaderPageReference.current;
+
+        if(PreviousPage === Controller.ReaderPage)
+        {
+            return;
+        }
+
+        if(Controller.ViewMode !== 'scroll')
+        {
+            WritingFlipBookReference.current
+                ?.pageFlip()
+                ?.turnToPage(Controller.ReaderPage);
+        }
+
+        PreviousReaderPageReference.current = Controller.ReaderPage;
+    }, [Article, Controller.ReaderPage, Controller.ViewMode]);
 
     if(Article === null)
     {
         return null;
     }
 
-    const Pages = Controller.ViewMode === 'scroll'
-        ? Article.Pages
-        : Article.Pages.slice(
-            Controller.ReaderPage,
-            Controller.ReaderPage + Controller.VisiblePageCount,
-        );
-    const ProgressPageCount = Controller.ViewMode === 'scroll'
-        ? 1
-        : Pages.length;
-    const Progress = Math.min(
-        100,
-        ((Controller.ReaderPage + ProgressPageCount) / Article.Pages.length) * 100,
+    const ForwardDirection = GetWritingPageTransitionDirection(
+        Controller.ReaderPage,
+        Controller.ReaderPage + 1,
+        Article.Pages.map((Page) => Page.ForwardDirection),
     );
+    const BackDirection = Controller.ReaderPage === 0
+        ? null
+        : GetWritingPageTransitionDirection(
+            Controller.ReaderPage,
+            Controller.ReaderPage - 1,
+            Article.Pages.map((Page) => Page.ForwardDirection),
+        );
     const ReaderStyle = {
         '--reader-font-size': `${Controller.ReaderFontSize}px`,
         '--reader-line-height': Controller.ReaderLineHeight,
@@ -458,28 +603,296 @@ function Reader({ Controller }: WritingArchiveSectionProps)
         await ReaderReference.current?.requestFullscreen();
     }
 
-    function ScrollReaderToPage(Page: number)
+    function CompleteSpatialTransition(
+        Transition: WritingSpatialTransition,
+    )
     {
-        requestAnimationFrame(() =>
+        PreviousReaderPageReference.current = Transition.TargetPage;
+        Controller.SetReaderPage(Transition.TargetPage);
+        SetSpatialTransition(null);
+        SpatialPointerReference.current = null;
+        SpatialTransitionTimerReference.current = null;
+    }
+
+    function FinishSpatialTransition(
+        Transition: WritingSpatialTransition,
+    )
+    {
+        const SettlingTransition: WritingSpatialTransition = {
+            ...Transition,
+            Phase: 'settling',
+            Progress: 1,
+        };
+        SetSpatialTransition(SettlingTransition);
+
+        if(SpatialTransitionTimerReference.current !== null)
         {
-            ReaderCanvasReference.current
-                ?.querySelector(`[data-reader-page-index="${Page}"]`)
-                ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            window.clearTimeout(
+                SpatialTransitionTimerReference.current,
+            );
+        }
+
+        SpatialTransitionTimerReference.current = window.setTimeout(
+            () => CompleteSpatialTransition(SettlingTransition),
+            WritingSpatialTransitionDuration,
+        );
+    }
+
+    function CancelSpatialTransition(
+        Transition: WritingSpatialTransition,
+    )
+    {
+        SetSpatialTransition({
+            ...Transition,
+            OffsetX: 0,
+            OffsetY: 0,
+            Phase: 'settling',
+            Progress: 0,
         });
+        SpatialTransitionTimerReference.current = window.setTimeout(() =>
+        {
+            SetSpatialTransition(null);
+            SpatialTransitionTimerReference.current = null;
+        }, WritingSpatialTransitionDuration);
+    }
+
+    function StartSpatialTransition(TargetPage: number)
+    {
+        const FromPage = Controller.ReaderPage;
+
+        if(
+            SpatialTransition !== null
+            || TargetPage === FromPage
+            || TargetPage < 0
+            || TargetPage > Controller.MaximumReaderPage
+        )
+        {
+            return;
+        }
+
+        const Transition: WritingSpatialTransition = {
+            Direction: GetWritingPageTransitionDirection(
+                FromPage,
+                TargetPage,
+                Controller.ReaderArticle?.Pages.map(
+                    (Page) => Page.ForwardDirection,
+                ) ?? [],
+            ),
+            FromPage,
+            Id: Date.now(),
+            OffsetX: 0,
+            OffsetY: 0,
+            Phase: 'ready',
+            Progress: 0,
+            TargetPage,
+        };
+        SetSpatialTransition(Transition);
+        const FirstFrame = window.requestAnimationFrame(() =>
+        {
+            const SecondFrame = window.requestAnimationFrame(() =>
+                FinishSpatialTransition(Transition),
+            );
+            SpatialTransitionFrameReferences.current.push(SecondFrame);
+        });
+        SpatialTransitionFrameReferences.current.push(FirstFrame);
+    }
+
+    function FindSpatialDragTarget(
+        DeltaX: number,
+        DeltaY: number,
+    ): Pick<WritingSpatialTransition, 'Direction' | 'TargetPage'> | null
+    {
+        const DragDirection: WritingPageDirection =
+            Math.abs(DeltaX) >= Math.abs(DeltaY)
+                ? DeltaX < 0 ? 'right' : 'left'
+                : DeltaY < 0 ? 'down' : 'up';
+
+        if(
+            Controller.ReaderPage < Controller.MaximumReaderPage
+            && ForwardDirection === DragDirection
+        )
+        {
+            return {
+                Direction: DragDirection,
+                TargetPage: Controller.ReaderPage + 1,
+            };
+        }
+
+        if(BackDirection === DragDirection)
+        {
+            return {
+                Direction: DragDirection,
+                TargetPage: Controller.ReaderPage - 1,
+            };
+        }
+
+        return null;
+    }
+
+    function HandleSpatialPointerDown(
+        Event: ReactPointerEvent<HTMLDivElement>,
+    )
+    {
+        if(
+            Controller.ViewMode !== 'scroll'
+            || SpatialTransition !== null
+            || Event.button !== 0
+            || (
+                Event.target instanceof Element
+                && Event.target.closest('button, a') !== null
+            )
+        )
+        {
+            return;
+        }
+
+        SpatialPointerReference.current = {
+            PointerId: Event.pointerId,
+            StartTime: performance.now(),
+            StartX: Event.clientX,
+            StartY: Event.clientY,
+        };
+        Event.currentTarget.setPointerCapture(Event.pointerId);
+    }
+
+    function HandleSpatialPointerMove(
+        Event: ReactPointerEvent<HTMLDivElement>,
+    )
+    {
+        const Pointer = SpatialPointerReference.current;
+
+        if(
+            Pointer === null
+            || Pointer.PointerId !== Event.pointerId
+        )
+        {
+            return;
+        }
+
+        const DeltaX = Event.clientX - Pointer.StartX;
+        const DeltaY = Event.clientY - Pointer.StartY;
+
+        if(
+            SpatialTransition === null
+            && Math.hypot(DeltaX, DeltaY) < 8
+        )
+        {
+            return;
+        }
+
+        const Target = SpatialTransition
+            ?? FindSpatialDragTarget(DeltaX, DeltaY);
+
+        if(Target === null)
+        {
+            return;
+        }
+
+        Event.preventDefault();
+        const MaximumX = Event.currentTarget.clientWidth * .96;
+        const MaximumY = Event.currentTarget.clientHeight * .96;
+        const OffsetX =
+            Target.Direction === 'right'
+                ? Math.max(-MaximumX, Math.min(0, DeltaX))
+                : Target.Direction === 'left'
+                    ? Math.min(MaximumX, Math.max(0, DeltaX))
+                    : 0;
+        const OffsetY =
+            Target.Direction === 'down'
+                ? Math.max(-MaximumY, Math.min(0, DeltaY))
+                : Target.Direction === 'up'
+                    ? Math.min(MaximumY, Math.max(0, DeltaY))
+                    : 0;
+        SetSpatialTransition({
+            Direction: Target.Direction,
+            FromPage: Controller.ReaderPage,
+            Id: SpatialTransition?.Id ?? Date.now(),
+            OffsetX,
+            OffsetY,
+            Phase: 'dragging',
+            Progress: Math.min(
+                1,
+                Math.hypot(
+                    OffsetX / Event.currentTarget.clientWidth,
+                    OffsetY / Event.currentTarget.clientHeight,
+                ),
+            ),
+            TargetPage: Target.TargetPage,
+        });
+    }
+
+    function HandleSpatialPointerEnd(
+        Event: ReactPointerEvent<HTMLDivElement>,
+    )
+    {
+        const Pointer = SpatialPointerReference.current;
+        const Transition = SpatialTransition;
+
+        if(
+            Pointer === null
+            || Pointer.PointerId !== Event.pointerId
+        )
+        {
+            return;
+        }
+
+        SpatialPointerReference.current = null;
+
+        if(Event.currentTarget.hasPointerCapture(Event.pointerId))
+        {
+            Event.currentTarget.releasePointerCapture(Event.pointerId);
+        }
+
+        if(Transition === null || Transition.Phase !== 'dragging')
+        {
+            SetSpatialTransition(null);
+            return;
+        }
+
+        const IsHorizontal =
+            Transition.Direction === 'left'
+            || Transition.Direction === 'right';
+        const Distance = Math.abs(
+            IsHorizontal ? Transition.OffsetX : Transition.OffsetY,
+        );
+        const FrameSize = IsHorizontal
+            ? Event.currentTarget.clientWidth
+            : Event.currentTarget.clientHeight;
+        const Elapsed = Math.max(
+            performance.now() - Pointer.StartTime,
+            1,
+        );
+
+        if(
+            Distance >= FrameSize * .16
+            || (Distance >= 24 && Distance / Elapsed >= .5)
+        )
+        {
+            FinishSpatialTransition(Transition);
+            return;
+        }
+
+        CancelSpatialTransition(Transition);
     }
 
     function ChangeReaderPage(Page: number)
     {
-        Controller.SetReaderPage(Page);
-
         if(Controller.ViewMode === 'scroll')
         {
-            ScrollReaderToPage(Page);
+            StartSpatialTransition(Page);
+            return;
         }
+
+        WritingFlipBookReference.current
+            ?.pageFlip()
+            ?.flip(Page, 'bottom');
     }
 
     function ChangeViewMode(Mode: WritingViewMode)
     {
+        SetIsFlipAnimating(false);
+        SetSpatialTransition(null);
+        SpatialPointerReference.current = null;
         Controller.ChangeViewMode(Mode);
         SetViewTransition({ Id: Date.now(), Mode });
     }
@@ -495,6 +908,11 @@ function Reader({ Controller }: WritingArchiveSectionProps)
         const Target = Event.target;
 
         if(!(Target instanceof Element))
+        {
+            return;
+        }
+
+        if(Target.closest(`.${Styles.InteractionGuard}`) !== null)
         {
             return;
         }
@@ -549,7 +967,6 @@ function Reader({ Controller }: WritingArchiveSectionProps)
                 >
                     <ListIcon />
                 </button>
-                <strong>{Article.Title}</strong>
                 <div className={Styles.ReaderActions}>
                     <div className={Styles.ViewMenuWrap} data-reader-view-menu>
                         <button
@@ -561,15 +978,18 @@ function Reader({ Controller }: WritingArchiveSectionProps)
                         </button>
                         {Controller.IsViewMenuOpen ? (
                             <div className={Styles.ViewMenu}>
-                                <button type="button" onClick={() => ChangeViewMode('single')}>
-                                    <span><ViewStyleIcon Mode="single" /></span> 한 페이지 보기
-                                </button>
-                                <button type="button" onClick={() => ChangeViewMode('spread')}>
-                                    <span><ViewStyleIcon Mode="spread" /></span> 두 페이지 보기
-                                </button>
-                                <button type="button" onClick={() => ChangeViewMode('scroll')}>
-                                    <span><ViewStyleIcon Mode="scroll" /></span> 스크롤 보기
-                                </button>
+                                {Article.EnabledViewModes?.includes('book')
+                                    ?? true ? (
+                                    <button type="button" onClick={() => ChangeViewMode('spread')}>
+                                        <span><ViewStyleIcon Mode="spread" /></span> 책넘김 보기
+                                    </button>
+                                ) : null}
+                                {Article.EnabledViewModes?.includes('scroll')
+                                    ?? true ? (
+                                    <button type="button" onClick={() => ChangeViewMode('scroll')}>
+                                        <span><ViewStyleIcon Mode="scroll" /></span> 상하좌우 보기
+                                    </button>
+                                ) : null}
                             </div>
                         ) : null}
                     </div>
@@ -597,14 +1017,6 @@ function Reader({ Controller }: WritingArchiveSectionProps)
                     >
                         <SearchIcon />
                     </button>
-                    <button
-                        type="button"
-                        className={Styles.CloseReader}
-                        onClick={Controller.CloseReader}
-                        aria-label="글 닫기"
-                    >
-                        <BookmarkIcon />
-                    </button>
                 </div>
             </div>
             {ViewTransition ? (
@@ -628,7 +1040,7 @@ function Reader({ Controller }: WritingArchiveSectionProps)
                             const Page = Controller.ChangeReaderSearchQuery(Event.currentTarget.value);
                             if(typeof Page === 'number')
                             {
-                                ScrollReaderToPage(Page);
+                                ChangeReaderPage(Page);
                             }
                         }}
                         placeholder="본문에서 검색"
@@ -647,7 +1059,7 @@ function Reader({ Controller }: WritingArchiveSectionProps)
                             const Page = Controller.MoveReaderSearchMatch(-1);
                             if(typeof Page === 'number')
                             {
-                                ScrollReaderToPage(Page);
+                                ChangeReaderPage(Page);
                             }
                         }}
                         aria-label="이전 검색 결과"
@@ -657,7 +1069,7 @@ function Reader({ Controller }: WritingArchiveSectionProps)
                         disabled={Controller.ReaderSearchMatches.length === 0}
                         onClick={() => {
                             const Page = Controller.MoveReaderSearchMatch(1);
-                            if(typeof Page === 'number') ScrollReaderToPage(Page);
+                            if(typeof Page === 'number') ChangeReaderPage(Page);
                         }}
                         aria-label="다음 검색 결과"
                     >↓</button>
@@ -669,82 +1081,182 @@ function Reader({ Controller }: WritingArchiveSectionProps)
                 </div>
             ) : null}
             <div
-                ref={ReaderCanvasReference}
                 className={Styles.ReaderCanvas}
-                onScroll={(Event) => {
-                    if(Controller.ViewMode !== 'scroll')
-                    {
-                        return;
-                    }
-                    const Element = Event.currentTarget;
-                    const ScrollRange = Element.scrollHeight - Element.clientHeight;
-                    const Page = ScrollRange <= 0
-                        ? 0
-                        : Math.round((Element.scrollTop / ScrollRange) * Controller.MaximumReaderPage);
-                    Controller.SetReaderPage(Page);
-                }}
+                data-dragging={
+                    SpatialTransition?.Phase === 'dragging'
+                }
+                onDragStart={(Event) => Event.preventDefault()}
+                onPointerDown={HandleSpatialPointerDown}
+                onPointerMove={HandleSpatialPointerMove}
+                onPointerUp={HandleSpatialPointerEnd}
+                onPointerCancel={HandleSpatialPointerEnd}
             >
-                {Controller.ViewMode !== 'scroll' ? <button
-                    type="button"
-                    className={`${Styles.PageArrow} ${Styles.PageArrowPrevious}`}
-                    disabled={Controller.ReaderPage === 0}
-                    onClick={Controller.PreviousReaderPage}
-                    aria-label="이전 페이지"
-                >
-                    ‹
-                </button> : null}
-                <div className={Styles.PageSpread}>
-                    {Pages.map((Page, Index) => (
-                        <ReaderPage
-                            key={`${Article.Id}-${Page.Heading}`}
-                            Page={Page}
-                            PageNumber={
-                                Controller.ViewMode === 'scroll'
-                                    ? Index + 1
-                                    : Controller.ReaderPage + Index + 1
+                {Controller.ViewMode !== 'scroll' && IsBookLayoutReady ? (
+                    <div className={Styles.WritingBookStage}>
+                        <HTMLFlipBook
+                            ref={WritingFlipBookReference}
+                            className={Styles.WritingFlipBook}
+                            style={{}}
+                            width={500}
+                            height={640}
+                            size="stretch"
+                            minWidth={260}
+                            maxWidth={505}
+                            minHeight={340}
+                            maxHeight={645}
+                            startPage={Controller.ReaderPage}
+                            drawShadow
+                            flippingTime={900}
+                            usePortrait
+                            startZIndex={10}
+                            autoSize
+                            maxShadowOpacity={0.22}
+                            showCover={false}
+                            mobileScrollSupport={false}
+                            clickEventForward
+                            useMouseEvents
+                            swipeDistance={24}
+                            showPageCorners={false}
+                            disableFlipByClick={false}
+                            renderOnlyPageLengthChange
+                            onFlip={(Event: WritingFlipEvent) =>
+                            {
+                                PreviousReaderPageReference.current =
+                                    Event.data;
+                                Controller.SetReaderPage(Event.data);
+                            }}
+                            onChangeState={(Event: WritingFlipStateEvent) =>
+                                SetIsFlipAnimating(
+                                    Event.data === 'flipping',
+                                )
                             }
-                            SearchQuery={Controller.ReaderSearchQuery}
+                        >
+                            {Article.Pages.map((Page, Index) => (
+                                <WritingFlipPage
+                                    key={`${Article.Id}-${Page.Heading}`}
+                                    Children={
+                                        <ReaderPage
+                                            Page={Page}
+                                            PageNumber={Index}
+                                            PageNumberColor={Article.PageNumberColor ?? '#222222'}
+                                            PageNumberOpacity={Article.PageNumberOpacity ?? .58}
+                                            SearchQuery={Controller.ReaderSearchQuery}
+                                        />
+                                    }
+                                />
+                            ))}
+                        </HTMLFlipBook>
+                    </div>
+                ) : (
+                    SpatialTransition !== null
+                    && Controller.ViewMode === 'scroll' ? (
+                        <div
+                            key={SpatialTransition.Id}
+                            className={Styles.SpatialTransitionStage}
+                            data-completing={
+                                SpatialTransition.Progress === 1
+                            }
+                            data-direction={SpatialTransition.Direction}
+                            data-phase={SpatialTransition.Phase}
+                        >
+                            <div
+                                className={Styles.SpatialTransitionSlide}
+                                style={{
+                                    opacity:
+                                        1 - SpatialTransition.Progress,
+                                }}
+                            >
+                                <div className={Styles.PageSpread}>
+                                    <ReaderPage
+                                        Page={Article.Pages[
+                                            SpatialTransition.FromPage
+                                        ]}
+                                        PageNumber={SpatialTransition.FromPage}
+                                        PageNumberColor={Article.PageNumberColor ?? '#222222'}
+                                        PageNumberOpacity={Article.PageNumberOpacity ?? .58}
+                                        SearchQuery={Controller.ReaderSearchQuery}
+                                    />
+                                </div>
+                            </div>
+                            <div
+                                className={Styles.SpatialTransitionSlide}
+                                style={{
+                                    opacity: SpatialTransition.Progress,
+                                }}
+                            >
+                                <div className={Styles.PageSpread}>
+                                    <ReaderPage
+                                        Page={Article.Pages[
+                                            SpatialTransition.TargetPage
+                                        ]}
+                                        PageNumber={SpatialTransition.TargetPage}
+                                        PageNumberColor={Article.PageNumberColor ?? '#222222'}
+                                        PageNumberOpacity={Article.PageNumberOpacity ?? .58}
+                                        SearchQuery={Controller.ReaderSearchQuery}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className={Styles.PageSpread}>
+                            <ReaderPage
+                                Page={Article.Pages[Controller.ReaderPage]}
+                                PageNumber={Controller.ReaderPage}
+                                PageNumberColor={Article.PageNumberColor ?? '#222222'}
+                                PageNumberOpacity={Article.PageNumberOpacity ?? .58}
+                                SearchQuery={Controller.ReaderSearchQuery}
+                            />
+                        </div>
+                    )
+                )}
+                {Controller.ViewMode === 'scroll' && BackDirection !== null ? (
+                    <button
+                        type="button"
+                        className={Styles.PageArrow}
+                        data-direction={BackDirection}
+                        onClick={() => StartSpatialTransition(
+                            Controller.ReaderPage - 1,
+                        )}
+                        aria-label="이전 페이지"
+                    />
+                ) : null}
+                {Controller.ViewMode === 'scroll'
+                    && Controller.ReaderPage < Controller.MaximumReaderPage ? (
+                        <button
+                            type="button"
+                            className={Styles.PageArrow}
+                            data-direction={ForwardDirection}
+                            onClick={() => StartSpatialTransition(
+                                Controller.ReaderPage + 1,
+                            )}
+                            aria-label="다음 페이지"
                         />
-                    ))}
-                </div>
-                {Controller.ViewMode !== 'scroll' ? <button
-                    type="button"
-                    className={`${Styles.PageArrow} ${Styles.PageArrowNext}`}
-                    disabled={Controller.ReaderPage >= Controller.MaximumReaderPage}
-                    onClick={Controller.NextReaderPage}
-                    aria-label="다음 페이지"
-                >
-                    ›
-                </button> : null}
+                    ) : null}
             </div>
             <footer className={Styles.ReaderProgress}>
-                <input
-                    type="range"
-                    min="0"
-                    max={Controller.MaximumReaderPage}
-                    value={Math.min(Controller.ReaderPage, Controller.MaximumReaderPage)}
-                    onChange={(Event) => ChangeReaderPage(Number(Event.currentTarget.value))}
-                    style={{ '--reader-progress': `${Progress}%` } as CSSProperties}
-                    aria-label="읽기 진행 위치"
-                />
-                <div>
-                    <span aria-hidden="true">ⓘ</span>
-                    <strong>{Math.round(Progress)}%</strong>
-                    <span>/ {Article.Pages.length}장</span>
-                </div>
+                {Controller.ReaderPage} / {Article.Pages.length}
             </footer>
-            {Controller.IsContentsOpen ? (
-                <ContentsDrawer
-                    Article={Article}
-                    CurrentPage={Controller.ReaderPage}
-                    OnClose={() => Controller.SetIsContentsOpen(false)}
-                    OnSelectPage={(Page) => {
-                        ChangeReaderPage(Page);
-                        Controller.SetIsContentsOpen(false);
-                    }}
+            <ContentsDrawer
+                Article={Article}
+                CurrentPage={Controller.ReaderPage}
+                IsBookView={Controller.ViewMode !== 'scroll'}
+                IsOpen={Controller.IsContentsOpen}
+                OnClose={() => Controller.SetIsContentsOpen(false)}
+                OnSelectPage={ChangeReaderPage}
+            />
+            <ReaderSettings
+                Controller={Controller}
+                IsOpen={Controller.IsSettingsOpen}
+            />
+            {IsFlipAnimating || (
+                SpatialTransition?.Phase === 'settling'
+                && SpatialTransition.Progress === 1
+            ) ? (
+                <span
+                    className={Styles.InteractionGuard}
+                    aria-hidden="true"
                 />
             ) : null}
-            {Controller.IsSettingsOpen ? <ReaderSettings Controller={Controller} /> : null}
         </section>
     );
 }
@@ -754,6 +1266,195 @@ export function WritingArchiveSection({ Controller }: WritingArchiveSectionProps
     const [EditingCategory, SetEditingCategory] =
         useState<string | null>(null);
     const [CategoryDraft, SetCategoryDraft] = useState('');
+    const BookShelfReference = useRef<HTMLDivElement>(null);
+    const ArticleDragPreviewReference = useRef<HTMLDivElement>(null);
+    const ArticleDragPointReference = useRef({ X: 0, Y: 0 });
+    const NativeDragImageReference = useRef<HTMLSpanElement>(null);
+    const ShelfWheelFrameReference = useRef<number | null>(null);
+    const ShelfWheelTargetReference = useRef(0);
+    const ShelfDragReference = useRef<{
+        PointerId: number;
+        StartX: number;
+        StartScrollLeft: number;
+    } | null>(null);
+    const SuppressBookClickReference = useRef(false);
+
+    useEffect(() =>
+    {
+        const Shelf = BookShelfReference.current;
+
+        if(Shelf === null)
+        {
+            return;
+        }
+
+        const HandleWheel = (Event: WheelEvent) =>
+        {
+            const Delta = Math.abs(Event.deltaY) >= Math.abs(Event.deltaX)
+                ? Event.deltaY
+                : Event.deltaX;
+            const MaximumScroll = Shelf.scrollWidth - Shelf.clientWidth;
+
+            Event.preventDefault();
+
+            if(MaximumScroll <= 0)
+            {
+                return;
+            }
+
+            ShelfWheelTargetReference.current = Math.max(
+                0,
+                Math.min(
+                    MaximumScroll,
+                    ShelfWheelFrameReference.current === null
+                        ? Shelf.scrollLeft + Delta
+                        : ShelfWheelTargetReference.current + Delta,
+                ),
+            );
+
+            if(ShelfWheelFrameReference.current !== null)
+            {
+                return;
+            }
+
+            Shelf.dataset.wheelScrolling = 'true';
+            const MoveShelf = () =>
+            {
+                const Distance =
+                    ShelfWheelTargetReference.current - Shelf.scrollLeft;
+
+                if(Math.abs(Distance) < .5)
+                {
+                    Shelf.scrollLeft = ShelfWheelTargetReference.current;
+                    ShelfWheelFrameReference.current = null;
+                    delete Shelf.dataset.wheelScrolling;
+                    return;
+                }
+
+                Shelf.scrollLeft += Distance * .18;
+                ShelfWheelFrameReference.current =
+                    window.requestAnimationFrame(MoveShelf);
+            };
+
+            ShelfWheelFrameReference.current =
+                window.requestAnimationFrame(MoveShelf);
+        };
+
+        Shelf.addEventListener('wheel', HandleWheel, { passive: false });
+        return () =>
+        {
+            Shelf.removeEventListener('wheel', HandleWheel);
+            if(ShelfWheelFrameReference.current !== null)
+            {
+                window.cancelAnimationFrame(ShelfWheelFrameReference.current);
+            }
+        };
+    }, []);
+
+    useEffect(() =>
+    {
+        BookShelfReference.current?.scrollTo({ left: 0, behavior: 'smooth' });
+    }, [Controller.ActiveCategory]);
+
+    function PositionArticleDragPreview(X: number, Y: number)
+    {
+        const Preview = ArticleDragPreviewReference.current;
+
+        if(Preview === null || (X === 0 && Y === 0))
+        {
+            return;
+        }
+
+        ArticleDragPointReference.current = { X, Y };
+        Preview.style.transform =
+            `translate3d(${X}px, ${Y}px, 0) translate(-50%, -50%) rotate(1.2deg)`;
+    }
+
+    function StartArticleDragPreview(
+        Event: ReactDragEvent<HTMLElement>,
+        ArticleId: string,
+    )
+    {
+        ArticleDragPointReference.current = {
+            X: Event.clientX,
+            Y: Event.clientY,
+        };
+        Event.dataTransfer.effectAllowed = 'move';
+
+        if(NativeDragImageReference.current !== null)
+        {
+            Event.dataTransfer.setDragImage(
+                NativeDragImageReference.current,
+                0,
+                0,
+            );
+        }
+
+        Controller.StartArticleDrag(ArticleId);
+        window.requestAnimationFrame(() => PositionArticleDragPreview(
+            ArticleDragPointReference.current.X,
+            ArticleDragPointReference.current.Y,
+        ));
+    }
+
+    function StartShelfDrag(Event: ReactPointerEvent<HTMLDivElement>)
+    {
+        if(Controller.IsAuthenticated || Event.button !== 0)
+        {
+            return;
+        }
+
+        ShelfDragReference.current = {
+            PointerId: Event.pointerId,
+            StartX: Event.clientX,
+            StartScrollLeft: Event.currentTarget.scrollLeft,
+        };
+        SuppressBookClickReference.current = false;
+    }
+
+    function MoveShelfDrag(Event: ReactPointerEvent<HTMLDivElement>)
+    {
+        const Drag = ShelfDragReference.current;
+
+        if(Drag === null || Drag.PointerId !== Event.pointerId)
+        {
+            return;
+        }
+
+        const Distance = Event.clientX - Drag.StartX;
+
+        if(Math.abs(Distance) >= 4)
+        {
+            SuppressBookClickReference.current = true;
+            Event.currentTarget.dataset.panning = 'true';
+
+            if(Event.currentTarget.hasPointerCapture(Event.pointerId) === false)
+            {
+                Event.currentTarget.setPointerCapture(Event.pointerId);
+            }
+        }
+
+        Event.currentTarget.scrollLeft = Drag.StartScrollLeft - Distance;
+    }
+
+    function EndShelfDrag(Event: ReactPointerEvent<HTMLDivElement>)
+    {
+        if(ShelfDragReference.current?.PointerId !== Event.pointerId)
+        {
+            return;
+        }
+
+        ShelfDragReference.current = null;
+        delete Event.currentTarget.dataset.panning;
+        if(Event.currentTarget.hasPointerCapture(Event.pointerId))
+        {
+            Event.currentTarget.releasePointerCapture(Event.pointerId);
+        }
+        window.setTimeout(() =>
+        {
+            SuppressBookClickReference.current = false;
+        });
+    }
 
     async function CommitCategoryRename(Category: string)
     {
@@ -763,13 +1464,33 @@ export function WritingArchiveSection({ Controller }: WritingArchiveSectionProps
         }
     }
 
-    if(Controller.ReaderArticle !== null)
-    {
-        return <Reader Controller={Controller} />;
-    }
+    const HeadingStyle: CSSProperties = {
+        color: Controller.WritingPageHeading.Color ?? 'var(--writing-ink)',
+        fontFamily: Controller.WritingPageHeading.Font,
+        fontSize: `${Controller.WritingPageHeading.Size}px`,
+    };
+    const DescriptionStyle: CSSProperties = {
+        color:
+            Controller.WritingPageDescription.Color
+            ?? 'var(--writing-muted)',
+        fontFamily: Controller.WritingPageDescription.Font,
+        fontSize: `${Controller.WritingPageDescription.Size}px`,
+    };
+    const DraggedArticle = Controller.VisibleArticles.find(
+        (Article) => Article.Id === Controller.DraggedArticleId,
+    );
 
     return (
         <section className={Styles.Archive} data-ue-component="WritingArchiveSection">
+            <div className={Styles.Heading}>
+                <p>{FormatArchiveIndex(Controller.ArchiveDates)}</p>
+                <h1 style={HeadingStyle}>
+                    {Controller.WritingPageHeading.Text}
+                </h1>
+                <span style={DescriptionStyle}>
+                    {Controller.WritingPageDescription.Text}
+                </span>
+            </div>
             <div className={Styles.ArchiveTools}>
                 <nav className={Styles.CategoryTabs} aria-label="글 카테고리">
                     {Controller.Categories.map((Category) => (
@@ -880,18 +1601,29 @@ export function WritingArchiveSection({ Controller }: WritingArchiveSectionProps
                     ) : null}
                 </div>
             </div>
-            {Controller.CategoryNotice ? (
-                <p className={Styles.CategoryNotice} role="status">
-                    {Controller.CategoryNotice}
-                </p>
-            ) : null}
-            {Controller.ArticleOrderNotice ? (
-                <p className={Styles.CategoryNotice} role="status">
-                    {Controller.ArticleOrderNotice}
-                </p>
-            ) : null}
+            <NoticeToast
+                Message={
+                    Controller.ArticleOrderNotice
+                    || Controller.CategoryNotice
+                }
+            />
             <div
                 className={Styles.BookShelf}
+                ref={BookShelfReference}
+                data-pan-enabled={!Controller.IsAuthenticated}
+                data-reordering={Controller.DraggedArticleId !== null}
+                onPointerDown={StartShelfDrag}
+                onPointerMove={MoveShelfDrag}
+                onPointerUp={EndShelfDrag}
+                onPointerCancel={EndShelfDrag}
+                onClickCapture={(Event) =>
+                {
+                    if(SuppressBookClickReference.current)
+                    {
+                        Event.preventDefault();
+                        Event.stopPropagation();
+                    }
+                }}
                 onMouseLeave={() => Controller.SetPreviewArticleId(null)}
             >
                 {Controller.VisibleArticles.length > 0 ? (
@@ -904,12 +1636,20 @@ export function WritingArchiveSection({ Controller }: WritingArchiveSectionProps
                                 key={Article.Id}
                                 data-article-id={Article.Id}
                                 data-active={IsActive}
+                                data-custom-thumbnail={
+                                    Article.TextLayers !== undefined
+                                }
                                 data-dragging={Controller.DraggedArticleId === Article.Id}
                                 draggable={
                                     Controller.IsAuthenticated
                                     && Controller.IsArticleOrderSaving === false
                                 }
-                                onDragStart={() => Controller.StartArticleDrag(Article.Id)}
+                                onDragStart={(Event) =>
+                                    StartArticleDragPreview(Event, Article.Id)}
+                                onDrag={(Event) => PositionArticleDragPreview(
+                                    Event.clientX,
+                                    Event.clientY,
+                                )}
                                 onDragEnter={() => Controller.MoveArticleDrag(Article.Id)}
                                 onDragOver={(Event) => Event.preventDefault()}
                                 onDragEnd={() => void Controller.EndArticleDrag()}
@@ -922,7 +1662,14 @@ export function WritingArchiveSection({ Controller }: WritingArchiveSectionProps
                                 onFocus={() => Controller.SetPreviewArticleId(Article.Id)}
                                 style={{
                                     '--book-random-edge': CreatePaperEdge(Article.Id),
-                                    backgroundImage: `linear-gradient(180deg, rgb(0 0 0 / 2%), rgb(0 0 0 / 34%)), url(${Article.Image})`,
+                                    viewTransitionName:
+                                        Controller.DraggedArticleId === null
+                                            ? undefined
+                                            : `writing-book-${Article.Id}`,
+                                    backgroundImage:
+                                        Article.TextLayers === undefined
+                                            ? `linear-gradient(180deg, rgb(0 0 0 / 2%), rgb(0 0 0 / 34%)), url(${Article.Image})`
+                                            : `url(${Article.Image})`,
                                 } as CSSProperties}
                             >
                                 <button
@@ -932,9 +1679,29 @@ export function WritingArchiveSection({ Controller }: WritingArchiveSectionProps
                                     aria-label={`${Article.Title} 읽기`}
                                 />
                                 <span className={Styles.BookCategory}>{Article.Category}</span>
+                                {Article.TextLayers?.map((Layer) => (
+                                    <span
+                                        key={Layer.Id}
+                                        className={Styles.BookTextLayer}
+                                        style={{
+                                            color: Layer.Color,
+                                            fontFamily: Layer.FontFamily,
+                                            fontSize: `${Layer.FontSize}px`,
+                                            fontWeight: Layer.FontWeight,
+                                            left: `${Layer.X}%`,
+                                            top: `${Layer.Y}%`,
+                                        }}
+                                    >
+                                        {Layer.Text}
+                                    </span>
+                                ))}
                                 <div className={Styles.BookDetails}>
-                                    <h2>{Article.Title}</h2>
-                                    <p>{Article.Summary}</p>
+                                    {(Article.TextLayers?.length ?? 0) === 0 ? (
+                                        <>
+                                            <h2>{Article.Title}</h2>
+                                            <p>{Article.Summary}</p>
+                                        </>
+                                    ) : null}
                                     <span>{Article.Date} <i /> {Article.ReadTime}</span>
                                 </div>
                                 {Controller.IsAuthenticated ? (
@@ -951,18 +1718,41 @@ export function WritingArchiveSection({ Controller }: WritingArchiveSectionProps
                     <p className={Styles.EmptyArchive}>검색 결과가 없습니다.</p>
                 )}
             </div>
-            <nav className={Styles.ArchivePagination} aria-label="글 목록 페이지">
-                {Array.from({ length: Controller.ArchivePages }, (_, Index) => Index + 1).map((Page) => (
-                    <button
-                        type="button"
-                        key={Page}
-                        data-active={Controller.ArchivePage === Page}
-                        onClick={() => Controller.SetArchivePage(Page)}
-                    >
-                        {Page}
-                    </button>
-                ))}
-            </nav>
+            <span
+                ref={NativeDragImageReference}
+                className={Styles.NativeDragImage}
+                aria-hidden="true"
+            />
+            {DraggedArticle !== undefined ? (
+                <div
+                    ref={ArticleDragPreviewReference}
+                    className={Styles.ArticleDragPreview}
+                    style={{
+                        backgroundImage:
+                            DraggedArticle.TextLayers === undefined
+                                ? `linear-gradient(180deg, rgb(0 0 0 / 2%), rgb(0 0 0 / 34%)), url(${DraggedArticle.Image})`
+                                : `url(${DraggedArticle.Image})`,
+                    }}
+                    aria-hidden="true"
+                >
+                    {DraggedArticle.TextLayers?.map((Layer) => (
+                        <span
+                            key={Layer.Id}
+                            className={Styles.BookTextLayer}
+                            style={{
+                                color: Layer.Color,
+                                fontFamily: Layer.FontFamily,
+                                fontSize: `${Layer.FontSize}px`,
+                                fontWeight: Layer.FontWeight,
+                                left: `${Layer.X}%`,
+                                top: `${Layer.Y}%`,
+                            }}
+                        >
+                            {Layer.Text}
+                        </span>
+                    ))}
+                </div>
+            ) : null}
         </section>
     );
 }

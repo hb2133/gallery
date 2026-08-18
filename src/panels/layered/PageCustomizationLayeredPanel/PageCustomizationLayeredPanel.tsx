@@ -12,6 +12,7 @@ const ContentByKind = {
     start: ArchiveStrings.Customization.Start,
     photo: ArchiveStrings.Customization.Photo,
     media: ArchiveStrings.Customization.Media,
+    writing: ArchiveStrings.Customization.Writing,
 } as const satisfies Record<PageCustomizationKind, object>;
 
 export function PageCustomizationLayeredPanel(

@@ -11,7 +11,7 @@ export interface PhotoPageCustomizationLayeredPanelProps
     Description: PageTextCustomization;
     Heading: PageTextCustomization;
     IsSaving: boolean;
-    Kind?: 'media' | 'photo';
+    Kind?: 'media' | 'photo' | 'writing';
     Notice: string;
     OnChange: (
         Update: Partial<PageTextCustomization>,

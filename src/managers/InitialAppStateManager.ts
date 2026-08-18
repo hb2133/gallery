@@ -7,9 +7,14 @@ import {
     NormalizePhotoPosts,
 } from '@/managers/PhotoPostManager';
 import {
+    DefaultWritingPageDescription,
     DefaultWritingPageCategories,
+    DefaultWritingPageHeading,
     NormalizeWritingArticleOrder,
+    NormalizeWritingPageDescription,
     NormalizeWritingPageCategories,
+    NormalizeWritingPageHeading,
+    type WritingPageTextCustomization,
 } from '@/managers/WritingPageCategoryManager';
 import {
     NormalizeWritingPosts,
@@ -81,6 +86,8 @@ export interface InitialAppState
     PhotoPageHeading: PhotoPageHeadingCustomization;
     StartPageCustomization: StartPageCustomization;
     WritingPageCategories: string[];
+    WritingPageDescription: WritingPageTextCustomization;
+    WritingPageHeading: WritingPageTextCustomization;
     WritingArticleOrder: string[];
     WritingPosts: WritingSavedPost[];
     WritingReaderPreferences: WritingReaderPreferences;
@@ -321,15 +328,12 @@ export async function LoadInitialAppState():
             Supabase.rpc('load_photo_posts'),
             Supabase
                 .from('writing_page_settings')
-                .select('categories, article_order')
+                .select(
+                    'categories, article_order, heading_text, heading_style, description_text, description_style',
+                )
                 .eq('id', true)
                 .maybeSingle(),
-            Supabase
-                .from('writing_posts')
-                .select(
-                    'id, category, title, summary, content_html, is_private, updated_at',
-                )
-                .order('updated_at', { ascending: false }),
+            Supabase.rpc('load_writing_posts'),
             Supabase
                 .from('media_posts')
                 .select(
@@ -416,6 +420,22 @@ export async function LoadInitialAppState():
                     WritingPageSettingsResult.data.article_order,
                 )
                 : [];
+        const WritingPageHeading =
+            WritingPageSettingsResult.error === null
+            && WritingPageSettingsResult.data !== null
+                ? NormalizeWritingPageHeading(
+                    WritingPageSettingsResult.data.heading_text,
+                    WritingPageSettingsResult.data.heading_style,
+                )
+                : { ...DefaultWritingPageHeading };
+        const WritingPageDescription =
+            WritingPageSettingsResult.error === null
+            && WritingPageSettingsResult.data !== null
+                ? NormalizeWritingPageDescription(
+                    WritingPageSettingsResult.data.description_text,
+                    WritingPageSettingsResult.data.description_style,
+                )
+                : { ...DefaultWritingPageDescription };
         const WritingPosts = WritingPostsResult.error === null
             ? NormalizeWritingPosts(WritingPostsResult.data)
             : [];
@@ -442,6 +462,8 @@ export async function LoadInitialAppState():
             StartPageCustomization:
                 NormalizeStartPageCustomization(SettingsRow),
             WritingPageCategories,
+            WritingPageDescription,
+            WritingPageHeading,
             WritingArticleOrder,
             WritingPosts,
             WritingReaderPreferences,
@@ -483,6 +505,12 @@ export async function LoadInitialAppState():
             WritingPageCategories: [
                 ...DefaultWritingPageCategories,
             ],
+            WritingPageDescription: {
+                ...DefaultWritingPageDescription,
+            },
+            WritingPageHeading: {
+                ...DefaultWritingPageHeading,
+            },
             WritingArticleOrder: [],
             WritingPosts: [],
             WritingReaderPreferences,

@@ -85,6 +85,18 @@ export const ArchiveStrings = {
             ],
             Footer: '추가 설정은 이 목록에 같은 방식으로 확장됩니다.',
         },
+        Writing: {
+            Title: '글 페이지 설정',
+            Description: '수정할 설정 항목을 선택하세요.',
+            Options: [
+                {
+                    Title: '상단 제목',
+                    Description: '글 페이지의 제목과 오른쪽 소개 문구를 변경합니다.',
+                    CurrentValue: '문구 · 글자 스타일',
+                },
+            ],
+            Footer: '추가 설정은 이 목록에 같은 방식으로 확장됩니다.',
+        },
     },
     Media: {
         Title: 'Motion Archive',

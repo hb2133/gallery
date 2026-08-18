@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { UseAuthSession } from '@/app/shell/AuthSessionProvider';
 import { UseInitialAppState } from '@/app/shell/InitialAppStateProvider';
 import { RenameArchiveCategory } from '@/managers/ArchiveCategoryManager';
@@ -8,10 +9,15 @@ import {
     LoadWritingPageCategories,
     SaveWritingArticleOrder,
     SaveWritingPageCategories,
+    SaveWritingPageIntroduction,
+    type WritingPageTextCustomization,
 } from '@/managers/WritingPageCategoryManager';
 import {
+    DeleteWritingPost,
+    LoadWritingPostPassword,
     LoadWritingPosts,
     SaveWritingPost,
+    UnlockWritingPost,
     UploadWritingCover,
     type WritingSavedPost,
 } from '@/managers/WritingPostManager';
@@ -19,8 +25,14 @@ import {
     DefaultWritingReaderPreferences,
     SaveWritingReaderPreferences,
 } from '@/managers/WritingReaderPreferenceManager';
-import type { WritingPostDraft } from '@/panels/layered/WritingPostEditorLayeredPanel/WritingPostEditorLayeredPanel';
-import { WritingArticles } from './WritingBasePanelState';
+import type {
+    WritingPostCopyData,
+    WritingPostDraft,
+} from '@/panels/layered/WritingPostEditorLayeredPanel/WritingPostEditorLayeredPanel';
+import {
+    ShouldPromptForWritingPassword,
+    WritingArticles,
+} from './WritingBasePanelState';
 import type {
     WritingArticle,
     WritingReaderAlignment,
@@ -28,8 +40,6 @@ import type {
     WritingReaderTone,
     WritingViewMode,
 } from './WritingBasePanelTypes';
-
-const ArticlesPerPage = 7;
 
 function FindReaderMatches(Article: WritingArticle | null, Query: string)
 {
@@ -71,7 +81,28 @@ export function useWritingBasePanelController()
     ]);
     const [ActiveCategory, SetActiveCategory] = useState('전체');
     const [SearchQuery, SetSearchQuery] = useState('');
-    const [ArchivePage, SetArchivePage] = useState(1);
+    const [WritingPageHeading, SetWritingPageHeading] =
+        useState<WritingPageTextCustomization>(
+            InitialState.WritingPageHeading,
+        );
+    const [WritingPageDescription, SetWritingPageDescription] =
+        useState<WritingPageTextCustomization>(
+            InitialState.WritingPageDescription,
+        );
+    const [DraftWritingPageHeading, SetDraftWritingPageHeading] =
+        useState<WritingPageTextCustomization>({
+            ...InitialState.WritingPageHeading,
+        });
+    const [DraftWritingPageDescription, SetDraftWritingPageDescription] =
+        useState<WritingPageTextCustomization>({
+            ...InitialState.WritingPageDescription,
+        });
+    const [CustomizationView, SetCustomizationView] =
+        useState<'menu' | 'heading' | null>(null);
+    const [IsWritingPageHeadingSaving, SetIsWritingPageHeadingSaving] =
+        useState(false);
+    const [WritingPageHeadingNotice, SetWritingPageHeadingNotice] =
+        useState('');
     const [PreviewArticleId, SetPreviewArticleId] =
         useState<string | null>(null);
     const [ReaderArticleId, SetReaderArticleId] =
@@ -124,6 +155,16 @@ export function useWritingBasePanelController()
         useState<string | null>(null);
     const [IsPostSaving, SetIsPostSaving] = useState(false);
     const [PostEditorNotice, SetPostEditorNotice] = useState('');
+    const [CopiedWritingPost, SetCopiedWritingPost] =
+        useState<WritingPostCopyData | null>(null);
+    const [EditingPassword, SetEditingPassword] =
+        useState<string | null>(null);
+    const [PasswordPromptArticle, SetPasswordPromptArticle] =
+        useState<WritingArticle | null>(null);
+    const [UnlockedArticleIds, SetUnlockedArticleIds] =
+        useState<string[]>([]);
+    const [IsPasswordUnlocking, SetIsPasswordUnlocking] = useState(false);
+    const [PasswordUnlockNotice, SetPasswordUnlockNotice] = useState('');
     const [ArticleOrder, SetArticleOrder] = useState(
         InitialState.WritingArticleOrder,
     );
@@ -143,17 +184,29 @@ export function useWritingBasePanelController()
             AvailableCategories.includes(Category)
                 ? Category
                 : FallbackCategory;
-        const StaticArticles = WritingArticles.map((Article) =>
-        {
-            const Saved = SavedPosts.find((Post) => Post.Id === Article.Id);
-            const Resolved = Saved ?? Article;
+        const DeletedArticleIds = new Set(
+            SavedPosts
+                .filter((Post) => Post.IsDeleted)
+                .map((Post) => Post.Id),
+        );
+        const AvailableSavedPosts = SavedPosts.filter(
+            (Post) => Post.IsDeleted === false,
+        );
+        const StaticArticles = WritingArticles
+            .filter((Article) => DeletedArticleIds.has(Article.Id) === false)
+            .map((Article) =>
+            {
+                const Saved = AvailableSavedPosts.find(
+                    (Post) => Post.Id === Article.Id,
+                );
+                const Resolved = Saved ?? Article;
 
-            return {
-                ...Resolved,
-                Category: MapCategory(Resolved.Category),
-            };
-        });
-        const AddedArticles = SavedPosts
+                return {
+                    ...Resolved,
+                    Category: MapCategory(Resolved.Category),
+                };
+            });
+        const AddedArticles = AvailableSavedPosts
             .filter((Post) => WritingArticles.some(
                 (Article) => Article.Id === Post.Id,
             ) === false)
@@ -168,7 +221,9 @@ export function useWritingBasePanelController()
 
         return [...StaticArticles, ...AddedArticles].filter((Article) =>
         {
-            const Saved = SavedPosts.find((Post) => Post.Id === Article.Id);
+            const Saved = AvailableSavedPosts.find(
+                (Post) => Post.Id === Article.Id,
+            );
             return Saved?.IsPrivate !== true || IsAuthenticated;
         }).sort((Left, Right) =>
             (OrderIndexes.get(Left.Id) ?? Number.MAX_SAFE_INTEGER)
@@ -188,24 +243,16 @@ export function useWritingBasePanelController()
                     .includes(Query)),
         );
     }, [ActiveCategory, AllArticles, SearchQuery]);
-    const ArchivePages = Math.max(
-        1,
-        Math.ceil(FilteredArticles.length / ArticlesPerPage),
-    );
-    const VisibleArticles = FilteredArticles.slice(
-        (ArchivePage - 1) * ArticlesPerPage,
-        ArchivePage * ArticlesPerPage,
-    );
+    const VisibleArticles = FilteredArticles;
     const ReaderArticle = AllArticles.find(
         (Article) => Article.Id === ReaderArticleId,
     ) ?? null;
     const EditingArticle = AllArticles.find(
         (Article) => Article.Id === EditingArticleId,
     ) ?? null;
-    const VisiblePageCount = ViewMode === 'spread' ? 2 : 1;
     const MaximumReaderPage = Math.max(
         0,
-        (ReaderArticle?.Pages.length ?? 1) - VisiblePageCount,
+        (ReaderArticle?.Pages.length ?? 1) - 1,
     );
     const ReaderSearchMatches = useMemo(
         () => FindReaderMatches(ReaderArticle, ReaderSearchQuery),
@@ -214,12 +261,14 @@ export function useWritingBasePanelController()
 
     useEffect(() =>
     {
-        if(IsAuthenticated === false)
-        {
-            return;
-        }
-
         let IsMounted = true;
+        queueMicrotask(() =>
+        {
+            if(IsMounted)
+            {
+                SetUnlockedArticleIds([]);
+            }
+        });
 
         void Promise.all([
             LoadWritingPosts(),
@@ -270,6 +319,47 @@ export function useWritingBasePanelController()
 
     function OpenArticle(ArticleId: string)
     {
+        const Article = AllArticles.find(
+            (Candidate) => Candidate.Id === ArticleId,
+        );
+
+        if(
+            Article !== undefined
+            && ShouldPromptForWritingPassword(
+                Article.IsPasswordProtected === true,
+                IsAuthenticated,
+                UnlockedArticleIds.includes(ArticleId),
+            )
+        )
+        {
+            SetPasswordUnlockNotice('');
+            SetPasswordPromptArticle(Article);
+            return;
+        }
+
+        ShowArticle(ArticleId);
+    }
+
+    function ShowArticle(ArticleId: string)
+    {
+        const Article = AllArticles.find(
+            (Candidate) => Candidate.Id === ArticleId,
+        );
+        const EnabledViewModes = Article?.EnabledViewModes
+            ?? ['book', 'scroll'];
+        const PreferredViewMode = ViewMode === 'scroll'
+            ? 'scroll'
+            : 'book';
+
+        if(EnabledViewModes.includes(PreferredViewMode) === false)
+        {
+            SetViewMode(
+                EnabledViewModes.includes('book')
+                    ? 'spread'
+                    : 'scroll',
+            );
+        }
+
         SetReaderArticleId(ArticleId);
         SetReaderPage(0);
         SetIsContentsOpen(false);
@@ -280,29 +370,193 @@ export function useWritingBasePanelController()
         SetReaderSearchMatchIndex(0);
     }
 
+    function ClosePasswordPrompt()
+    {
+        if(IsPasswordUnlocking)
+        {
+            return;
+        }
+
+        SetPasswordPromptArticle(null);
+        SetPasswordUnlockNotice('');
+    }
+
+    async function UnlockProtectedWritingPost(Password: string)
+    {
+        if(PasswordPromptArticle === null || IsPasswordUnlocking)
+        {
+            return;
+        }
+
+        SetIsPasswordUnlocking(true);
+        SetPasswordUnlockNotice('');
+
+        try
+        {
+            const Unlocked = await UnlockWritingPost(
+                PasswordPromptArticle.Id,
+                Password,
+            );
+            SetSavedPosts((Current) => Current.map((Post) =>
+                Post.Id === Unlocked.Id ? Unlocked : Post,
+            ));
+            SetUnlockedArticleIds((Current) => [
+                ...Current.filter((Id) => Id !== Unlocked.Id),
+                Unlocked.Id,
+            ]);
+            SetPasswordPromptArticle(null);
+            ShowArticle(Unlocked.Id);
+        }
+        catch
+        {
+            SetPasswordUnlockNotice('비밀번호가 올바르지 않습니다.');
+        }
+        finally
+        {
+            SetIsPasswordUnlocking(false);
+        }
+    }
+
     function ChangeCategory(Category: string)
     {
-        SetActiveCategory(Category);
-        SetArchivePage(1);
-        SetPreviewArticleId(null);
+        if(Category === ActiveCategory)
+        {
+            return;
+        }
+
+        const ApplyCategory = () =>
+        {
+            SetActiveCategory(Category);
+            SetPreviewArticleId(null);
+        };
+
+        if(
+            typeof document.startViewTransition !== 'function'
+            || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        )
+        {
+            ApplyCategory();
+            return;
+        }
+
+        document.startViewTransition(() => flushSync(ApplyCategory));
     }
 
     function ChangeSearchQuery(Query: string)
     {
         SetSearchQuery(Query);
-        SetArchivePage(1);
         SetPreviewArticleId(null);
+    }
+
+    function OpenCustomization()
+    {
+        SetWritingPageHeadingNotice('');
+        SetCustomizationView('menu');
+    }
+
+    function OpenCustomizationOption(OptionIndex: number)
+    {
+        if(OptionIndex !== 0)
+        {
+            return;
+        }
+
+        SetDraftWritingPageHeading({ ...WritingPageHeading });
+        SetDraftWritingPageDescription({ ...WritingPageDescription });
+        SetWritingPageHeadingNotice('');
+        SetCustomizationView('heading');
+    }
+
+    function CloseCustomization()
+    {
+        if(IsWritingPageHeadingSaving === false)
+        {
+            SetCustomizationView(null);
+        }
+    }
+
+    function ReturnToCustomizationMenu()
+    {
+        if(IsWritingPageHeadingSaving === false)
+        {
+            SetCustomizationView('menu');
+        }
+    }
+
+    function UpdateWritingPageHeading(
+        Update: Partial<WritingPageTextCustomization>,
+    )
+    {
+        SetDraftWritingPageHeading((Current) => ({
+            ...Current,
+            ...Update,
+        }));
+    }
+
+    function UpdateWritingPageDescription(
+        Update: Partial<WritingPageTextCustomization>,
+    )
+    {
+        SetDraftWritingPageDescription((Current) => ({
+            ...Current,
+            ...Update,
+        }));
+    }
+
+    async function SaveWritingPageHeadingCustomization()
+    {
+        if(IsAuthenticated === false || IsWritingPageHeadingSaving)
+        {
+            return;
+        }
+
+        SetIsWritingPageHeadingSaving(true);
+        SetWritingPageHeadingNotice('');
+
+        try
+        {
+            const Saved = await SaveWritingPageIntroduction(
+                DraftWritingPageHeading,
+                DraftWritingPageDescription,
+            );
+            SetWritingPageHeading(Saved.Heading);
+            SetWritingPageDescription(Saved.Description);
+            SetDraftWritingPageHeading({ ...Saved.Heading });
+            SetDraftWritingPageDescription({ ...Saved.Description });
+            SetCustomizationView(null);
+        }
+        catch
+        {
+            SetWritingPageHeadingNotice(
+                '글 페이지 제목 설정을 저장하지 못했습니다.',
+            );
+        }
+        finally
+        {
+            SetIsWritingPageHeadingSaving(false);
+        }
     }
 
     function ChangeViewMode(Mode: WritingViewMode)
     {
+        const EnabledViewModes = ReaderArticle?.EnabledViewModes
+            ?? ['book', 'scroll'];
+
+        if(
+            (Mode === 'scroll' && !EnabledViewModes.includes('scroll'))
+            || (Mode !== 'scroll' && !EnabledViewModes.includes('book'))
+        )
+        {
+            return;
+        }
+
         SetViewMode(Mode);
         SetReaderPage((Current) => Math.min(
             Current,
             Math.max(
                 0,
                 (ReaderArticle?.Pages.length ?? 1)
-                    - (Mode === 'spread' ? 2 : 1),
+                    - 1,
             ),
         ));
         SetIsViewMenuOpen(false);
@@ -355,7 +609,15 @@ export function useWritingBasePanelController()
         SetReaderPadding(Defaults.Padding);
         SetReaderVerticalPadding(Defaults.VerticalPadding);
         SetIsIndented(Defaults.IsIndented);
-        SetViewMode(Defaults.ViewMode);
+        const EnabledViewModes = ReaderArticle?.EnabledViewModes
+            ?? ['book', 'scroll'];
+        const ResetViewMode = Defaults.ViewMode === 'scroll'
+            && EnabledViewModes.includes('scroll')
+                ? Defaults.ViewMode
+                : EnabledViewModes.includes('book')
+                    ? 'spread'
+                    : 'scroll';
+        SetViewMode(ResetViewMode);
         SaveWritingReaderPreferences(Defaults);
         SetReaderSettingsNotice('기본 설정으로 초기화했습니다.');
     }
@@ -497,15 +759,33 @@ export function useWritingBasePanelController()
         }
     }
 
-    function OpenPostEditor(Article: WritingArticle | null = null)
+    async function OpenPostEditor(Article: WritingArticle | null = null)
     {
         if(IsAuthenticated === false)
         {
             return;
         }
 
-        SetEditingArticleId(Article?.Id ?? null);
         SetPostEditorNotice('');
+        SetEditingPassword(null);
+
+        if(Article?.IsPasswordProtected === true)
+        {
+            try
+            {
+                SetEditingPassword(
+                    await LoadWritingPostPassword(Article.Id),
+                );
+            }
+            catch
+            {
+                SetPostEditorNotice(
+                    '기존 비밀번호를 불러오지 못했습니다.',
+                );
+            }
+        }
+
+        SetEditingArticleId(Article?.Id ?? null);
         SetIsPostEditorOpen(true);
     }
 
@@ -534,14 +814,26 @@ export function useWritingBasePanelController()
                 ReadTime: '',
                 Image,
                 IsPrivate: Draft.IsPrivate,
+                IsContentLocked: false,
+                IsDeleted: false,
+                IsPasswordProtected:
+                    Draft.PasswordUpdate === null
+                        ? Draft.IsPrivate === false
+                            && EditingArticle?.IsPasswordProtected === true
+                        : Draft.PasswordUpdate !== '',
+                EnabledViewModes: Draft.EnabledViewModes,
+                PageNumberColor: Draft.PageNumberColor,
+                PageNumberOpacity: Draft.PageNumberOpacity,
+                TextLayers: Draft.TextLayers,
                 Pages: Draft.Pages.map((Page) => ({
+                    ForwardDirection: Page.ForwardDirection,
                     Heading: Page.Heading.trim() || Draft.Title,
                     Paragraphs: Page.Content
                         .split(/\n{2,}/)
                         .map((Paragraph) => Paragraph.trim())
                         .filter(Boolean),
                 })),
-            });
+            }, Draft.PasswordUpdate);
 
             SetSavedPosts((Current) => [
                 Saved,
@@ -549,6 +841,7 @@ export function useWritingBasePanelController()
             ]);
             SetIsPostEditorOpen(false);
             SetEditingArticleId(null);
+            SetEditingPassword(null);
             SetPreviewArticleId(null);
         }
         catch(CaughtError)
@@ -557,8 +850,77 @@ export function useWritingBasePanelController()
                 CaughtError instanceof Error
                 && CaughtError.message === 'file_too_large'
                     ? '표지 이미지는 25MB 이하만 업로드할 수 있습니다.'
+                    : CaughtError instanceof Error
+                    && CaughtError.message === 'invalid_writing_password'
+                        ? 'Password는 4자 이상 72자 이하로 입력해주세요.'
                     : '글을 저장하지 못했습니다.',
             );
+        }
+        finally
+        {
+            SetIsPostSaving(false);
+        }
+    }
+
+    function CopyPost(CopyData: WritingPostCopyData)
+    {
+        SetCopiedWritingPost({
+            CoverFile: CopyData.CoverFile,
+            Draft: {
+                ...CopyData.Draft,
+                Pages: CopyData.Draft.Pages.map((Page) => ({ ...Page })),
+                TextLayers: CopyData.Draft.TextLayers.map(
+                    (Layer) => ({ ...Layer }),
+                ),
+            },
+        });
+        SetPostEditorNotice('복사했습니다. 새 글에서 붙여넣을 수 있습니다.');
+    }
+
+    async function DeletePost()
+    {
+        if(
+            IsAuthenticated === false
+            || IsPostSaving
+            || EditingArticle === null
+        )
+        {
+            return;
+        }
+
+        const Post = SavedPosts.find(
+            (Candidate) => Candidate.Id === EditingArticle.Id,
+        ) ?? {
+            ...EditingArticle,
+            EnabledViewModes: EditingArticle.EnabledViewModes
+                ?? ['book', 'scroll'],
+            IsContentLocked: false,
+            IsDeleted: false,
+            IsPasswordProtected: false,
+            IsPrivate: false,
+            PageNumberColor: EditingArticle.PageNumberColor ?? '#222222',
+            PageNumberOpacity: EditingArticle.PageNumberOpacity ?? .58,
+            TextLayers: EditingArticle.TextLayers ?? [],
+        };
+
+        SetIsPostSaving(true);
+        SetPostEditorNotice('');
+
+        try
+        {
+            await DeleteWritingPost(Post);
+            SetSavedPosts((Current) => [
+                { ...Post, IsDeleted: true },
+                ...Current.filter((Item) => Item.Id !== Post.Id),
+            ]);
+            SetIsPostEditorOpen(false);
+            SetEditingArticleId(null);
+            SetEditingPassword(null);
+            SetPreviewArticleId(null);
+        }
+        catch
+        {
+            SetPostEditorNotice('글을 삭제하지 못했습니다.');
         }
         finally
         {
@@ -579,6 +941,15 @@ export function useWritingBasePanelController()
         SetPreviewArticleId(null);
         SetDraggedArticleId(ArticleId);
         SetArticleOrderNotice('');
+
+        if(
+            typeof document.startViewTransition === 'function'
+            && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                === false
+        )
+        {
+            document.documentElement.dataset.writingReordering = 'true';
+        }
     }
 
     function MoveArticleDrag(TargetArticleId: string)
@@ -603,12 +974,28 @@ export function useWritingBasePanelController()
         const NextOrder = [...CurrentOrder];
         const [MovedId] = NextOrder.splice(FromIndex, 1);
         NextOrder.splice(ToIndex, 0, MovedId);
-        DraggedArticleOrderReference.current = NextOrder;
-        SetArticleOrder(NextOrder);
+        const ApplyOrder = () =>
+        {
+            DraggedArticleOrderReference.current = NextOrder;
+            SetArticleOrder(NextOrder);
+        };
+
+        if(
+            typeof document.startViewTransition !== 'function'
+            || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        )
+        {
+            ApplyOrder();
+            return;
+        }
+
+        document.startViewTransition(() => flushSync(ApplyOrder));
     }
 
     async function EndArticleDrag()
     {
+        delete document.documentElement.dataset.writingReordering;
+
         if(DraggedArticleId === null)
         {
             return;
@@ -636,12 +1023,16 @@ export function useWritingBasePanelController()
 
     return {
         ActiveCategory,
+        ArchiveDates: AllArticles.map((Article) => Article.Date),
         ArticleOrderNotice,
-        ArchivePage,
-        ArchivePages,
         Categories,
         CategoryNotice,
+        CopiedWritingPost,
+        CustomizationView,
+        DraftWritingPageDescription,
+        DraftWritingPageHeading,
         EditingArticle,
+        EditingPassword,
         DraggedArticleId,
         IsAuthenticated,
         IsArticleOrderSaving,
@@ -649,13 +1040,17 @@ export function useWritingBasePanelController()
         IsCategorySaving,
         IsContentsOpen,
         IsIndented,
+        IsPasswordUnlocking,
         IsPostEditorOpen,
         IsPostSaving,
         IsReaderSearchOpen,
         IsSettingsOpen,
         IsViewMenuOpen,
+        IsWritingPageHeadingSaving,
         MaximumReaderPage,
         NewCategoryName,
+        PasswordPromptArticle,
+        PasswordUnlockNotice,
         PostEditorNotice,
         PreviewArticleId,
         ReaderAlignment,
@@ -675,28 +1070,40 @@ export function useWritingBasePanelController()
         SearchQuery,
         ViewMode,
         VisibleArticles,
-        VisiblePageCount,
+        WritingPageDescription,
+        WritingPageHeading,
+        WritingPageHeadingNotice,
         ChangeReaderSearchQuery,
         ChangeViewMode,
-        ClosePostEditor: () => SetIsPostEditorOpen(false),
+        ClosePasswordPrompt,
+        CloseCustomization,
+        ClosePostEditor: () =>
+        {
+            SetIsPostEditorOpen(false);
+            SetEditingPassword(null);
+        },
         CloseReader: () => SetReaderArticleId(null),
         CreateCategory,
         DeleteCategory,
+        DeletePost,
         EndArticleDrag,
         MoveReaderSearchMatch,
         MoveArticleDrag,
         NextReaderPage: () => SetReaderPage((Current) =>
             Math.min(MaximumReaderPage, Current + 1)),
         OpenArticle,
+        OpenCustomization,
+        OpenCustomizationOption,
         OpenPostEditor,
         PreviousReaderPage: () => SetReaderPage((Current) =>
             Math.max(0, Current - 1)),
         RenameCategory,
+        ReturnToCustomizationMenu,
         ResetSettings,
         SaveReaderSettings,
         SavePost,
+        SaveWritingPageHeadingCustomization,
         SetActiveCategory: ChangeCategory,
-        SetArchivePage,
         SetIsCategoryEditorOpen,
         SetIsContentsOpen,
         SetIsIndented,
@@ -714,7 +1121,11 @@ export function useWritingBasePanelController()
         SetReaderParagraphGap,
         SetReaderTone,
         SetReaderVerticalPadding,
+        UpdateWritingPageDescription,
+        UpdateWritingPageHeading,
         SetSearchQuery: ChangeSearchQuery,
         StartArticleDrag,
+        CopyPost,
+        UnlockProtectedWritingPost,
     };
 }
