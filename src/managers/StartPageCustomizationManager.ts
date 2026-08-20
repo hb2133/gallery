@@ -1,5 +1,6 @@
 import { GetSupabaseBrowserClient } from '@/core/infra/supabase/SupabaseBrowserClient';
 import { CreateUniqueId } from '@/core/identity/UniqueId';
+import { DeleteStoragePublicUrls } from '@/managers/StorageAssetManager';
 import {
     DefaultStartPageCustomization,
     NormalizeCategoryBoxLayouts,
@@ -388,6 +389,23 @@ export async function SaveStartPageCustomization(
         throw new Error('Admin authentication is required.');
     }
 
+    const { data: PreviousSettings, error: PreviousSettingsError } =
+        await Supabase
+            .from('start_page_settings')
+            .select('category_images')
+            .eq('id', 'default')
+            .single();
+
+    if(PreviousSettingsError)
+    {
+        throw PreviousSettingsError;
+    }
+    const PreviousImageUrls = IsRecord(PreviousSettings.category_images)
+        ? Object.values(PreviousSettings.category_images).filter(
+            (Value): Value is string => typeof Value === 'string',
+        )
+        : [];
+
     const { error } = await Supabase
         .from('start_page_settings')
         .update({
@@ -413,6 +431,38 @@ export async function SaveStartPageCustomization(
     {
         throw error;
     }
+
+    await DeleteStartPageCategoryImages(PreviousImageUrls);
+}
+
+export async function DeleteStartPageCategoryImages(
+    PublicUrls: readonly string[],
+): Promise<void>
+{
+    const { data, error } = await GetSupabaseBrowserClient()
+        .from('start_page_settings')
+        .select('category_images')
+        .eq('id', 'default')
+        .single();
+
+    if(error)
+    {
+        return;
+    }
+
+    const RetainedPublicUrls = new Set(
+        IsRecord(data.category_images)
+            ? Object.values(data.category_images).filter(
+                (Value): Value is string => typeof Value === 'string',
+            )
+            : [],
+    );
+    await DeleteStoragePublicUrls(
+        'start-page-images',
+        PublicUrls.filter(
+            (PublicUrl) => RetainedPublicUrls.has(PublicUrl) === false,
+        ),
+    );
 }
 
 export async function UploadStartPageCategoryImage(

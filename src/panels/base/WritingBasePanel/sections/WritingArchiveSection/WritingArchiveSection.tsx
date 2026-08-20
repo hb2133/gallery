@@ -22,7 +22,6 @@ import {
 import type {
     WritingArticle,
     WritingPage,
-    WritingViewMode,
 } from '../../controller/WritingBasePanelTypes';
 import Styles from '../../WritingBasePanel.module.css';
 
@@ -60,35 +59,6 @@ function FullscreenIcon()
             <path d="M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5" />
         </svg>
     );
-}
-
-function ViewStyleIcon({ Mode }: { Mode: WritingViewMode })
-{
-    return (
-        <svg
-            className={Styles.ViewStyleIcon}
-            data-mode={Mode}
-            viewBox="0 0 30 26"
-            aria-hidden="true"
-        >
-            {Mode !== 'scroll' ? (
-                <>
-                    <path d="M2 3h12v20H2zM16 3h12v20H16z" />
-                    <path d="M14 3v20M5 7h6M19 7h6" />
-                </>
-            ) : (
-                <>
-                    <rect x="7" y="2" width="16" height="22" />
-                    <path d="m15 5-3 3m3-3 3 3M15 21l-3-3m3 3 3-3M5 13l3-3m-3 3 3 3M25 13l-3-3m3 3-3 3" />
-                </>
-            )}
-        </svg>
-    );
-}
-
-function GetViewModeLabel(Mode: WritingViewMode): string
-{
-    return Mode === 'scroll' ? '상하좌우 보기' : '책넘김 보기';
 }
 
 interface WritingFlipPageProps
@@ -173,70 +143,6 @@ function HighlightText(Text: string, Query: string): ReactNode
             ? <mark key={`${Part}-${Index}`}>{Part}</mark>
             : Part,
     );
-}
-
-function CreatePaperEdge(Value: string): string
-{
-    let Seed = 2166136261;
-
-    for(const Character of Value)
-    {
-        Seed ^= Character.charCodeAt(0);
-        Seed = Math.imul(Seed, 16777619);
-    }
-
-    function Random()
-    {
-        Seed += 0x6d2b79f5;
-        let Number = Seed;
-        Number = Math.imul(Number ^ (Number >>> 15), Number | 1);
-        Number ^= Number + Math.imul(Number ^ (Number >>> 7), Number | 61);
-        return ((Number ^ (Number >>> 14)) >>> 0) / 4294967296;
-    }
-
-    function EdgeOffset(MaximumDepth: number)
-    {
-        return Random() < .84
-            ? .04 + Random() * .24
-            : .34 + Random() * MaximumDepth;
-    }
-
-    function EdgeStep()
-    {
-        return .8 + Random() * 2.8;
-    }
-
-    const Points: string[] = [];
-    let Position = 0;
-
-    while(Position < 100)
-    {
-        Points.push(`${Position.toFixed(1)}% ${EdgeOffset(.72).toFixed(2)}%`);
-        Position = Math.min(100, Position + EdgeStep());
-    }
-
-    Position = 0;
-    while(Position < 100)
-    {
-        Points.push(`${(100 - EdgeOffset(1.9)).toFixed(2)}% ${Position.toFixed(1)}%`);
-        Position = Math.min(100, Position + EdgeStep());
-    }
-
-    Position = 100;
-    while(Position > 0)
-    {
-        Points.push(`${Position.toFixed(1)}% ${(100 - EdgeOffset(.72)).toFixed(2)}%`);
-        Position = Math.max(0, Position - EdgeStep());
-    }
-
-    Position = 100;
-    while(Position > 0)
-    {
-        Points.push(`${EdgeOffset(1.9).toFixed(2)}% ${Position.toFixed(1)}%`);
-        Position = Math.max(0, Position - EdgeStep());
-    }
-
-    return `polygon(${Points.join(',')})`;
 }
 
 function ReaderPage({
@@ -516,10 +422,6 @@ export function WritingReader({ Controller }: WritingArchiveSectionProps)
         useRef<WritingSpatialPointer | null>(null);
     const SpatialTransitionTimerReference = useRef<number | null>(null);
     const SpatialTransitionFrameReferences = useRef<number[]>([]);
-    const [ViewTransition, SetViewTransition] = useState<{
-        Id: number;
-        Mode: WritingViewMode;
-    } | null>(null);
     const [SpatialTransition, SetSpatialTransition] =
         useState<WritingSpatialTransition | null>(null);
     const [IsBookLayoutReady, SetIsBookLayoutReady] = useState(false);
@@ -888,15 +790,6 @@ export function WritingReader({ Controller }: WritingArchiveSectionProps)
             ?.flip(Page, 'bottom');
     }
 
-    function ChangeViewMode(Mode: WritingViewMode)
-    {
-        SetIsFlipAnimating(false);
-        SetSpatialTransition(null);
-        SpatialPointerReference.current = null;
-        Controller.ChangeViewMode(Mode);
-        SetViewTransition({ Id: Date.now(), Mode });
-    }
-
     function CloseReaderSearch()
     {
         Controller.SetIsReaderSearchOpen(false);
@@ -922,12 +815,6 @@ export function WritingReader({ Controller }: WritingArchiveSectionProps)
             && Target.closest('[data-reader-contents-trigger]') === null)
         {
             Controller.SetIsContentsOpen(false);
-        }
-
-        if(Controller.IsViewMenuOpen
-            && Target.closest('[data-reader-view-menu]') === null)
-        {
-            Controller.SetIsViewMenuOpen(false);
         }
 
         if(Controller.IsSettingsOpen
@@ -968,31 +855,6 @@ export function WritingReader({ Controller }: WritingArchiveSectionProps)
                     <ListIcon />
                 </button>
                 <div className={Styles.ReaderActions}>
-                    <div className={Styles.ViewMenuWrap} data-reader-view-menu>
-                        <button
-                            type="button"
-                            onClick={() => Controller.SetIsViewMenuOpen(!Controller.IsViewMenuOpen)}
-                            aria-label="페이지 보기 방식"
-                        >
-                            <ViewStyleIcon Mode={Controller.ViewMode} />
-                        </button>
-                        {Controller.IsViewMenuOpen ? (
-                            <div className={Styles.ViewMenu}>
-                                {Article.EnabledViewModes?.includes('book')
-                                    ?? true ? (
-                                    <button type="button" onClick={() => ChangeViewMode('spread')}>
-                                        <span><ViewStyleIcon Mode="spread" /></span> 책넘김 보기
-                                    </button>
-                                ) : null}
-                                {Article.EnabledViewModes?.includes('scroll')
-                                    ?? true ? (
-                                    <button type="button" onClick={() => ChangeViewMode('scroll')}>
-                                        <span><ViewStyleIcon Mode="scroll" /></span> 상하좌우 보기
-                                    </button>
-                                ) : null}
-                            </div>
-                        ) : null}
-                    </div>
                     <button
                         type="button"
                         aria-label="전체 화면 전환"
@@ -1019,17 +881,6 @@ export function WritingReader({ Controller }: WritingArchiveSectionProps)
                     </button>
                 </div>
             </div>
-            {ViewTransition ? (
-                <div
-                    key={ViewTransition.Id}
-                    className={Styles.ViewTransitionGuide}
-                    role="status"
-                    onAnimationEnd={() => SetViewTransition(null)}
-                >
-                    <ViewStyleIcon Mode={ViewTransition.Mode} />
-                    <strong>{GetViewModeLabel(ViewTransition.Mode)}</strong>
-                </div>
-            ) : null}
             {Controller.IsReaderSearchOpen ? (
                 <div className={Styles.ReaderSearchPanel} role="search">
                     <SearchIcon />
@@ -1661,7 +1512,6 @@ export function WritingArchiveSection({ Controller }: WritingArchiveSectionProps
                                 }}
                                 onFocus={() => Controller.SetPreviewArticleId(Article.Id)}
                                 style={{
-                                    '--book-random-edge': CreatePaperEdge(Article.Id),
                                     viewTransitionName:
                                         Controller.DraggedArticleId === null
                                             ? undefined

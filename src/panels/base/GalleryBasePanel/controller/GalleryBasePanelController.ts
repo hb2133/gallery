@@ -14,6 +14,7 @@ import {
 } from '@/managers/ThemeManager';
 import {
     CacheStartPageCustomization,
+    DeleteStartPageCategoryImages,
     LoadStartPageCustomization,
     SaveStartPageCustomization,
     UploadStartPageCategoryImage,
@@ -259,6 +260,12 @@ export function useGalleryBasePanelController()
             return;
         }
 
+        void DeleteStartPageCategoryImages(
+            Object.values(DraftCustomization.CategoryImages),
+        );
+        SetDraftCustomization(
+            CloneStartPageCustomization(StartCustomization),
+        );
         SetCustomizationView(null);
     }
 
@@ -569,6 +576,8 @@ export function useGalleryBasePanelController()
 
         try
         {
+            const PreviousImageUrl =
+                DraftCustomization.CategoryImages[Category];
             const ImageUrl =
                 await UploadStartPageCategoryImage(
                     Category,
@@ -585,6 +594,7 @@ export function useGalleryBasePanelController()
                     },
                 };
             });
+            await DeleteStartPageCategoryImages([PreviousImageUrl]);
         }
         catch
         {

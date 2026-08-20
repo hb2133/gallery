@@ -25,13 +25,13 @@ export interface WritingReaderPreferences
 export const DefaultWritingReaderPreferences: WritingReaderPreferences = {
     Alignment: 'left',
     Font: 'sans',
-    FontSize: 18,
+    FontSize: 16,
     IsIndented: false,
-    LineHeight: 1.85,
+    LineHeight: 1.6,
     Padding: 48,
-    ParagraphGap: 24,
+    ParagraphGap: 14,
     Tone: 'light',
-    VerticalPadding: 48,
+    VerticalPadding: 40,
     ViewMode: 'spread',
 };
 
@@ -64,16 +64,42 @@ export function NormalizeWritingReaderPreferences(
         return { ...DefaultWritingReaderPreferences };
     }
 
+    const IsLegacyDensity = Value.FontSize === 18
+        && Value.LineHeight === 1.85
+        && Value.ParagraphGap === 24
+        && Value.VerticalPadding === 48;
+
     return {
         Alignment: Value.Alignment === 'justify' ? 'justify' : 'left',
         Font: ['sans', 'serif', 'rounded', 'mono'].includes(String(Value.Font))
             ? Value.Font as WritingReaderFont
             : DefaultWritingReaderPreferences.Font,
-        FontSize: NormalizeNumber(Value.FontSize, 14, 32, 18),
+        FontSize: IsLegacyDensity
+            ? DefaultWritingReaderPreferences.FontSize
+            : NormalizeNumber(
+                Value.FontSize,
+                14,
+                32,
+                DefaultWritingReaderPreferences.FontSize,
+            ),
         IsIndented: Value.IsIndented === true,
-        LineHeight: NormalizeNumber(Value.LineHeight, 1.3, 2.6, 1.85),
+        LineHeight: IsLegacyDensity
+            ? DefaultWritingReaderPreferences.LineHeight
+            : NormalizeNumber(
+                Value.LineHeight,
+                1.3,
+                2.6,
+                DefaultWritingReaderPreferences.LineHeight,
+            ),
         Padding: NormalizeNumber(Value.Padding, 20, 100, 48),
-        ParagraphGap: NormalizeNumber(Value.ParagraphGap, 8, 48, 24),
+        ParagraphGap: IsLegacyDensity
+            ? DefaultWritingReaderPreferences.ParagraphGap
+            : NormalizeNumber(
+                Value.ParagraphGap,
+                8,
+                48,
+                DefaultWritingReaderPreferences.ParagraphGap,
+            ),
         Tone: [
             'light',
             'paper',
@@ -88,7 +114,14 @@ export function NormalizeWritingReaderPreferences(
         ].includes(String(Value.Tone))
             ? Value.Tone as WritingReaderTone
             : DefaultWritingReaderPreferences.Tone,
-        VerticalPadding: NormalizeNumber(Value.VerticalPadding, 20, 100, 48),
+        VerticalPadding: IsLegacyDensity
+            ? DefaultWritingReaderPreferences.VerticalPadding
+            : NormalizeNumber(
+                Value.VerticalPadding,
+                20,
+                100,
+                DefaultWritingReaderPreferences.VerticalPadding,
+            ),
         ViewMode: ['single', 'spread', 'scroll'].includes(String(Value.ViewMode))
             ? Value.ViewMode as WritingViewMode
             : DefaultWritingReaderPreferences.ViewMode,

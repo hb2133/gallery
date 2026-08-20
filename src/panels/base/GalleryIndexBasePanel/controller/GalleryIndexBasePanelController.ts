@@ -24,6 +24,7 @@ import {
 } from '@/managers/PhotoCardCustomizationManager';
 import {
     CreatePhotoPost,
+    DeletePhotoPostAssets,
     LoadPhotoPosts,
     SavePhotoPostOrder,
     SavePhotoPostContentImages,
@@ -1297,6 +1298,17 @@ export function useGalleryIndexBasePanelController()
                 IsPasswordProtected:
                     SavedCustomization.IsPasswordProtected,
             };
+            const RetainedPublicUrls = new Set([
+                ...SavedItem.ImagePaths,
+                SavedItem.CoverImagePath,
+                SavedCustomization.ThumbnailUrl,
+            ]);
+            await DeletePhotoPostAssets(
+                [Customization.ThumbnailUrl].filter(
+                    (PublicUrl) =>
+                        RetainedPublicUrls.has(PublicUrl) === false,
+                ),
+            );
             SetCardCustomizations((Current) => ({
                 ...Current,
                 [SavedCustomization.CardId]:
@@ -1353,6 +1365,14 @@ export function useGalleryIndexBasePanelController()
                     },
                     null,
                 );
+            if(EditingItem !== null)
+            {
+                await DeletePhotoPostAssets([
+                    ...EditingItem.ImagePaths,
+                    EditingItem.CoverImagePath,
+                    Customization.ThumbnailUrl,
+                ]);
+            }
             SetCardCustomizations((Current) => ({
                 ...Current,
                 [DeletedCustomization.CardId]:

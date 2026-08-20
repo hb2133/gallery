@@ -306,7 +306,6 @@
     box-shadow: 0 6px 18px rgb(20 20 18 / 8%);
     color: #0e0e0c;
     cursor: pointer;
-    clip-path: var(--book-edge, var(--book-random-edge));
     flex: 0 0 128px;
     height: min(56vh, 400px);
     min-width: 82px;
@@ -320,7 +319,6 @@
         flex-basis 720ms cubic-bezier(.2, .72, .2, 1),
         min-width 720ms cubic-bezier(.2, .72, .2, 1),
         height 720ms cubic-bezier(.2, .72, .2, 1),
-        clip-path 520ms cubic-bezier(.22, .68, .18, 1),
         filter 420ms ease;
 }
 
@@ -374,12 +372,10 @@
     height: min(64vh, 520px);
     min-width: min(28vw, 540px);
     z-index: 2;
-    --book-edge: polygon(.35% .15%, 20% .3%, 40% .1%, 60% .3%, 80% .1%, 99.7% .3%, 99.9% 20%, 99.7% 40%, 100% 60%, 99.7% 80%, 99.8% 99.7%, 80% 99.8%, 60% 100%, 40% 99.7%, 20% 100%, .2% 99.7%, .1% 80%, .3% 60%, 0 40%, .3% 20%);
 }
 
 .BookCard[data-active='true'][data-custom-thumbnail='true'] {
     --writing-thumbnail-size: min(480px, 78vw, calc(100dvh - 180px));
-    clip-path: none;
     flex-basis: var(--writing-thumbnail-size);
     height: var(--writing-thumbnail-size);
     min-width: var(--writing-thumbnail-size);
@@ -611,8 +607,7 @@
 }
 
 .ContentsButton,
-.ReaderActions > button,
-.ViewMenuWrap > button {
+.ReaderActions > button {
     align-items: center;
     background: transparent;
     border: 0;
@@ -658,106 +653,6 @@
 
 .FontButton small {
     font-size: 12px;
-}
-
-.ViewMenuWrap {
-    position: relative;
-}
-
-.ViewMenuWrap > button {
-    width: 48px;
-}
-
-.ViewStyleIcon,
-.ReaderActions .ViewStyleIcon {
-    fill: none;
-    height: 26px;
-    overflow: visible;
-    stroke: currentColor;
-    stroke-linecap: square;
-    stroke-linejoin: miter;
-    stroke-width: 1.25;
-    width: 30px;
-}
-
-.ViewMenu {
-    background: var(--reader-background);
-    border: 1px solid color-mix(in srgb, var(--reader-foreground) 18%, transparent);
-    box-shadow: 0 16px 45px rgb(0 0 0 / 10%);
-    display: grid;
-    padding: 8px;
-    position: absolute;
-    right: 0;
-    top: 48px;
-    width: 190px;
-    z-index: 30;
-}
-
-.ViewMenu::before {
-    background: var(--reader-background);
-    border-left: 1px solid color-mix(in srgb, var(--reader-foreground) 18%, transparent);
-    border-top: 1px solid color-mix(in srgb, var(--reader-foreground) 18%, transparent);
-    content: '';
-    height: 10px;
-    position: absolute;
-    right: 17px;
-    top: -6px;
-    transform: rotate(45deg);
-    width: 10px;
-}
-
-.ViewMenu button {
-    align-items: center;
-    background: transparent;
-    border: 0;
-    color: inherit;
-    cursor: pointer;
-    display: flex;
-    font-size: 11px;
-    gap: 14px;
-    padding: 12px;
-    text-align: left;
-}
-
-.ViewMenu button:hover {
-    background: color-mix(in srgb, var(--reader-foreground) 6%, transparent);
-}
-
-.ViewMenu span {
-    display: inline-flex;
-    justify-content: center;
-    width: 34px;
-}
-
-.ViewTransitionGuide {
-    align-items: center;
-    animation: ViewTransitionGuide 1150ms cubic-bezier(.2, .72, .2, 1) both;
-    background: rgb(35 35 34 / 78%);
-    border-radius: 50%;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    height: 154px;
-    justify-content: center;
-    left: 50%;
-    pointer-events: none;
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 154px;
-    z-index: 35;
-}
-
-.ViewTransitionGuide .ViewStyleIcon {
-    height: 42px;
-    stroke-width: 1.6;
-    width: 50px;
-}
-
-.ViewTransitionGuide strong {
-    font-size: 12px;
-    font-weight: 500;
 }
 
 .ReaderCanvas {
@@ -943,15 +838,11 @@
 }
 
 .ReaderPage h2 {
-    font-size: calc(var(--reader-font-size) * 1.55);
+    font-size: calc(var(--reader-font-size) * 1.4);
     font-weight: 600;
     letter-spacing: -.055em;
-    line-height: 1.25;
-    margin: 0 0 1.4em;
-}
-
-.ReaderPage h2 {
-    margin-bottom: 3em;
+    line-height: 1.2;
+    margin: 0 0 .85em;
     text-align: center;
 }
 
@@ -1545,21 +1436,6 @@
     color: var(--reader-background);
 }
 
-@keyframes ViewTransitionGuide {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(.72);
-    }
-    18%, 68% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-    100% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(.94);
-    }
-}
-
 @keyframes WritingSpatialWobble {
     0%,
     100% {
@@ -1701,7 +1577,6 @@
     }
 
     .ReaderActions > button,
-    .ViewMenuWrap > button,
     .ContentsButton {
         width: 38px;
     }
@@ -1753,8 +1628,7 @@
     .BookDetails,
     .ArticleDragPreview,
     .ContentsDrawer,
-    .ReaderSettings,
-    .ViewTransitionGuide {
+    .ReaderSettings {
         transition: none;
         animation-duration: 1ms;
     }

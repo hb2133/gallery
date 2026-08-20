@@ -8,6 +8,7 @@ import {
     NormalizePhotoCardTextLayers,
     type PhotoCardTextLayer,
 } from '@/managers/PhotoCardCustomizationManager';
+import { DeleteStoragePublicUrls } from '@/managers/StorageAssetManager';
 import type {
     WritingArticle,
     WritingEnabledViewMode,
@@ -97,6 +98,37 @@ function SerializeWritingPostContent(Post: WritingSavedPost): string
         })),
         text_layers: Post.TextLayers,
     });
+}
+
+async function DeleteWritingPostAssets(
+    PublicUrls: readonly string[],
+): Promise<void>
+{
+    const { data, error } = await GetSupabaseBrowserClient()
+        .from('writing_posts')
+        .select('is_deleted, thumbnail_url');
+
+    if(error)
+    {
+        // Never delete when the active reference set cannot be verified.
+        return;
+    }
+
+    const Posts = data as {
+        is_deleted: boolean;
+        thumbnail_url: string;
+    }[];
+    const RetainedPublicUrls = new Set(
+        Posts
+            .filter((Post) => Post.is_deleted !== true)
+            .map((Post) => Post.thumbnail_url),
+    );
+    await DeleteStoragePublicUrls(
+        'writing-post-assets',
+        PublicUrls.filter(
+            (PublicUrl) => RetainedPublicUrls.has(PublicUrl) === false,
+        ),
+    );
 }
 
 function NormalizePages(Value: unknown, Title: string): WritingPage[]
@@ -376,6 +408,7 @@ export async function LoadWritingPosts(): Promise<WritingSavedPost[]>
 export async function SaveWritingPost(
     Post: WritingSavedPost,
     PasswordUpdate: string | null,
+    PreviousImageUrl: string | null,
 ): Promise<WritingSavedPost>
 {
     const Password = PasswordUpdate?.trim() ?? null;
@@ -408,24 +441,41 @@ export async function SaveWritingPost(
 
     if(error)
     {
+        if(Post.Image !== PreviousImageUrl)
+        {
+            await DeleteWritingPostAssets([Post.Image]);
+        }
         throw error;
     }
 
-    const IsPasswordProtected = Password === null
-        ? Post.IsPasswordProtected
-        : await SetWritingPostPassword(Post.Id, Password);
-    const Saved = NormalizeWritingPosts([{
-        ...data,
-        is_content_locked: false,
-        is_password_protected: IsPasswordProtected,
-    }])[0];
-
-    if(Saved === undefined)
+    try
     {
-        throw new Error('invalid_saved_writing_post');
-    }
+        const IsPasswordProtected = Password === null
+            ? Post.IsPasswordProtected
+            : await SetWritingPostPassword(Post.Id, Password);
+        const Saved = NormalizeWritingPosts([{
+            ...data,
+            is_content_locked: false,
+            is_password_protected: IsPasswordProtected,
+        }])[0];
 
-    return Saved;
+        if(Saved === undefined)
+        {
+            throw new Error('invalid_saved_writing_post');
+        }
+
+        return Saved;
+    }
+    finally
+    {
+        if(
+            PreviousImageUrl !== null
+            && PreviousImageUrl !== Post.Image
+        )
+        {
+            await DeleteWritingPostAssets([PreviousImageUrl]);
+        }
+    }
 }
 
 export async function DeleteWritingPost(Post: WritingSavedPost): Promise<void>
@@ -449,6 +499,8 @@ export async function DeleteWritingPost(Post: WritingSavedPost): Promise<void>
     {
         throw error;
     }
+
+    await DeleteWritingPostAssets([Post.Image]);
 }
 
 export async function UnlockWritingPost(
@@ -532,6 +584,7 @@ export async function UploadWritingCover(File: File): Promise<string>
     const { error } = await Supabase.storage
         .from('writing-post-assets')
         .upload(Path, File, {
+            cacheControl: '31536000',
             contentType: File.type || undefined,
             upsert: false,
         });

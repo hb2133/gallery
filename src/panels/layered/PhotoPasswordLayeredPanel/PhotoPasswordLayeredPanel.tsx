@@ -38,6 +38,7 @@ export function PhotoPasswordLayeredPanel(
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="photo-password-title"
+                autoComplete="off"
                 onSubmit={(Event) =>
                 {
                     Event.preventDefault();
@@ -51,12 +52,13 @@ export function PhotoPasswordLayeredPanel(
                 <p>{Props.PostTitle}</p>
                 <input
                     type="password"
+                    name="post-access-code"
                     value={Password}
                     minLength={4}
                     maxLength={72}
                     required
                     autoFocus
-                    autoComplete="current-password"
+                    autoComplete="one-time-code"
                     disabled={Props.IsSubmitting}
                     placeholder="Password"
                     aria-label="게시글 비밀번호"

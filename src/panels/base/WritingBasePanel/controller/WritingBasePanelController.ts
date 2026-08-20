@@ -112,7 +112,6 @@ export function useWritingBasePanelController()
         InitialState.WritingReaderPreferences.ViewMode,
     );
     const [IsContentsOpen, SetIsContentsOpen] = useState(false);
-    const [IsViewMenuOpen, SetIsViewMenuOpen] = useState(false);
     const [IsSettingsOpen, SetIsSettingsOpen] = useState(false);
     const [IsReaderSearchOpen, SetIsReaderSearchOpen] = useState(false);
     const [ReaderSearchQuery, SetReaderSearchQuery] = useState('');
@@ -363,7 +362,6 @@ export function useWritingBasePanelController()
         SetReaderArticleId(ArticleId);
         SetReaderPage(0);
         SetIsContentsOpen(false);
-        SetIsViewMenuOpen(false);
         SetIsSettingsOpen(false);
         SetIsReaderSearchOpen(false);
         SetReaderSearchQuery('');
@@ -559,7 +557,6 @@ export function useWritingBasePanelController()
                     - 1,
             ),
         ));
-        SetIsViewMenuOpen(false);
     }
 
     function ChangeReaderSearchQuery(Query: string)
@@ -833,7 +830,7 @@ export function useWritingBasePanelController()
                         .map((Paragraph) => Paragraph.trim())
                         .filter(Boolean),
                 })),
-            }, Draft.PasswordUpdate);
+            }, Draft.PasswordUpdate, EditingArticle?.Image ?? null);
 
             SetSavedPosts((Current) => [
                 Saved,
@@ -1045,7 +1042,6 @@ export function useWritingBasePanelController()
         IsPostSaving,
         IsReaderSearchOpen,
         IsSettingsOpen,
-        IsViewMenuOpen,
         IsWritingPageHeadingSaving,
         MaximumReaderPage,
         NewCategoryName,
@@ -1109,7 +1105,6 @@ export function useWritingBasePanelController()
         SetIsIndented,
         SetIsReaderSearchOpen,
         SetIsSettingsOpen,
-        SetIsViewMenuOpen,
         SetNewCategoryName,
         SetPreviewArticleId,
         SetReaderAlignment,

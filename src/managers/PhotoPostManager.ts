@@ -10,6 +10,7 @@ import {
     type PhotoCardCustomization,
     type PhotoCardTextLayer,
 } from '@/managers/PhotoCardCustomizationManager';
+import { DeleteStoragePublicUrls } from '@/managers/StorageAssetManager';
 import type {
     GalleryDetailViewMode,
 } from '@/panels/base/GalleryBasePanel/controller/GalleryBasePanelTypes';
@@ -62,6 +63,80 @@ export interface PhotoPostCopyData
     PageNumberOpacity: number;
     TextLayers: PhotoCardTextLayer[];
     ThumbnailSource: string | File | null;
+}
+
+export async function DeletePhotoPostAssets(
+    PublicUrls: readonly string[],
+): Promise<void>
+{
+    const Supabase = GetSupabaseBrowserClient();
+    const [PostsResult, CustomizationsResult] = await Promise.all([
+        Supabase
+            .from('photo_posts')
+            .select('id, image_paths, cover_image_path'),
+        Supabase
+            .from('photo_card_customizations')
+            .select('card_id, is_deleted, thumbnail_url'),
+    ]);
+
+    if(PostsResult.error || CustomizationsResult.error)
+    {
+        // Never delete when the active reference set cannot be verified.
+        return;
+    }
+
+    const Posts = PostsResult.data as {
+        cover_image_path: string;
+        id: string;
+        image_paths: unknown;
+    }[];
+    const Customizations = CustomizationsResult.data as {
+        card_id: string;
+        is_deleted: boolean;
+        thumbnail_url: string;
+    }[];
+    const DeletedPostIds = new Set(
+        Customizations
+            .filter((Customization) => Customization.is_deleted === true)
+            .map((Customization) => Customization.card_id),
+    );
+    const RetainedPublicUrls = new Set<string>();
+
+    Posts
+        .filter((Post) => DeletedPostIds.has(Post.id) === false)
+        .forEach((Post) =>
+        {
+            if(Array.isArray(Post.image_paths))
+            {
+                Post.image_paths.forEach((PublicUrl) =>
+                {
+                    if(typeof PublicUrl === 'string')
+                    {
+                        RetainedPublicUrls.add(PublicUrl);
+                    }
+                });
+            }
+            RetainedPublicUrls.add(Post.cover_image_path);
+        });
+    Customizations
+        .filter((Customization) => Customization.is_deleted !== true)
+        .forEach((Customization) =>
+            RetainedPublicUrls.add(Customization.thumbnail_url),
+        );
+    const UnreferencedPublicUrls = PublicUrls.filter(
+        (PublicUrl) => RetainedPublicUrls.has(PublicUrl) === false,
+    );
+
+    await Promise.all([
+        DeleteStoragePublicUrls(
+            'photo-post-images',
+            UnreferencedPublicUrls,
+        ),
+        DeleteStoragePublicUrls(
+            'photo-card-thumbnails',
+            UnreferencedPublicUrls,
+        ),
+    ]);
 }
 
 function NormalizeEnabledViewModes(
@@ -588,6 +663,14 @@ export async function CreatePhotoPost(
 
         CoverImagePath = ThumbnailPath;
     }
+    const UploadedPublicUrls = [
+        ...ImageLayout.flatMap((LayoutItem, Index) =>
+            ContentImages[Index]?.Source instanceof File
+                ? [LayoutItem.ImagePath]
+                : [],
+        ),
+        ...(ThumbnailSource instanceof File ? [CoverImagePath] : []),
+    ];
     const Supabase = GetSupabaseBrowserClient();
     const CreatedAt = new Date().toISOString();
     const { data: PostRow, error: PostError } =
@@ -625,6 +708,7 @@ export async function CreatePhotoPost(
 
     if(PostError)
     {
+        await DeletePhotoPostAssets(UploadedPublicUrls);
         throw PostError;
     }
 
@@ -650,6 +734,7 @@ export async function CreatePhotoPost(
             .from('photo_posts')
             .delete()
             .eq('id', PostId);
+        await DeletePhotoPostAssets(UploadedPublicUrls);
         throw CustomizationError;
     }
 
@@ -707,6 +792,12 @@ export async function SavePhotoPostContentImages(
         ImageLayout.map(
             (LayoutItem) => LayoutItem.ImagePath,
         );
+    const UploadedPublicUrls = ImageLayout.flatMap(
+        (LayoutItem, Index) =>
+            ContentImages[Index]?.Source instanceof File
+                ? [LayoutItem.ImagePath]
+                : [],
+    );
     const Supabase = GetSupabaseBrowserClient();
     const UpdatedAt = new Date().toISOString();
     const { data, error } = await Supabase
@@ -746,6 +837,7 @@ export async function SavePhotoPostContentImages(
 
     if(error)
     {
+        await DeletePhotoPostAssets(UploadedPublicUrls);
         throw error;
     }
 
@@ -755,6 +847,16 @@ export async function SavePhotoPostContentImages(
     {
         throw new Error('invalid_saved_post');
     }
+
+    const RetainedPublicUrls = new Set([
+        ...SavedItem.ImagePaths,
+        SavedItem.CoverImagePath,
+    ]);
+    await DeletePhotoPostAssets(
+        [...Item.ImagePaths, Item.CoverImagePath].filter(
+            (PublicUrl) => RetainedPublicUrls.has(PublicUrl) === false,
+        ),
+    );
 
     return SavedItem;
 }

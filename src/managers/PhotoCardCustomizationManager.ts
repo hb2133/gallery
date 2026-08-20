@@ -1,5 +1,6 @@
 import { GetSupabaseBrowserClient } from '@/core/infra/supabase/SupabaseBrowserClient';
 import { CreateUniqueId } from '@/core/identity/UniqueId';
+import { DeleteStoragePublicUrls } from '@/managers/StorageAssetManager';
 
 const MaximumTextLayerCount = 20;
 const MaximumThumbnailSize = 10 * 1024 * 1024;
@@ -347,6 +348,13 @@ export async function SavePhotoCardCustomization(
 
     if(error)
     {
+        if(ThumbnailFile !== null)
+        {
+            await DeleteStoragePublicUrls(
+                'photo-card-thumbnails',
+                [ThumbnailUrl],
+            );
+        }
         throw error;
     }
 
